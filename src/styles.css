@@ -2183,3 +2183,79 @@ img {
   background: var(--color-go);
   transition: width 0.4s ease;
 }
+
+/* ---------- no zoom, no rubber-band ---------- */
+
+html,
+body {
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  height: 100%;
+  overflow-y: auto;
+  -webkit-touch-callout: none;
+}
+
+/* inner scroll areas stop at their edges instead of dragging the page */
+.listen-grid,
+.album-page,
+.sheet {
+  overscroll-behavior: contain;
+}
+
+/* ---------- hold to open the settings ---------- */
+
+.hold-wrap {
+  position: absolute;
+  top: max(0.75rem, env(safe-area-inset-top));
+  left: max(0.9rem, env(safe-area-inset-left));
+  z-index: 2;
+}
+
+.hold-wrap .level-chip {
+  position: relative;
+  top: auto;
+  left: auto;
+  overflow: hidden;
+  -webkit-touch-callout: none;
+  touch-action: none;
+}
+
+.hold-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgb(76 191 106 / 28%);
+  transform: scaleX(0);
+  transform-origin: left center;
+  pointer-events: none;
+}
+
+.hold-btn.is-holding .hold-fill {
+  transform: scaleX(1);
+  transition: transform var(--hold) linear;
+}
+
+.hold-hint {
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  left: 0;
+  width: max-content;
+  max-width: 14rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 0.8rem;
+  background: var(--color-ink);
+  color: #fff;
+  font: 800 0.8rem/1.25 var(--font-sans);
+  box-shadow: 0 6px 12px -4px rgb(40 30 60 / 40%);
+  animation: fade-in 0.2s ease;
+}

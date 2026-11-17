@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import {
   playClip,
   playTap,
@@ -192,6 +192,82 @@ function OfflineRow() {
   );
 }
 
+const HOLD_MS = 2500;
+
+/**
+ * Opens only after a 2.5 s press, so a child tapping around can't change the settings.
+ * The ring fills while held; a short tap shows how to open it.
+ */
+function HoldButton({
+  className,
+  label,
+  onHold,
+  children,
+}: {
+  className: string;
+  label: string;
+  onHold: () => void;
+  children: ReactNode;
+}) {
+  const [holding, setHolding] = useState(false);
+  const [hint, setHint] = useState(false);
+  const timer = useRef<number | null>(null);
+  const hintTimer = useRef<number | null>(null);
+
+  function stop(showHint: boolean) {
+    if (timer.current !== null) {
+      window.clearTimeout(timer.current);
+      timer.current = null;
+      if (showHint) {
+        setHint(true);
+        if (hintTimer.current) window.clearTimeout(hintTimer.current);
+        hintTimer.current = window.setTimeout(() => setHint(false), 2200);
+      }
+    }
+    setHolding(false);
+  }
+
+  useEffect(
+    () => () => {
+      if (timer.current) window.clearTimeout(timer.current);
+      if (hintTimer.current) window.clearTimeout(hintTimer.current);
+    },
+    [],
+  );
+
+  return (
+    <span className="hold-wrap">
+      <button
+        type="button"
+        className={`${className} hold-btn${holding ? " is-holding" : ""}`}
+        style={{ ["--hold" as string]: `${HOLD_MS}ms` }}
+        aria-label={label}
+        onPointerDown={() => {
+          setHint(false);
+          setHolding(true);
+          timer.current = window.setTimeout(() => {
+            timer.current = null;
+            setHolding(false);
+            onHold();
+          }, HOLD_MS);
+        }}
+        onPointerUp={() => stop(true)}
+        onPointerLeave={() => stop(false)}
+        onPointerCancel={() => stop(false)}
+        onContextMenu={(e) => e.preventDefault()}
+        onKeyDown={(e) => {
+          // keyboard users (grown-ups) open it with Enter
+          if (e.key === "Enter") onHold();
+        }}
+      >
+        <span className="hold-fill" aria-hidden="true" />
+        {children}
+      </button>
+      {hint && <span className="hold-hint">Для взрослых: подержите кнопку</span>}
+    </span>
+  );
+}
+
 type Screen =
   | { at: "menu" }
   | { at: "album" }
@@ -226,11 +302,69 @@ export function WhoSaidGame() {
   const [musicOn, setMusicOn] = useState(true);
   const [quiet, setQuiet] = useState(false);
   const [levelOpen, setLevelOpen] = useState(false);
+  const screenRef = useRef(screen);
+  screenRef.current = screen;
+
+  // ---- Android «Назад»: every screen is one step in the browser history ----
+  // menu = 0, sets / album / «Кто где живёт» = 1, a game picked through sets = 2; the settings sheet adds a step too.
+  const depthOf = (s: Screen) =>
+    s.at === "menu" ? 0 : s.at === "play" && GAMES.find((g) => g.id === s.game)?.needsSet ? 2 : 1;
+
+  function go(next: Screen) {
+    if (depthOf(next) > depthOf(screenRef.current)) {
+      window.history.pushState({ ...window.history.state, kto: depthOf(next), sheet: false }, "");
+    }
+    setScreen(next);
+  }
+
+  useEffect(() => {
+    // a reload in the middle of a game starts on the shelf
+    if (window.history.state?.kto || window.history.state?.sheet) {
+      window.history.replaceState({ ...window.history.state, kto: 0, sheet: false }, "");
+    }
+    const onPop = (e: PopStateEvent) => {
+      const depth: number = e.state?.kto ?? 0;
+      setLevelOpen(Boolean(e.state?.sheet));
+      const now = screenRef.current;
+      if (depth >= depthOf(now)) return;
+      stopClip();
+      setQuiet(false);
+      if (depth === 1 && now.at === "play") setScreen({ at: "sets", game: now.game });
+      else setScreen({ at: "menu" });
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  function openSheet() {
+    window.history.pushState({ ...window.history.state, kto: 0, sheet: true }, "");
+    setLevelOpen(true);
+  }
+
+  function closeSheet() {
+    if (window.history.state?.sheet) window.history.back();
+    else setLevelOpen(false);
+  }
   const progress = useProgress();
 
   useEffect(() => {
     setMusicOn(readMusicPref());
     startOffline();
+    // No zoom: iOS Safari ignores user-scalable=no, so pinch and double-tap are stopped here.
+    const stopGesture = (e: Event) => e.preventDefault();
+    const stopPinch = (e: TouchEvent) => {
+      if (e.touches.length > 1) e.preventDefault();
+    };
+    let lastTouch = 0;
+    const stopDoubleTap = (e: TouchEvent) => {
+      const now = Date.now();
+      if (now - lastTouch < 320 && !(e.target as HTMLElement).closest("input")) e.preventDefault();
+      lastTouch = now;
+    };
+    document.addEventListener("gesturestart", stopGesture);
+    document.addEventListener("gesturechange", stopGesture);
+    document.addEventListener("touchmove", stopPinch, { passive: false });
+    document.addEventListener("touchend", stopDoubleTap, { passive: false });
     prefetchClips(clipsFor("farm"));
     warmImages([
       ...MODES.map((item) => item.cover),
@@ -239,7 +373,13 @@ export function WhoSaidGame() {
     ]);
     const onBack = () => resumeAudio();
     document.addEventListener("visibilitychange", onBack);
-    return () => document.removeEventListener("visibilitychange", onBack);
+    return () => {
+      document.removeEventListener("visibilitychange", onBack);
+      document.removeEventListener("gesturestart", stopGesture);
+      document.removeEventListener("gesturechange", stopGesture);
+      document.removeEventListener("touchmove", stopPinch);
+      document.removeEventListener("touchend", stopDoubleTap);
+    };
   }, []);
 
   // Music plays on the menus and the finish screen, never over the riddles.
@@ -291,18 +431,14 @@ export function WhoSaidGame() {
     playTap();
     stopMusic();
     setQuiet(true);
-    setScreen((prev) => ({
-      at: "play",
-      game,
-      set: chosen,
-      run: prev.at === "play" ? prev.run + 1 : 0,
-    }));
+    const prev = screenRef.current;
+    go({ at: "play", game, set: chosen, run: prev.at === "play" ? prev.run + 1 : 0 });
   }
 
   function openGame(game: GameId) {
     unlockAudio();
     playTap();
-    if (GAMES.find((g) => g.id === game)?.needsSet) setScreen({ at: "sets", game });
+    if (GAMES.find((g) => g.id === game)?.needsSet) go({ at: "sets", game });
     else play(game, "mix");
   }
 
@@ -317,7 +453,10 @@ export function WhoSaidGame() {
     playTap();
     stopClip();
     setQuiet(false);
-    setScreen({ at: "menu" });
+    // walk the history back to the shelf, so «Назад» afterwards leaves the game as expected
+    const depth: number = window.history.state?.kto ?? 0;
+    if (depth > 0) window.history.go(-depth);
+    else setScreen({ at: "menu" });
   };
 
   const musicButton = (
@@ -429,18 +568,17 @@ export function WhoSaidGame() {
 
   return (
     <main className="room hello menu">
-      <button
-        type="button"
+      <HoldButton
         className="level-chip"
-        onClick={() => {
+        label={`Настройки для взрослых: удерживайте. Сложность: ${LEVELS.find((l) => l.id === progress.level)?.label}`}
+        onHold={() => {
           playTap();
-          setLevelOpen(true);
+          openSheet();
         }}
-        aria-label={`Сложность: ${LEVELS.find((l) => l.id === progress.level)?.label}`}
       >
         <LevelIcon level={progress.level} />
         {LEVELS.find((l) => l.id === progress.level)?.label}
-      </button>
+      </HoldButton>
       {musicButton}
       <Logo />
       <nav className="games" aria-label="Игры">
@@ -470,7 +608,7 @@ export function WhoSaidGame() {
         className="album-btn"
         onClick={() => {
           playTap();
-          setScreen({ at: "album" });
+          go({ at: "album" });
         }}
       >
         <span className="album-stack" aria-hidden="true">
@@ -491,7 +629,7 @@ export function WhoSaidGame() {
         </span>
       </button>
       {levelOpen && (
-        <div className="sheet-backdrop" onClick={() => setLevelOpen(false)}>
+        <div className="sheet-backdrop" onClick={closeSheet}>
           <div
             className="sheet"
             role="dialog"
@@ -508,7 +646,7 @@ export function WhoSaidGame() {
                 onClick={() => {
                   playTap();
                   setLevel(level.id);
-                  setLevelOpen(false);
+                  closeSheet();
                 }}
               >
                 <LevelIcon level={level.id} />
