@@ -1,0 +1,12 @@
+node_modules
+dist
+.output
+.vercel
+artifacts
+screenshots
+attachments
+*.log
+.env
+.env.*
+public/kto-skazal.zip
+professional-ui-ux-game-designer.zip
