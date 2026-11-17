@@ -157,7 +157,6 @@ export function playFanfare() {
   chime(1319, 0.5, 0.08, 0.5);
 }
 
-
 // Background music: a plain <audio> element, streamed and looped, quiet under everything else.
 let music: HTMLAudioElement | null = null;
 

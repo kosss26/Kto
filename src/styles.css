@@ -994,3 +994,582 @@ img {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* =========================================================
+   Полка игр, выбор набора и новые режимы
+   ========================================================= */
+
+/* ---------- полка игр ---------- */
+
+.menu {
+  justify-content: flex-start;
+  padding-top: max(1.2rem, env(safe-area-inset-top));
+  gap: clamp(0.8rem, 2.4dvh, 1.4rem);
+}
+
+.games {
+  width: 100%;
+  max-width: 26rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(0.6rem, 2dvh, 0.9rem);
+}
+
+.game-tile {
+  position: relative;
+  border: 0;
+  padding: 0.45rem;
+  border-radius: 1.5rem;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  text-align: center;
+  box-shadow:
+    0 5px 0 #cddbe7,
+    0 10px 16px -8px rgb(40 60 90 / 35%);
+  animation: arrive 0.45s cubic-bezier(0.2, 0.9, 0.2, 1.25) backwards;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.game-tile:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #cddbe7;
+}
+
+/* the main game spans the whole row */
+.game-tile.is-quiz {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  align-items: center;
+  text-align: left;
+  gap: 0.8rem;
+}
+
+.game-art {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: clamp(4.6rem, 12dvh, 6.2rem);
+  border-radius: 1.1rem;
+  background: var(--felt), var(--mat);
+  overflow: hidden;
+}
+
+.game-art::after {
+  content: "";
+  position: absolute;
+  inset: 0.3rem;
+  border-radius: 0.85rem;
+  border: 2px dashed rgb(255 255 255 / 85%);
+  pointer-events: none;
+}
+
+.game-tile.is-quiz .game-art {
+  flex: 0 0 52%;
+}
+
+.game-art img {
+  height: 86%;
+  width: auto;
+  margin: 0 -0.4rem 0.2rem;
+  filter: drop-shadow(0 5px 4px rgb(60 40 30 / 22%));
+}
+
+.game-badge {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 0 rgb(40 60 90 / 18%);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 62%;
+  z-index: 1;
+}
+
+/* small pictograms for each game, drawn as inline SVG */
+.is-quiz .game-badge {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a2d5e' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath fill='%234a2d5e' d='M4 9.5h3.2L12 5.5v13l-4.8-4H4z'/%3E%3Cpath d='M15.2 9a4.2 4.2 0 0 1 0 6M17.8 6.5a7.8 7.8 0 0 1 0 11'/%3E%3C/svg%3E");
+}
+.is-listen .game-badge {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a2d5e' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 14V6a5 5 0 0 1 10 0c0 3-3 4-3 7 0 2-1.5 3.5-3.5 3.5'/%3E%3Cpath d='M10 9a2 2 0 0 1 4 0'/%3E%3C/svg%3E");
+}
+.is-reverse .game-badge {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a2d5e' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z'/%3E%3Cpath d='M10 20a2 2 0 0 0 4 0'/%3E%3C/svg%3E");
+}
+.is-pairs .game-badge {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a2d5e' stroke-width='2.2' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='9' height='13' rx='2'/%3E%3Crect x='12' y='7' width='9' height='13' rx='2' fill='%23ffc93c'/%3E%3C/svg%3E");
+}
+.is-homes .game-badge {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a2d5e' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 11.5 12 4.5l8 7'/%3E%3Cpath fill='%23ff8f8f' d='M6.5 10v9.5h11V10'/%3E%3C/svg%3E");
+}
+
+.game-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0 0.2rem 0.2rem;
+}
+
+.game-title {
+  font: 900 clamp(1rem, 4.4vw, 1.2rem) / 1.05 var(--font-sans);
+  color: var(--color-ink);
+}
+
+.game-tile.is-quiz .game-title {
+  font-size: clamp(1.25rem, 5.6vw, 1.55rem);
+}
+
+.game-note {
+  font: 700 clamp(0.75rem, 3.2vw, 0.85rem) / 1.15 var(--font-sans);
+  color: var(--color-ink-soft);
+}
+
+/* ---------- выбор набора ---------- */
+
+.sets-screen {
+  justify-content: flex-start;
+  padding-top: max(0.9rem, env(safe-area-inset-top));
+}
+
+.sets-head {
+  width: 100%;
+  max-width: 26rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-right: 3.4rem; /* room for the music button */
+}
+
+.sets-title {
+  margin: 0;
+  font: 900 clamp(1.5rem, 7vw, 2rem) / 1 var(--font-sans);
+  color: var(--color-coral);
+  -webkit-text-stroke: 0.12em #fff;
+  paint-order: stroke fill;
+  text-shadow: 0 0.08em 0 rgb(74 45 94 / 18%);
+}
+
+/* ---------- общие подписи в игре ---------- */
+
+.screen-title {
+  margin: 0;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 70%);
+  font: 900 clamp(0.95rem, 4vw, 1.1rem) / 1 var(--font-sans);
+  color: var(--color-ink);
+}
+
+.hint-line {
+  margin: 0.2rem 0 0;
+  text-align: center;
+  font: 800 clamp(0.85rem, 3.6vw, 1rem) / 1.2 var(--font-sans);
+  color: var(--color-ink-soft);
+}
+
+/* ---------- «Послушать» ---------- */
+
+.listen-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.6rem, 2.6vw, 0.9rem);
+  padding: 0.6rem 0 1rem;
+  overflow-y: auto;
+  align-content: start;
+}
+
+@media (min-width: 640px) {
+  .listen-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.card.mini {
+  padding: 0.3rem 0.3rem 0.4rem;
+  border-radius: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.card.mini .card-face {
+  border-radius: 0.95rem;
+}
+
+.card.mini .card-face::after {
+  inset: 0.28rem;
+  border-radius: 0.75rem;
+  border-width: 2px;
+}
+
+.mini-name {
+  font: 800 clamp(0.72rem, 3.1vw, 0.88rem) / 1.1 var(--font-sans);
+  color: var(--color-ink);
+  min-height: 2.2em;
+  display: grid;
+  place-items: center;
+}
+
+.card.mini.is-playing {
+  animation: boing 0.6s cubic-bezier(0.2, 0.9, 0.2, 1.4);
+  box-shadow:
+    0 0 0 4px var(--color-sun),
+    0 6px 0 4px var(--color-sun-deep),
+    0 14px 18px -8px rgb(40 60 90 / 40%);
+}
+
+/* ---------- «Чей голос?» ---------- */
+
+.card.hero {
+  width: min(62vw, 15rem, 30dvh);
+  margin: 0.6rem auto 0;
+  animation: arrive 0.5s cubic-bezier(0.2, 0.9, 0.2, 1.25) backwards;
+}
+
+.card.hero.is-good {
+  animation: lift 0.7s cubic-bezier(0.2, 0.8, 0.2, 1.15) forwards;
+}
+
+.bells {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(0.9rem, 5vw, 1.6rem);
+  padding-bottom: 3.5rem;
+}
+
+.bell {
+  position: relative;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  width: clamp(5rem, 24vw, 6.5rem);
+  aspect-ratio: 1;
+  animation: arrive 0.45s cubic-bezier(0.2, 0.9, 0.2, 1.3) backwards;
+}
+
+.bell-disc {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--felt), var(--bell);
+  box-shadow:
+    inset 0 -5px 0 rgb(0 0 0 / 10%),
+    0 6px 0 rgb(74 45 94 / 22%),
+    0 12px 16px -8px rgb(40 60 90 / 45%);
+  transition: transform 0.08s ease, filter 0.3s ease, opacity 0.3s ease;
+}
+
+.bell-disc::after {
+  content: "";
+  position: absolute;
+  inset: 0.35rem;
+  border-radius: 50%;
+  border: 2.5px dashed rgb(255 255 255 / 85%);
+}
+
+.bell-disc svg {
+  width: 50%;
+  height: 50%;
+  fill: none;
+  stroke: var(--color-ink);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.bell-disc .cone {
+  fill: var(--color-ink);
+}
+
+.bell-disc img {
+  width: 82%;
+  height: auto;
+}
+
+.bell:active .bell-disc {
+  transform: translateY(4px);
+}
+
+.bell .wave {
+  border-color: transparent;
+}
+
+.bell.is-live .bell-disc {
+  animation: boing 0.6s cubic-bezier(0.2, 0.9, 0.2, 1.4);
+}
+
+.bell.is-live .w1 {
+  animation: wave 1.1s ease-out infinite;
+}
+
+.bell.is-wrong .bell-disc {
+  filter: saturate(0.25);
+  opacity: 0.75;
+}
+
+.bell.is-right .bell-disc {
+  box-shadow:
+    0 0 0 5px var(--color-go),
+    0 6px 0 5px var(--color-go-deep),
+    0 14px 18px -8px rgb(40 60 90 / 45%);
+}
+
+/* ---------- «Найди пару» ---------- */
+
+.pairs-grid {
+  flex: 1;
+  width: 100%;
+  max-width: min(100%, calc((100dvh - 9rem) * 0.78));
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.55rem, 2.4vw, 0.85rem);
+  align-content: center;
+  padding: 0.6rem 0 4rem;
+}
+
+.pairs-grid[data-count="8"] {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  max-width: min(100%, calc((100dvh - 9rem) * 1.6));
+}
+
+.pairs-grid[data-count="12"] {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  max-width: min(100%, calc((100dvh - 9rem) * 1.05));
+}
+
+.flip {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  aspect-ratio: 1;
+  perspective: 600px;
+  animation: arrive 0.45s cubic-bezier(0.2, 0.9, 0.2, 1.3) backwards;
+}
+
+.flip-inner {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.42s cubic-bezier(0.3, 0.8, 0.3, 1.2);
+}
+
+.flip.is-open .flip-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-back,
+.flip-front {
+  position: absolute;
+  inset: 0;
+  border-radius: 1.2rem;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow:
+    0 5px 0 #cddbe7,
+    0 10px 14px -8px rgb(40 60 90 / 40%);
+}
+
+.flip-back {
+  background:
+    radial-gradient(circle at 50% 50%, rgb(255 255 255 / 40%) 0 22%, transparent 23%),
+    var(--felt),
+    repeating-linear-gradient(45deg, #a77bea 0 10px, #9568dc 10px 20px);
+  border: 4px solid #fff;
+}
+
+.flip-back::after {
+  content: "?";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font: 900 clamp(1.6rem, 8vw, 2.4rem) / 1 var(--font-sans);
+  color: #fff;
+  text-shadow: 0 3px 0 rgb(74 45 94 / 35%);
+}
+
+.flip-front {
+  transform: rotateY(180deg);
+  background: #fff;
+  padding: 0.28rem;
+}
+
+.flip-front .card-face {
+  height: 100%;
+  border-radius: 0.95rem;
+}
+
+.flip-front .card-face::after {
+  inset: 0.25rem;
+  border-radius: 0.75rem;
+  border-width: 2px;
+}
+
+.flip.is-matched .flip-front {
+  box-shadow:
+    0 0 0 4px var(--color-go),
+    0 5px 0 4px var(--color-go-deep);
+}
+
+.flip.is-matched .flip-inner {
+  animation: matched 0.5s ease 0.1s;
+}
+
+/* ---------- «Кто где живёт» ---------- */
+
+.homes-stage {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  min-height: 12rem;
+}
+
+.card.drag {
+  touch-action: none;
+  cursor: grab;
+  margin: 0;
+  transition:
+    transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1.1),
+    opacity 0.3s ease,
+    box-shadow 0.15s ease;
+  z-index: 3;
+}
+
+.card.drag.is-dragging {
+  cursor: grabbing;
+  transition: none;
+  box-shadow:
+    0 0 0 4px var(--color-sun),
+    0 24px 26px -10px rgb(40 60 90 / 45%);
+}
+
+.card.drag.is-flying {
+  transition:
+    transform 0.55s cubic-bezier(0.5, 0, 0.3, 1),
+    opacity 0.55s ease 0.2s;
+  opacity: 0;
+}
+
+.home-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.6rem, 3vw, 1rem);
+  padding-bottom: clamp(3.2rem, 9dvh, 5rem);
+}
+
+.home-row[data-count="3"] {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.home {
+  border: 0;
+  padding: 0.4rem 0.4rem 0.5rem;
+  border-radius: 1.5rem;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  box-shadow:
+    0 5px 0 #cddbe7,
+    0 10px 16px -8px rgb(40 60 90 / 35%);
+  animation: arrive 0.45s cubic-bezier(0.2, 0.9, 0.2, 1.3) backwards;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.home.is-hover {
+  transform: scale(1.06);
+  box-shadow:
+    0 0 0 5px var(--color-sun),
+    0 8px 0 5px var(--color-sun-deep);
+}
+
+.home-art {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1.15;
+  border-radius: 1.1rem;
+  display: grid;
+  place-items: center;
+  background: var(--felt), var(--mat);
+}
+
+.home-art::after {
+  content: "";
+  position: absolute;
+  inset: 0.3rem;
+  border-radius: 0.85rem;
+  border: 2px dashed rgb(255 255 255 / 85%);
+}
+
+.home-art svg {
+  width: 72%;
+  height: auto;
+}
+
+.home-name {
+  font: 900 clamp(0.8rem, 3.4vw, 1rem) / 1.1 var(--font-sans);
+  color: var(--color-ink);
+  min-height: 2.2em;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.home.is-wobble {
+  animation: wobble-home 0.55s ease;
+}
+
+/* ---------- финал: ровная сетка при любом числе карточек ---------- */
+
+.recap[data-count="3"],
+.recap[data-count="6"] {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: min(100%, 18rem);
+}
+
+@keyframes matched {
+  0%,
+  100% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.08;
+  }
+}
+
+@keyframes wobble-home {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  25% {
+    transform: rotate(-5deg);
+  }
+  60% {
+    transform: rotate(4deg);
+  }
+}
+
+.reverse .hint-line {
+  margin-top: 1.6rem;
+}
+
+.homes .card.hero {
+  width: min(46vw, 12rem, 26dvh);
+}

@@ -18,16 +18,26 @@ only_missing = len(sys.argv) > 2
 
 src = open("src/lib/who-said/content.ts", encoding="utf-8").read()
 items = re.findall(r'\{ id: "(\w+)", name: "([^"]+)"', src)
+meta = {m[0]: (m[1], bool(m[2])) for m in re.findall(r'\{ id: "(\w+)", name: "[^"]+", mode: "(\w+)"(, sound: true)?', src)}
+WHERE = {"pets": "дома", "farm": "на ферме", "forest": "в лесу", "sea": "в море", "zoo": "в жарких странах"}
 out = "public/voice"
 os.makedirs(out, exist_ok=True)
 
-lines = {"bravo": "Молодец!", "again": "Попробуй ещё!"}
+lines = {"bravo": "Молодец!", "again": "Попробуй ещё!",
+         "praise-1": "Правильно!", "praise-2": "Верно!", "praise-3": "Ура!", "praise-4": "Отлично!"}
 facts = dict(re.findall(r'^  (\w+): "([^"]+)",$', src, re.M))
 for item_id, name in items:
     lines[f"where-{item_id}"] = f"Где {name}?"
     lines[f"this-{item_id}"] = f"Это {name}!"
     if item_id in facts:
         lines[f"fact-{item_id}"] = facts[item_id]
+    mode, has_sound = meta[item_id]
+    if has_sound:
+        verb = "звучит" if mode == "city" else "говорит"
+        lines[f"how-{item_id}"] = f"Как {verb} {name}?"
+    if mode in WHERE and item_id != "panda":
+        lines[f"homeq-{item_id}"] = f"Где живёт {name}?"
+        lines[f"lives-{item_id}"] = f"{name[0].upper() + name[1:]} живёт {WHERE[mode]}."
 
 with tempfile.TemporaryDirectory() as tmp:
     for key, text in lines.items():

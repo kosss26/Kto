@@ -218,14 +218,33 @@ export const BY_ID: Record<string, Item> = Object.fromEntries(ITEMS.map((item) =
 
 export const MODES: { id: Mode; label: string; cover: string; parade: string[] }[] = [
   { id: "farm", label: "Домашние", cover: "cow", parade: ["sheep", "pig", "cow", "duck"] },
-  { id: "pets", label: "Питомцы", cover: "hamster", parade: ["rabbit", "hamster", "guineapig", "budgie"] },
+  {
+    id: "pets",
+    label: "Питомцы",
+    cover: "hamster",
+    parade: ["rabbit", "hamster", "guineapig", "budgie"],
+  },
   { id: "forest", label: "Лесные", cover: "fox", parade: ["hedgehog", "fox", "bear", "squirrel"] },
-  { id: "zoo", label: "Зоопарк", cover: "giraffe", parade: ["elephant", "giraffe", "lion", "zebra"] },
+  {
+    id: "zoo",
+    label: "Зоопарк",
+    cover: "giraffe",
+    parade: ["elephant", "giraffe", "lion", "zebra"],
+  },
   { id: "sea", label: "Море", cover: "dolphin", parade: ["turtle", "octopus", "dolphin", "crab"] },
-  { id: "city", label: "Машины", cover: "excavator", parade: ["tractor", "bus", "excavator", "train"] },
+  {
+    id: "city",
+    label: "Машины",
+    cover: "excavator",
+    parade: ["tractor", "bus", "excavator", "train"],
+  },
 ];
 
-export const MIX = { label: "Вперемешку", covers: ["cow", "giraffe", "dolphin", "excavator"], parade: ["hamster", "giraffe", "octopus", "tractor"] };
+export const MIX = {
+  label: "Вперемешку",
+  covers: ["cow", "giraffe", "dolphin", "excavator"],
+  parade: ["hamster", "giraffe", "octopus", "tractor"],
+};
 
 export function idsFor(set: SetId) {
   return ITEMS.filter((item) => set === "mix" || item.mode === set).map((item) => item.id);
@@ -268,4 +287,55 @@ export function clipsFor(set: SetId) {
 
 export function roundClips(ids: string[]) {
   return [...ids.map(callSrc), ...ids.map(nameSrc), ...ids.map(factSrc)];
+}
+
+// ---------- «Кто где живёт» ----------
+
+export type HomeId = "house" | "farm" | "forest" | "sea" | "hot";
+
+export const HOMES: { id: HomeId; label: string; mat: string }[] = [
+  { id: "house", label: "Дом", mat: "#f7c9dc" },
+  { id: "farm", label: "Ферма", mat: "#ffd9a8" },
+  { id: "forest", label: "Лес", mat: "#bfe3a5" },
+  { id: "sea", label: "Море", mat: "#bfe0f5" },
+  { id: "hot", label: "Жаркие страны", mat: "#fff0a6" },
+];
+
+const HOME_OF_MODE: Partial<Record<Mode, HomeId>> = {
+  pets: "house",
+  farm: "farm",
+  forest: "forest",
+  sea: "sea",
+  zoo: "hot",
+};
+
+/** Panda lives in cool mountain forests, so it sits this game out. */
+export function homeOf(id: string): HomeId | null {
+  if (id === "panda") return null;
+  return HOME_OF_MODE[BY_ID[id].mode] ?? null;
+}
+
+export const HOME_IDS = ITEMS.map((item) => item.id).filter((id) => homeOf(id));
+
+export const homeAskSrc = (id: string) => `/voice/homeq-${id}.mp3`;
+export const livesSrc = (id: string) => `/voice/lives-${id}.mp3`;
+
+// ---------- «Наоборот» ----------
+
+/** Toys with a real recording: only they can be guessed by voice in reverse. */
+export function soundIdsFor(set: SetId) {
+  return idsFor(set).filter((id) => BY_ID[id].sound);
+}
+
+export const howSrc = (id: string) => `/voice/how-${id}.mp3`;
+
+export const PRAISE = [
+  "/voice/praise-1.mp3",
+  "/voice/praise-2.mp3",
+  "/voice/praise-3.mp3",
+  "/voice/praise-4.mp3",
+];
+
+export function praiseSrc() {
+  return PRAISE[Math.floor(Math.random() * PRAISE.length)];
 }
