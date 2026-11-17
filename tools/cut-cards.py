@@ -1,5 +1,5 @@
 # Cuts the toy out of each framed card so it can sit on a coloured mat.
-# Usage: python3 tools/cut-cards.py assets/cards-framed public/cards /tmp/preview.png
+# (Old wooden cards; the game now uses tools/cut-felt.py.)
 from PIL import Image, ImageDraw, ImageFilter
 import numpy as np, sys, glob, os
 src_dir, out_dir, sheet_path = sys.argv[1:4]

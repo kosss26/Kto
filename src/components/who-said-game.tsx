@@ -12,7 +12,7 @@ import {
   stopVoice,
   unlockAudio,
 } from "@/lib/who-said/audio";
-import { BY_ID, ITEMS, MODES, cardSrc, idsFor, type Mode } from "@/lib/who-said/content";
+import { BY_ID, ITEMS, MODES, cardSrc, idsFor, matAt, type Mode } from "@/lib/who-said/content";
 
 const ROUNDS = 8;
 const COUNTS = [2, 2, 3, 3, 4, 4, 4, 4];
@@ -24,7 +24,7 @@ type Phase = "hello" | "play" | "done";
 
 function warmImages() {
   if (typeof window === "undefined") return;
-  const art = ["/toys/bell.webp", "/toys/listen.webp", "/toys/again.webp", ...ITEMS.map((item) => cardSrc(item.id))];
+  const art = ITEMS.map((item) => cardSrc(item.id));
   for (const src of art) {
     const img = new Image();
     img.decoding = "async";
@@ -71,6 +71,68 @@ function CheckIcon() {
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path d="m5 12.5 4.5 4.5L19 7.5" />
     </svg>
+  );
+}
+
+function PlayIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M8.5 5.8v12.4a1 1 0 0 0 1.5.86l10-6.2a1 1 0 0 0 0-1.72l-10-6.2a1 1 0 0 0-1.5.86Z" />
+    </svg>
+  );
+}
+
+function SpeakerIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path className="cone" d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z" />
+      <path d="M15.2 9a4.2 4.2 0 0 1 0 6" />
+      <path d="M17.8 6.5a7.8 7.8 0 0 1 0 11" />
+    </svg>
+  );
+}
+
+const LOGO_COLORS = ["#ff6b5e", "#ffb627", "#4cbf6a", "#3fa2e8", "#a77bea", "#ff6fa8"];
+
+function Logo({ small = false }: { small?: boolean }) {
+  const lines = ["Кто", "сказал?"];
+  let n = 0;
+  return (
+    <h1 className={small ? "logo is-small" : "logo"} aria-label="Кто сказал?">
+      {lines.map((line) => (
+        <span className="logo-line" key={line} aria-hidden="true">
+          {[...line].map((ch, i) => {
+            const color = LOGO_COLORS[n++ % LOGO_COLORS.length];
+            return (
+              <span key={i} className="logo-ch" style={{ color, animationDelay: `${n * 0.06}s` }}>
+                {ch}
+              </span>
+            );
+          })}
+        </span>
+      ))}
+    </h1>
+  );
+}
+
+/** Felt hills along the bottom of every screen. */
+function Hills() {
+  return (
+    <svg className="hills" viewBox="0 0 400 120" preserveAspectRatio="none" aria-hidden="true">
+      <path className="hill-back" d="M0 70 C70 30 140 40 200 62 C260 84 330 38 400 54 V120 H0Z" />
+      <path className="hill-front" d="M0 92 C80 64 150 70 220 88 C290 106 350 76 400 82 V120 H0Z" />
+      <path className="stitch" d="M0 100 C80 72 150 78 220 96 C290 114 350 84 400 90" />
+    </svg>
+  );
+}
+
+function Stars({ count, total }: { count: number; total: number }) {
+  return (
+    <ol className="track" aria-label={`Угадано ${count} из ${total}`}>
+      {Array.from({ length: total }, (_, i) => (
+        <li key={i} className={i < count ? "track-star is-on" : i === count ? "track-star is-now" : "track-star"} />
+      ))}
+    </ol>
   );
 }
 
@@ -199,23 +261,22 @@ export function WhoSaidGame() {
   }
 
   const hint = !solved && (asleep.length >= 2 || idleHint);
-  const matClass = mode === "transport" ? "is-city" : "is-farm";
+  const parade = mode === "transport" ? ["bus", "police", "train", "plane"] : ["sheep", "pig", "cat", "duck"];
 
   if (phase === "hello") {
     return (
       <main className="room hello">
-        <h1 className="wordmark">
-          <img src="/toys/wordmark4.webp" alt="Кто сказал" />
-        </h1>
+        <Logo />
 
         <div className="sets" role="radiogroup" aria-label="Кого слушаем">
-          {MODES.map((item) => (
+          {MODES.map((item, index) => (
             <button
               key={item.id}
               type="button"
               role="radio"
               aria-checked={mode === item.id}
-              className={`set ${item.id === "transport" ? "is-city" : "is-farm"}${mode === item.id ? " is-on" : ""}`}
+              className={mode === item.id ? "set is-on" : "set"}
+              style={{ ["--mat" as string]: matAt(index + 2, 0) }}
               onClick={() => pickMode(item.id)}
             >
               <span className="set-pic">
@@ -226,11 +287,19 @@ export function WhoSaidGame() {
           ))}
         </div>
 
-        <button type="button" className="start" onClick={begin} aria-label="Начать игру">
-          <img className="bell is-idle" src="/toys/bell.webp" alt="" />
-          <img className="start-word" src="/toys/listen.webp" alt="" />
+        <button type="button" className="play-btn" onClick={begin} aria-label="Играть">
+          <span className="play-disc">
+            <PlayIcon />
+          </span>
+          <span className="play-word">Играть</span>
         </button>
 
+        <div className="parade" aria-hidden="true">
+          {parade.map((id) => (
+            <img key={id} src={cardSrc(id)} alt="" />
+          ))}
+        </div>
+        <Hills />
         <p className="credits">
           {mode === "animals" ? "Звуки животных — записи с Wikimedia Commons" : "Машины называет голос"}
         </p>
@@ -248,23 +317,25 @@ export function WhoSaidGame() {
         </div>
         <h1 className="praise">Молодец!</h1>
         <p className="recap-title">Ты угадал:</p>
-        <ul className={`recap ${matClass}`}>
+        <ul className="recap">
           {found.map((id, index) => (
-            <li key={`${id}-${index}`} style={{ animationDelay: `${0.35 + index * 0.07}s` }}>
-              <span className="mini-mat">
-                <img src={cardSrc(id)} alt={BY_ID[id].name} />
-              </span>
+            <li
+              key={`${id}-${index}`}
+              style={{ animationDelay: `${0.35 + index * 0.07}s`, ["--mat" as string]: matAt(index, 0) }}
+            >
+              <img src={cardSrc(id)} alt={BY_ID[id].name} />
             </li>
           ))}
         </ul>
         <div className="finale-actions">
-          <button type="button" className="big-btn is-wood" onClick={goHome} aria-label="Домой">
+          <button type="button" className="round-btn is-white" onClick={goHome} aria-label="Домой">
             <HomeIcon />
           </button>
-          <button type="button" className="big-btn is-go" onClick={begin} aria-label="Играть ещё">
+          <button type="button" className="round-btn is-go" onClick={begin} aria-label="Играть ещё">
             <AgainIcon />
           </button>
         </div>
+        <Hills />
       </main>
     );
   }
@@ -272,21 +343,17 @@ export function WhoSaidGame() {
   return (
     <main className="room play">
       <header className="topbar">
-        <button type="button" className="cube" onClick={goHome} aria-label="Домой">
+        <button type="button" className="round-btn is-white is-small" onClick={goHome} aria-label="Домой">
           <HomeIcon />
         </button>
-        <ol className="beads" aria-label={`Задание ${round + 1} из ${ROUNDS}`}>
-          {Array.from({ length: ROUNDS }, (_, i) => (
-            <li key={i} className={i < found.length ? "bead is-on" : i === round ? "bead is-now" : "bead"} />
-          ))}
-        </ol>
-        <span className="cube-spacer" aria-hidden="true" />
+        <Stars count={found.length} total={ROUNDS} />
+        <span className="topbar-spacer" aria-hidden="true" />
       </header>
 
-      <div className="bell-zone">
+      <div className="sound-zone">
         <button
           type="button"
-          className={ringing ? "replay is-live" : "replay"}
+          className={ringing ? "sound-btn is-live" : "sound-btn"}
           onClick={() => {
             setIdleTick((n) => n + 1);
             ring(target);
@@ -295,11 +362,13 @@ export function WhoSaidGame() {
         >
           <span className="wave w1" aria-hidden="true" />
           <span className="wave w2" aria-hidden="true" />
-          <img className={ringing ? "bell is-ringing" : "bell"} src="/toys/bell.webp" alt="" />
+          <span className="sound-disc">
+            <SpeakerIcon />
+          </span>
         </button>
       </div>
 
-      <div className={`cards ${matClass}${solved ? " is-solved" : ""}`} data-count={choices.length} key={round}>
+      <div className={`cards${solved ? " is-solved" : ""}`} data-count={choices.length} key={round}>
         {choices.map((id, index) => {
           const good = solved && id === target;
           const sleeping = asleep.includes(id);
@@ -315,12 +384,12 @@ export function WhoSaidGame() {
               key={id}
               type="button"
               className={`card${state}${wobbling === id ? " is-wobble" : ""}`}
-              style={{ animationDelay: `${index * 0.06}s` }}
+              style={{ animationDelay: `${index * 0.07}s`, ["--mat" as string]: matAt(index, round) }}
               onClick={() => choose(id)}
               aria-label={BY_ID[id].name}
               aria-disabled={solved || sleeping}
             >
-              <span className="mat">
+              <span className="card-face">
                 <img src={cardSrc(id)} alt="" draggable={false} />
               </span>
               {sleeping && (
@@ -346,6 +415,7 @@ export function WhoSaidGame() {
           );
         })}
       </div>
+      <Hills />
     </main>
   );
 }

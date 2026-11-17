@@ -18,7 +18,7 @@ function staticCachePlugin(): Plugin {
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         const url = req.url?.split("?")[0] ?? "";
-        if (url.startsWith("/toys/") || url.startsWith("/cards/") || url.startsWith("/sfx/")) {
+        if (url.startsWith("/toys/") || url.startsWith("/felt/") || url.startsWith("/sfx/")) {
           const setHeader = res.setHeader.bind(res);
           res.setHeader = (name, value) => {
             if (String(name).toLowerCase() === "cache-control") {

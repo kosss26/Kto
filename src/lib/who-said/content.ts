@@ -6,11 +6,8 @@ export type Item = {
   mode: Mode;
 };
 
+// Корова, курица, собака и лягушка вернутся, когда для них будут войлочные игрушки (звуки уже есть в /sfx).
 export const ITEMS: Item[] = [
-  { id: "cow", name: "корова", mode: "animals" },
-  { id: "hen", name: "курица", mode: "animals" },
-  { id: "dog", name: "собака", mode: "animals" },
-  { id: "frog", name: "лягушка", mode: "animals" },
   { id: "cat", name: "кошка", mode: "animals" },
   { id: "sheep", name: "овца", mode: "animals" },
   { id: "horse", name: "лошадь", mode: "animals" },
@@ -43,8 +40,8 @@ export const ITEMS: Item[] = [
 export const BY_ID: Record<string, Item> = Object.fromEntries(ITEMS.map((item) => [item.id, item]));
 
 export const MODES: { id: Mode; label: string; cover: string }[] = [
-  { id: "animals", label: "Животные", cover: "cow" },
-  { id: "transport", label: "Машины", cover: "train" },
+  { id: "animals", label: "Животные", cover: "pig" },
+  { id: "transport", label: "Машины", cover: "bus" },
 ];
 
 export function idsFor(mode: Mode) {
@@ -52,5 +49,12 @@ export function idsFor(mode: Mode) {
 }
 
 export function cardSrc(id: string) {
-  return `/cards/${id}.webp`;
+  return `/felt/${id}.webp`;
+}
+
+/** Pastel felt colours for the card mats; cards in one round never share a colour. */
+export const MATS = ["#bfe3a5", "#ffd9a8", "#bfe0f5", "#f7c9dc", "#fff0a6", "#d8cdf5"];
+
+export function matAt(index: number, round: number) {
+  return MATS[(index + round * 2) % MATS.length];
 }
