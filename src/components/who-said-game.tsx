@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  clipMs,
   playClip,
   playFanfare,
   playSoft,
@@ -8,7 +9,9 @@ import {
   prefetchClips,
   prepareClips,
   resumeAudio,
+  startMusic,
   stopClip,
+  stopMusic,
   unlockAudio,
 } from "@/lib/who-said/audio";
 import {
@@ -21,6 +24,7 @@ import {
   clipsFor,
   idsFor,
   matAt,
+  factSrc,
   nameSrc,
   roundClips,
   type SetId,
@@ -105,6 +109,27 @@ function ShuffleIcon() {
   );
 }
 
+function MusicIcon({ on }: { on: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M9 17.5V5.5l10-2v12" />
+      <circle cx="6.5" cy="17.5" r="2.5" />
+      <circle cx="16.5" cy="15.5" r="2.5" />
+      {!on && <path className="slash" d="M3.5 3.5l17 17" />}
+    </svg>
+  );
+}
+
+const MUSIC_KEY = "kto-skazal:music";
+
+function readMusicPref() {
+  try {
+    return window.localStorage.getItem(MUSIC_KEY) !== "off";
+  } catch {
+    return true;
+  }
+}
+
 function SpeakerIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -175,6 +200,7 @@ export function WhoSaidGame() {
   const [idleTick, setIdleTick] = useState(0);
   const [found, setFound] = useState<string[]>([]);
 
+  const [musicOn, setMusicOn] = useState(true);
   const timers = useRef(new Set<number>());
   const asked = useRef<string[]>([]);
   const later = useCallback((fn: () => void, ms: number) => {
@@ -201,11 +227,42 @@ export function WhoSaidGame() {
     };
   }, []);
 
+  useEffect(() => {
+    setMusicOn(readMusicPref());
+  }, []);
+
+  // Music plays on the start and finish screens, never over the riddles.
+  // Browsers only allow sound after the first tap, so a tap anywhere starts it too.
+  useEffect(() => {
+    if (!musicOn || phase === "play") {
+      stopMusic();
+      return;
+    }
+    const kick = () => startMusic();
+    const delay = window.setTimeout(kick, phase === "done" ? 2600 : 0);
+    window.addEventListener("pointerdown", kick, { once: true });
+    return () => {
+      window.clearTimeout(delay);
+      window.removeEventListener("pointerdown", kick);
+    };
+  }, [musicOn, phase]);
+
+  function toggleMusic() {
+    playTap();
+    const next = !musicOn;
+    setMusicOn(next);
+    try {
+      window.localStorage.setItem(MUSIC_KEY, next ? "on" : "off");
+    } catch {
+      /* private mode: the choice just isn't remembered */
+    }
+  }
+
   const ring = useCallback(
     (id: string) => {
       setRinging(true);
       // Already decoded for a single set; in the mix the clip may still be loading.
-      void prepareClips([callSrc(id), nameSrc(id)]).then(() => playClip(callSrc(id), BY_ID[id].sound));
+      void prepareClips([callSrc(id), nameSrc(id), factSrc(id)]).then(() => playClip(callSrc(id), BY_ID[id].sound));
       later(() => setRinging(false), 1100);
     },
     [later],
@@ -270,12 +327,16 @@ export function WhoSaidGame() {
       setSolved(true);
       setIdleHint(false);
       playYes();
+      // "Это корова!" → "Корова даёт молоко." → next round; pauses follow the real clip lengths.
+      const nameEnds = 300 + (clipMs(nameSrc(id)) || 1000);
+      const factEnds = nameEnds + 150 + (clipMs(factSrc(id)) || 0);
       later(() => playClip(nameSrc(id)), 300);
+      later(() => playClip(factSrc(id)), nameEnds + 150);
       setFound((list) => [...list, id]);
       later(() => {
         if (round + 1 >= ROUNDS) finish();
         else ring(startRound(round + 1, target));
-      }, 1900);
+      }, Math.max(1900, factEnds + 600));
       return;
     }
     playSoft();
@@ -299,6 +360,15 @@ export function WhoSaidGame() {
   if (phase === "hello") {
     return (
       <main className="room hello">
+        <button
+          type="button"
+          className={musicOn ? "music-btn" : "music-btn is-off"}
+          onClick={toggleMusic}
+          aria-label={musicOn ? "Выключить музыку" : "Включить музыку"}
+          aria-pressed={musicOn}
+        >
+          <MusicIcon on={musicOn} />
+        </button>
         <Logo />
 
         <div className="sets" role="radiogroup" aria-label="Кого слушаем">
@@ -351,7 +421,7 @@ export function WhoSaidGame() {
         </div>
         <Hills />
         <p className="credits">
-          Звуки: Wikimedia Commons, xeno-canto · Голос: Silero
+          Звуки: BBC, xeno-canto, Wikimedia · Голос: Silero · Музыка: Kevin MacLeod
         </p>
       </main>
     );

@@ -1,15 +1,16 @@
 # Turns a long nature recording into a short game clip:
 # picks the loudest ~2 s, removes low rumble, normalises, fades, saves mp3.
-# Usage: python3 tools/cut-sound.py <source file> <out.mp3> [seconds] [start]
+# Usage: [HP=60] python3 tools/cut-sound.py <source file> <out.mp3> [seconds] [start]
+#        (HP = high-pass cutoff in Hz, lower it for deep voices like hippo or deer)
 #        (give start to choose the segment by hand)
-import subprocess, sys, wave
+import os, subprocess, sys, wave
 import numpy as np
 
 src, out = sys.argv[1], sys.argv[2]
 length = float(sys.argv[3]) if len(sys.argv) > 3 else 2.2
 start = float(sys.argv[4]) if len(sys.argv) > 4 else None
 tmp = out + ".tmp.wav"
-subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", src, "-ac", "1", "-ar", "22050", "-af", "highpass=f=180", tmp], check=True)
+subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", src, "-ac", "1", "-ar", "22050", "-af", f"highpass=f={os.environ.get('HP', '180')}", tmp], check=True)
 with wave.open(tmp) as w:
     rate = w.getframerate()
     data = np.frombuffer(w.readframes(w.getnframes()), dtype=np.int16).astype(float)

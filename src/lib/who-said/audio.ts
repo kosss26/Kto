@@ -64,6 +64,12 @@ export async function prepareClips(urls: string[]) {
   );
 }
 
+/** Length of a decoded clip in ms (0 if it is not loaded). */
+export function clipMs(url: string) {
+  const buffer = buffers.get(url);
+  return buffer ? Math.round(buffer.duration * 1000) : 0;
+}
+
 export function stopClip() {
   if (!clipNode) return;
   try {
@@ -149,4 +155,23 @@ export function playTap() {
 export function playFanfare() {
   [523, 659, 784, 1047].forEach((freq, index) => chime(freq, index * 0.11, 0.1, 0.3));
   chime(1319, 0.5, 0.08, 0.5);
+}
+
+
+// Background music: a plain <audio> element, streamed and looped, quiet under everything else.
+let music: HTMLAudioElement | null = null;
+
+export function startMusic() {
+  if (typeof window === "undefined") return;
+  if (!music) {
+    music = new Audio("/music/carefree.mp3");
+    music.loop = true;
+    music.volume = 0.22;
+    music.preload = "auto";
+  }
+  if (music.paused) void music.play().catch(() => {});
+}
+
+export function stopMusic() {
+  music?.pause();
 }

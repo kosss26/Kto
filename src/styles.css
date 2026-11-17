@@ -160,6 +160,47 @@ img {
   box-shadow: 0 1px 0 var(--color-go-deep);
 }
 
+.music-btn {
+  position: absolute;
+  top: max(0.75rem, env(safe-area-inset-top));
+  right: max(0.9rem, env(safe-area-inset-right));
+  width: 2.9rem;
+  height: 2.9rem;
+  border: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--felt), #fff;
+  box-shadow:
+    0 4px 0 #c9d9e6,
+    0 8px 12px -6px rgb(40 60 90 / 35%);
+  z-index: 2;
+}
+
+.music-btn svg {
+  width: 56%;
+  height: 56%;
+  fill: none;
+  stroke: var(--color-ink);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.music-btn .slash {
+  stroke: var(--color-coral);
+  stroke-width: 2.6;
+}
+
+.music-btn.is-off {
+  opacity: 0.7;
+}
+
+.music-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #c9d9e6;
+}
+
 /* ---------- логотип ---------- */
 
 .logo {

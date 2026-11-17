@@ -1,6 +1,7 @@
 # Generates the spoken lines with Silero TTS v5 (ru), voice "xenia":
 #   public/voice/where-<id>.mp3  "Где корова?"
 #   public/voice/this-<id>.mp3   "Это корова!"
+#   public/voice/fact-<id>.mp3  "Корова даёт молоко."
 #   public/voice/bravo.mp3, public/voice/again.mp3
 # Silero models are licensed CC BY-NC 4.0 — fine for this personal, non-commercial app.
 # Usage: python3 tools/make-voice.py <path to v5_ru.pt from models.silero.ai> [only-missing]
@@ -21,9 +22,12 @@ out = "public/voice"
 os.makedirs(out, exist_ok=True)
 
 lines = {"bravo": "Молодец!", "again": "Попробуй ещё!"}
+facts = dict(re.findall(r'^  (\w+): "([^"]+)",$', src, re.M))
 for item_id, name in items:
     lines[f"where-{item_id}"] = f"Где {name}?"
     lines[f"this-{item_id}"] = f"Это {name}!"
+    if item_id in facts:
+        lines[f"fact-{item_id}"] = facts[item_id]
 
 with tempfile.TemporaryDirectory() as tmp:
     for key, text in lines.items():
