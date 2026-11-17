@@ -41,8 +41,10 @@ function shuffle<T>(list: T[]) {
   return next;
 }
 
-function deal(ids: string[], count: number, previous: string | null) {
-  const pool = ids.filter((id) => id !== previous);
+/** `asked` = targets already used this game: everyone gets a turn before anyone repeats. */
+function deal(ids: string[], count: number, previous: string | null, asked: string[]) {
+  const fresh = ids.filter((id) => !asked.includes(id) && id !== previous);
+  const pool = fresh.length ? fresh : ids.filter((id) => id !== previous);
   const target = pool[Math.floor(Math.random() * pool.length)];
   const others = shuffle(ids.filter((id) => id !== target)).slice(0, count - 1);
   return { target, choices: shuffle([target, ...others]) };
@@ -136,9 +138,11 @@ function Stars({ count, total }: { count: number; total: number }) {
   );
 }
 
+const SET_MATS = ["#bfe3a5", "#ffd9a8", "#fff0a6", "#bfe0f5"];
+
 export function WhoSaidGame() {
   const [phase, setPhase] = useState<Phase>("hello");
-  const [mode, setMode] = useState<Mode>("animals");
+  const [mode, setMode] = useState<Mode>("farm");
   const [round, setRound] = useState(0);
   const [target, setTarget] = useState("cow");
   const [choices, setChoices] = useState<string[]>(["cow", "hen"]);
@@ -151,6 +155,7 @@ export function WhoSaidGame() {
   const [found, setFound] = useState<string[]>([]);
 
   const timers = useRef(new Set<number>());
+  const asked = useRef<string[]>([]);
   const later = useCallback((fn: () => void, ms: number) => {
     const id = window.setTimeout(() => {
       timers.current.delete(id);
@@ -197,7 +202,11 @@ export function WhoSaidGame() {
   }, [phase, solved, target, round, idleTick, ring]);
 
   function startRound(index: number, previous: string | null) {
-    const next = deal(idsFor(mode), COUNTS[index], previous);
+    const ids = idsFor(mode);
+    // once every toy has had a turn, start a new lap
+    const lap = index === 0 ? [] : asked.current.length >= ids.length ? [] : asked.current;
+    const next = deal(ids, COUNTS[index], previous, lap);
+    asked.current = [...lap, next.target];
     setRound(index);
     setTarget(next.target);
     setChoices(next.choices);
@@ -240,7 +249,7 @@ export function WhoSaidGame() {
       setIdleHint(false);
       playYes();
       // Vehicle clips already say the name out loud; animals get it spoken after their call.
-      if (BY_ID[id].mode === "animals") later(() => speakName(BY_ID[id].name), 250);
+      if (BY_ID[id].mode !== "city") later(() => speakName(BY_ID[id].name), 250);
       setFound((list) => [...list, id]);
       later(() => {
         if (round + 1 >= ROUNDS) finish();
@@ -261,7 +270,7 @@ export function WhoSaidGame() {
   }
 
   const hint = !solved && (asleep.length >= 2 || idleHint);
-  const parade = mode === "transport" ? ["bus", "police", "train", "plane"] : ["sheep", "pig", "cat", "duck"];
+  const parade = MODES.find((item) => item.id === mode)?.parade ?? [];
 
   if (phase === "hello") {
     return (
@@ -276,7 +285,7 @@ export function WhoSaidGame() {
               role="radio"
               aria-checked={mode === item.id}
               className={mode === item.id ? "set is-on" : "set"}
-              style={{ ["--mat" as string]: matAt(index + 2, 0) }}
+              style={{ ["--mat" as string]: SET_MATS[index] }}
               onClick={() => pickMode(item.id)}
             >
               <span className="set-pic">
@@ -301,7 +310,7 @@ export function WhoSaidGame() {
         </div>
         <Hills />
         <p className="credits">
-          {mode === "animals" ? "Звуки животных — записи с Wikimedia Commons" : "Машины называет голос"}
+          {mode !== "city" ? "Звуки животных — записи с Wikimedia Commons" : "Машины называет голос"}
         </p>
       </main>
     );

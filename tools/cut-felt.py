@@ -1,4 +1,4 @@
-# Cuts the felt-toy sheets (3x3 toys each, transparent background) into one
+# Cuts the felt-toy sheets (up to 3x3 toys each, transparent background) into one
 # clean image per toy: drops the semi-transparent noise around the toys,
 # keeps only the toy itself, makes its body fully opaque.
 # Usage: python3 tools/cut-felt.py assets/felt-sheets public/cards [preview.png]
@@ -24,7 +24,7 @@ for sheet, names in SHEETS.items():
     solid = ndi.binary_opening(solid, iterations=2)
     labels, count = ndi.label(solid)
     sizes = ndi.sum(solid, labels, range(1, count + 1))
-    keep = np.argsort(sizes)[::-1][:9] + 1
+    keep = np.argsort(sizes)[::-1][: len(names)] + 1
     centres = ndi.center_of_mass(solid, labels, keep)
     order = sorted(zip(keep, centres), key=lambda kc: (int(kc[1][0] // 418), kc[1][1]))
     for (lab, _), name in zip(order, names):

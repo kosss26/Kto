@@ -169,7 +169,7 @@ img {
   align-items: center;
   line-height: 0.92;
   font-weight: 900;
-  font-size: clamp(3.2rem, min(18vw, 10dvh), 5.6rem);
+  font-size: clamp(2.8rem, min(16vw, 8.4dvh), 5rem);
   letter-spacing: -0.01em;
 }
 
@@ -202,18 +202,19 @@ img {
   align-items: center;
   justify-content: center;
   text-align: center;
-  gap: clamp(1rem, 3.6dvh, 2.2rem);
-  padding-bottom: clamp(7rem, 20dvh, 11rem);
+  gap: clamp(0.8rem, 2.6dvh, 1.8rem);
+  padding-bottom: clamp(6.5rem, 18dvh, 10rem);
 }
 
 .sets {
-  display: flex;
-  gap: 1rem;
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: clamp(0.7rem, 2dvh, 1rem) 1rem;
   justify-content: center;
 }
 
 .set {
-  width: min(10.5rem, 42vw, 22dvh);
+  width: min(9.5rem, 40vw, 16.5dvh);
   border: 0;
   padding: 0.45rem 0.45rem 0.6rem;
   border-radius: 1.6rem;
@@ -279,7 +280,7 @@ img {
 }
 
 .play-disc {
-  width: clamp(7rem, 17dvh, 9rem);
+  width: clamp(5.8rem, 13dvh, 8rem);
   aspect-ratio: 1;
   border-radius: 50%;
   display: grid;
@@ -303,9 +304,10 @@ img {
 }
 
 .play-disc svg {
-  width: 48%;
-  height: 48%;
-  margin-left: 8%;
+  width: 46%;
+  height: 46%;
+  /* the triangle's visual centre is its centroid, which sits at x=12.5 of 24 */
+  transform: translateX(-3%);
   fill: #fff;
   filter: drop-shadow(0 3px 0 rgb(0 0 0 / 12%));
 }
@@ -323,17 +325,18 @@ img {
 
 .parade {
   position: fixed;
-  left: 50%;
+  left: 0;
+  right: 0;
   bottom: clamp(1.2rem, 4.5dvh, 2.6rem);
-  transform: translateX(-50%);
   display: flex;
+  justify-content: center;
   align-items: flex-end;
   z-index: 0;
   pointer-events: none;
 }
 
 .parade img {
-  width: clamp(4.6rem, 12dvh, 6.6rem);
+  width: min(clamp(4.6rem, 12dvh, 6.6rem), 23vw);
   height: auto;
   margin: 0 -0.3rem;
   filter: drop-shadow(0 6px 4px rgb(40 70 30 / 30%));
@@ -351,6 +354,12 @@ img {
 
 .parade img:nth-child(4) {
   animation-delay: 1.05s;
+}
+
+@media (max-height: 700px) {
+  .parade {
+    display: none;
+  }
 }
 
 .credits {
