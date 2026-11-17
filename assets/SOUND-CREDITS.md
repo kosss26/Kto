@@ -12,6 +12,13 @@
 | соловей | xeno-canto XC546043 | Benoît Van Hecke | CC BY-SA 4.0 |
 | малиновка | xeno-canto XC542566 | Benoît Van Hecke | CC BY-SA 4.0 |
 | дятел | Wikimedia Commons, File:Great_Spotted_Woodpecker_drum.ogg | см. страницу файла | CC BY-SA 3.0 |
-| чайка (пока не в игре) | xeno-canto XC707075 | см. страницу записи | CC0 |
+| чайка | xeno-canto XC707075 | см. страницу записи | CC0 |
 
 Остальные звуки животных взяты из Wikimedia Commons в первой версии игры.
+
+## Голос
+
+Фразы «Где …?», «Это …!», «Молодец!», «Попробуй ещё!» синтезированы
+Piper TTS, голос `ru_RU-dmitri-medium` (датасет OHF-Voice, лицензия CC0),
+скриптом `tools/make-voice.py`. Добавили животное в `content.ts` — запустите
+скрипт с флагом only-missing, он озвучит только новое.

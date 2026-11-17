@@ -12,8 +12,15 @@ SHEETS = {
     "sheet-1.png": (3, ["cat", "sheep", "horse", "pig", "duck", "goat", "owl", "elephant", "bee"], 40),
     "sheet-2.png": (3, ["bear", "fox", "lion", "monkey", "goose", "wolf", "donkey", "crow", "parrot"], 40),
     "sheet-3.png": (3, ["rooster", "penguin", "tiger", "police", "fire", "ambulance", "bus", "train", "plane"], 40),
-    "sheet-4.png": (3, ["turkey", "pigeon", "sparrow", "cuckoo", "woodpecker", "nightingale", "seagull", "peacock", "cricket"], 150),
+    "sheet-4.png": (3, ["turkey", "pigeon", "sparrow", "cuckoo", "woodpecker", "nightingale", "seagull", "peacock", "cricket"], 40),
     "sheet-5.png": (2, ["rhino", "seal", "dolphin", "walrus", "otter", "orca", "gecko", "robin"], 40),
+    "sheet-6.png": (2, ["crocodile", "snake", "stork", "swan", "flamingo", "ostrich"], 150),
+    "sheet-7.png": (3, ["hare", "raccoon", "beaver", "badger", "giraffe", "zebra", "panda", "koala", "kangaroo"], 40),
+    "sheet-8.png": (2, ["cow", "dog", "hen", "frog"], 40),
+    "sheet-9.png": (3, ["rabbit", "hamster", "chinchilla", "ferret", "rat", "mouse", "gerbil", "degu", "budgie"], 40),
+    "sheet-10.png": (3, ["octopus", "crab", "turtle", "seahorse", "jellyfish", "starfish", "stingray", "shark", "clownfish"], 40),
+    "sheet-11.png": (2, ["guineapig", "squirrel", "deer", "moose", "boar", "hedgehog", "camel", "hippo"], 40),
+    "sheet-12.png": (3, ["tractor", "excavator", "bulldozer", "dumptruck", "crane", "mixer", "roller", "forklift", "combine"], 40),
 }
 OUT = 360
 src_dir, out_dir = sys.argv[1], sys.argv[2]

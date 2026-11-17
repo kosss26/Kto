@@ -208,13 +208,13 @@ img {
 
 .sets {
   display: grid;
-  grid-template-columns: repeat(2, auto);
-  gap: clamp(0.7rem, 2dvh, 1rem) 1rem;
+  grid-template-columns: repeat(3, auto);
+  gap: clamp(0.6rem, 1.8dvh, 0.9rem) clamp(0.5rem, 2.6vw, 0.9rem);
   justify-content: center;
 }
 
 .set {
-  width: min(9.5rem, 40vw, 16.5dvh);
+  width: min(8rem, 28.5vw, 15dvh);
   border: 0;
   padding: 0.45rem 0.45rem 0.6rem;
   border-radius: 1.6rem;
@@ -266,7 +266,7 @@ img {
 }
 
 .set-name {
-  font: 900 1.05rem/1 var(--font-sans);
+  font: 900 clamp(0.85rem, 3.6vw, 1.05rem)/1 var(--font-sans);
   color: var(--color-ink);
 }
 

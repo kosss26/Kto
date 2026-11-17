@@ -1,12 +1,9 @@
-import { ITEMS } from "./content";
-
-const FILES: Record<string, string> = Object.fromEntries(ITEMS.map((item) => [item.id, `/sfx/${item.id}.mp3`]));
-
+// Every clip (animal call or voice line) is addressed by its URL.
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
-const raw = new Map<string, ArrayBuffer>();
+const raw = new Map<string, Promise<ArrayBuffer>>();
 const buffers = new Map<string, AudioBuffer>();
-let callNode: AudioBufferSourceNode | null = null;
+let clipNode: AudioBufferSourceNode | null = null;
 
 function context() {
   if (!ctx) ctx = new AudioContext({ latencyHint: "interactive" });
@@ -33,62 +30,71 @@ export function resumeAudio() {
   if (ctx && ctx.state === "suspended") void ctx.resume();
 }
 
-export function prefetchCalls() {
-  for (const [id, url] of Object.entries(FILES)) {
-    if (raw.has(id)) continue;
-    void fetch(url)
-      .then((res) => res.arrayBuffer())
-      .then((buf) => raw.set(id, buf));
+function bytes(url: string) {
+  let pending = raw.get(url);
+  if (!pending) {
+    pending = fetch(url).then((res) => {
+      if (!res.ok) throw new Error(`${url}: ${res.status}`);
+      return res.arrayBuffer();
+    });
+    pending.catch(() => raw.delete(url));
+    raw.set(url, pending);
   }
+  return pending;
 }
 
-export async function prepareCalls() {
+/** Start downloading without an AudioContext (allowed before the first tap). */
+export function prefetchClips(urls: string[]) {
+  for (const url of urls) void bytes(url).catch(() => {});
+}
+
+/** Download and decode; a clip that fails to load is skipped, never blocks the game. */
+export async function prepareClips(urls: string[]) {
   const audio = context();
   await Promise.all(
-    Object.entries(FILES).map(async ([id, url]) => {
-      if (buffers.has(id)) return;
-      let bytes = raw.get(id);
-      if (!bytes) {
-        const response = await fetch(url);
-        bytes = await response.arrayBuffer();
-        raw.set(id, bytes);
+    urls.map(async (url) => {
+      if (buffers.has(url)) return;
+      try {
+        const data = await bytes(url);
+        buffers.set(url, await audio.decodeAudioData(data.slice(0)));
+      } catch {
+        /* missing clip: the game goes on silently for this one */
       }
-      const clip = bytes;
-      buffers.set(id, await audio.decodeAudioData(clip.slice(0)));
     }),
   );
 }
 
-function stopCall() {
-  if (!callNode) return;
+export function stopClip() {
+  if (!clipNode) return;
   try {
-    callNode.stop();
+    clipNode.stop();
   } catch {
     /* already ended */
   }
-  callNode.disconnect();
-  callNode = null;
+  clipNode.disconnect();
+  clipNode = null;
 }
 
-export function playCall(id: string) {
+/** Plays one clip; a new clip cuts the previous one off. */
+export function playClip(url: string, wobble = false) {
   const audio = context();
-  const buffer = buffers.get(id);
+  const buffer = buffers.get(url);
   if (!buffer || !master) return;
-  stopCall();
+  stopClip();
   const src = audio.createBufferSource();
   const gain = audio.createGain();
   const now = audio.currentTime;
   src.buffer = buffer;
-  src.playbackRate.value = 0.98 + Math.random() * 0.05;
+  if (wobble) src.playbackRate.value = 0.98 + Math.random() * 0.05;
   gain.gain.setValueAtTime(0.0001, now);
   gain.gain.exponentialRampToValueAtTime(0.95, now + 0.02);
   src.connect(gain);
   gain.connect(master);
   src.start();
-  callNode = src;
+  clipNode = src;
   src.onended = () => {
     gain.disconnect();
-    if (callNode === src) callNode = null;
+    if (clipNode === src) clipNode = null;
   };
 }
 
@@ -107,16 +113,6 @@ function chime(freq: number, delay: number, peak: number, dur: number) {
   gain.connect(master);
   osc.start(now);
   osc.stop(now + dur + 0.02);
-}
-
-export function speakName(name: string) {
-  if (typeof speechSynthesis === "undefined") return;
-  const utter = new SpeechSynthesisUtterance(name);
-  utter.lang = "ru-RU";
-  utter.rate = 0.9;
-  utter.pitch = 1.12;
-  speechSynthesis.cancel();
-  speechSynthesis.speak(utter);
 }
 
 export function playYes() {
@@ -153,8 +149,4 @@ export function playTap() {
 export function playFanfare() {
   [523, 659, 784, 1047].forEach((freq, index) => chime(freq, index * 0.11, 0.1, 0.3));
   chime(1319, 0.5, 0.08, 0.5);
-}
-
-export function stopVoice() {
-  if (typeof speechSynthesis !== "undefined") speechSynthesis.cancel();
 }

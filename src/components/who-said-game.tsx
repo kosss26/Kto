@@ -1,18 +1,28 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  playCall,
+  playClip,
   playFanfare,
   playSoft,
   playTap,
   playYes,
-  prefetchCalls,
-  prepareCalls,
+  prefetchClips,
+  prepareClips,
   resumeAudio,
-  speakName,
-  stopVoice,
+  stopClip,
   unlockAudio,
 } from "@/lib/who-said/audio";
-import { BY_ID, ITEMS, MODES, cardSrc, idsFor, matAt, type Mode } from "@/lib/who-said/content";
+import {
+  BY_ID,
+  MODES,
+  VOICE,
+  callSrc,
+  cardSrc,
+  clipsFor,
+  idsFor,
+  matAt,
+  nameSrc,
+  type Mode,
+} from "@/lib/who-said/content";
 
 const ROUNDS = 8;
 const COUNTS = [2, 2, 3, 3, 4, 4, 4, 4];
@@ -22,10 +32,9 @@ const IDLE_HINT_MS = 13000;
 
 type Phase = "hello" | "play" | "done";
 
-function warmImages() {
+function warmImages(ids: string[]) {
   if (typeof window === "undefined") return;
-  const art = ITEMS.map((item) => cardSrc(item.id));
-  for (const src of art) {
+  for (const src of ids.map(cardSrc)) {
     const img = new Image();
     img.decoding = "async";
     img.src = src;
@@ -138,7 +147,7 @@ function Stars({ count, total }: { count: number; total: number }) {
   );
 }
 
-const SET_MATS = ["#bfe3a5", "#ffd9a8", "#fff0a6", "#bfe0f5"];
+const SET_MATS = ["#bfe3a5", "#f7c9dc", "#ffd9a8", "#fff0a6", "#bfe0f5", "#d8cdf5"];
 
 export function WhoSaidGame() {
   const [phase, setPhase] = useState<Phase>("hello");
@@ -169,9 +178,8 @@ export function WhoSaidGame() {
   }, []);
 
   useEffect(() => {
-    prefetchCalls();
-    warmImages();
-    stopVoice();
+    prefetchClips(clipsFor("farm"));
+    warmImages([...MODES.map((item) => item.cover), ...idsFor("farm")]);
     const onBack = () => resumeAudio();
     const pending = timers.current;
     document.addEventListener("visibilitychange", onBack);
@@ -184,7 +192,7 @@ export function WhoSaidGame() {
   const ring = useCallback(
     (id: string) => {
       setRinging(true);
-      playCall(id);
+      playClip(callSrc(id), BY_ID[id].sound);
       later(() => setRinging(false), 1100);
     },
     [later],
@@ -220,17 +228,17 @@ export function WhoSaidGame() {
     unlockAudio();
     playTap();
     clearTimers();
-    stopVoice();
+    stopClip();
     setFound([]);
     const first = startRound(0, null);
     setPhase("play");
-    void prepareCalls().then(() => ring(first));
+    void prepareClips(clipsFor(mode)).then(() => ring(first));
   }
 
   function goHome() {
     playTap();
     clearTimers();
-    stopVoice();
+    stopClip();
     setRinging(false);
     setPhase("hello");
   }
@@ -238,7 +246,7 @@ export function WhoSaidGame() {
   function finish() {
     setPhase("done");
     playFanfare();
-    later(() => speakName("Молодец!"), 700);
+    later(() => playClip(VOICE.bravo), 700);
   }
 
   function choose(id: string) {
@@ -248,8 +256,7 @@ export function WhoSaidGame() {
       setSolved(true);
       setIdleHint(false);
       playYes();
-      // Vehicle clips already say the name out loud; animals get it spoken after their call.
-      if (BY_ID[id].mode !== "city") later(() => speakName(BY_ID[id].name), 250);
+      later(() => playClip(nameSrc(id)), 300);
       setFound((list) => [...list, id]);
       later(() => {
         if (round + 1 >= ROUNDS) finish();
@@ -261,12 +268,15 @@ export function WhoSaidGame() {
     setAsleep((list) => [...list, id]);
     setWobbling(id);
     later(() => setWobbling(null), 600);
-    later(() => ring(target), 650);
+    later(() => playClip(VOICE.again), 300);
+    later(() => ring(target), 1500);
   }
 
   function pickMode(next: Mode) {
     playTap();
     setMode(next);
+    prefetchClips(clipsFor(next));
+    warmImages(idsFor(next));
   }
 
   const hint = !solved && (asleep.length >= 2 || idleHint);
@@ -310,7 +320,7 @@ export function WhoSaidGame() {
         </div>
         <Hills />
         <p className="credits">
-          {mode !== "city" ? "Звуки животных — записи с Wikimedia Commons" : "Машины называет голос"}
+          Звуки: Wikimedia Commons, xeno-canto · Голос: Piper
         </p>
       </main>
     );
