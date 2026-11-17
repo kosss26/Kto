@@ -7,26 +7,30 @@ import numpy as np
 from PIL import Image
 from scipy import ndimage as ndi
 
+# sheet -> (rows, toys in reading order, alpha floor for the haze around toys)
 SHEETS = {
-    "sheet-1.png": ["cat", "sheep", "horse", "pig", "duck", "goat", "owl", "elephant", "bee"],
-    "sheet-2.png": ["bear", "fox", "lion", "monkey", "goose", "wolf", "donkey", "crow", "parrot"],
-    "sheet-3.png": ["rooster", "penguin", "tiger", "police", "fire", "ambulance", "bus", "train", "plane"],
+    "sheet-1.png": (3, ["cat", "sheep", "horse", "pig", "duck", "goat", "owl", "elephant", "bee"], 40),
+    "sheet-2.png": (3, ["bear", "fox", "lion", "monkey", "goose", "wolf", "donkey", "crow", "parrot"], 40),
+    "sheet-3.png": (3, ["rooster", "penguin", "tiger", "police", "fire", "ambulance", "bus", "train", "plane"], 40),
+    "sheet-4.png": (3, ["turkey", "pigeon", "sparrow", "cuckoo", "woodpecker", "nightingale", "seagull", "peacock", "cricket"], 150),
+    "sheet-5.png": (2, ["rhino", "seal", "dolphin", "walrus", "otter", "orca", "gecko", "robin"], 40),
 }
 OUT = 360
 src_dir, out_dir = sys.argv[1], sys.argv[2]
 preview = sys.argv[3] if len(sys.argv) > 3 else None
 tiles = []
 
-for sheet, names in SHEETS.items():
+for sheet, (rows, names, floor) in SHEETS.items():
     img = np.array(Image.open(f"{src_dir}/{sheet}").convert("RGBA"))
     alpha = img[:, :, 3].astype(float)
-    solid = alpha >= 140
+    solid = alpha >= max(140, floor + 40)
+    cell = img.shape[0] / rows
     solid = ndi.binary_opening(solid, iterations=2)
     labels, count = ndi.label(solid)
     sizes = ndi.sum(solid, labels, range(1, count + 1))
     keep = np.argsort(sizes)[::-1][: len(names)] + 1
     centres = ndi.center_of_mass(solid, labels, keep)
-    order = sorted(zip(keep, centres), key=lambda kc: (int(kc[1][0] // 418), kc[1][1]))
+    order = sorted(zip(keep, centres), key=lambda kc: (int(kc[1][0] // cell), kc[1][1]))
     for (lab, _), name in zip(order, names):
         body = labels == lab
         # small pin-holes inside the toy are filled; real gaps (between legs) stay open
@@ -38,7 +42,7 @@ for sheet, names in SHEETS.items():
             body = body | small
         reach = ndi.binary_dilation(body, iterations=3)
         a = np.where(reach, alpha, 0)
-        a[a < 40] = 0
+        a[a < floor] = 0
         core = ndi.binary_erosion(body, iterations=2)
         a = np.where(core, 255, a)
         ys, xs = np.where(a > 0)

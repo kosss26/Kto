@@ -1,36 +1,6 @@
-const FILES: Record<string, string> = {
-  cow: "/sfx/cow.mp3",
-  hen: "/sfx/hen.mp3",
-  dog: "/sfx/dog.mp3",
-  frog: "/sfx/frog.mp3",
-  cat: "/sfx/cat.mp3",
-  sheep: "/sfx/sheep.mp3",
-  horse: "/sfx/horse.mp3",
-  pig: "/sfx/pig.mp3",
-  duck: "/sfx/duck.mp3",
-  goat: "/sfx/goat.mp3",
-  owl: "/sfx/owl.mp3",
-  elephant: "/sfx/elephant.mp3",
-  bee: "/sfx/bee.mp3",
-  bear: "/sfx/bear.mp3",
-  fox: "/sfx/fox.mp3",
-  lion: "/sfx/lion.mp3",
-  monkey: "/sfx/monkey.mp3",
-  goose: "/sfx/goose.mp3",
-  wolf: "/sfx/wolf.mp3",
-  donkey: "/sfx/donkey.mp3",
-  crow: "/sfx/crow.mp3",
-  parrot: "/sfx/parrot.mp3",
-  rooster: "/sfx/rooster.mp3",
-  penguin: "/sfx/penguin.mp3",
-  tiger: "/sfx/tiger.mp3",
-  police: "/sfx/police.mp3",
-  fire: "/sfx/fire.mp3",
-  ambulance: "/sfx/ambulance.mp3",
-  bus: "/sfx/bus.mp3",
-  train: "/sfx/train.mp3",
-  plane: "/sfx/plane.mp3",
-};
+import { ITEMS } from "./content";
+
+const FILES: Record<string, string> = Object.fromEntries(ITEMS.map((item) => [item.id, `/sfx/${item.id}.mp3`]));
 
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
