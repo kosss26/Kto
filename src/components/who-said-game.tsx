@@ -320,7 +320,7 @@ export function WhoSaidGame() {
         </div>
         <Hills />
         <p className="credits">
-          Звуки: Wikimedia Commons, xeno-canto · Голос: Vosk TTS
+          Звуки: Wikimedia Commons, xeno-canto · Голос: Silero
         </p>
       </main>
     );

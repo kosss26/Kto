@@ -1,16 +1,20 @@
-# Generates the spoken lines with Vosk TTS (vosk-model-tts-ru-0.7-multi, Apache-2.0),
-# female voice F02 (speaker 1, trained on "Natasha" from the SOVA dataset):
+# Generates the spoken lines with Silero TTS v5 (ru), voice "xenia":
 #   public/voice/where-<id>.mp3  "Где корова?"
 #   public/voice/this-<id>.mp3   "Это корова!"
 #   public/voice/bravo.mp3, public/voice/again.mp3
-# Usage: python3 tools/make-voice.py <path to vosk-model-tts-ru-0.7-multi> [only-missing]
-#        (pip install vosk-tts tokenizers onnxruntime)
-import os, re, subprocess, sys, tempfile
-from vosk_tts import Model, Synth
+# Silero models are licensed CC BY-NC 4.0 — fine for this personal, non-commercial app.
+# Usage: python3 tools/make-voice.py <path to v5_ru.pt from models.silero.ai> [only-missing]
+#        (pip install torch --index-url https://download.pytorch.org/whl/cpu)
+import os, re, subprocess, sys, tempfile, wave
+import numpy as np
+import torch
 
-SPEAKER = 1
-synth = Synth(Model(model_path=sys.argv[1]))
+SPEAKER = "xenia"
+RATE = 48000
+torch.set_num_threads(4)
+model = torch.package.PackageImporter(sys.argv[1]).load_pickle("tts_models", "model")
 only_missing = len(sys.argv) > 2
+
 src = open("src/lib/who-said/content.ts", encoding="utf-8").read()
 items = re.findall(r'\{ id: "(\w+)", name: "([^"]+)"', src)
 out = "public/voice"
@@ -26,8 +30,14 @@ with tempfile.TemporaryDirectory() as tmp:
         target = f"{out}/{key}.mp3"
         if only_missing and os.path.exists(target):
             continue
+        audio = model.apply_tts(text=text, speaker=SPEAKER, sample_rate=RATE, put_accent=True, put_yo=True)
+        pcm = (audio.numpy() * 32767).clip(-32768, 32767).astype(np.int16)
         wav = f"{tmp}/{key}.wav"
-        synth.synth(text, wav, speaker_id=SPEAKER, speech_rate=0.92)
+        with wave.open(wav, "wb") as w:
+            w.setnchannels(1)
+            w.setsampwidth(2)
+            w.setframerate(RATE)
+            w.writeframes(pcm.tobytes())
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", wav,
                         "-af", "silenceremove=start_periods=1:start_threshold=-55dB:start_silence=0.08,areverse,silenceremove=start_periods=1:start_threshold=-55dB:start_silence=0.12,areverse,loudnorm=I=-16:TP=-1.5,apad=pad_dur=0.08",
                         "-ar", "44100", "-ac", "1", "-b:a", "64k", target], check=True)
