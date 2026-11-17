@@ -8,7 +8,16 @@ import {
   stopMusic,
   unlockAudio,
 } from "@/lib/who-said/audio";
-import { ITEMS, MIX, MODES, cardSrc, clipsFor, idsFor, type SetId } from "@/lib/who-said/content";
+import {
+  ITEMS,
+  MIX,
+  MODES,
+  cardSrc,
+  clipsFor,
+  idsFor,
+  stickerSrc,
+  type SetId,
+} from "@/lib/who-said/content";
 import { LEVELS, setLevel, useProgress, type Level } from "@/lib/who-said/progress";
 import { Album } from "./album";
 import { HomesGame } from "./games/homes";
@@ -353,7 +362,7 @@ export function WhoSaidGame() {
             (id, i) => (
               <img
                 key={`${id}-${i}`}
-                src={cardSrc(id)}
+                src={progress.stickers.length ? stickerSrc(id) : cardSrc(id)}
                 alt=""
                 className={progress.stickers.length ? "" : "is-ghost"}
               />

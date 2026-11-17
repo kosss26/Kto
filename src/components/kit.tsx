@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { playClip, playFanfare } from "@/lib/who-said/audio";
-import { BY_ID, VOICE, cardSrc, matAt, type SetId } from "@/lib/who-said/content";
+import { BY_ID, VOICE, cardSrc, matAt, stickerSrc, type SetId } from "@/lib/who-said/content";
 import { finishGame } from "@/lib/who-said/progress";
 import { useQuiet, useTimers } from "@/lib/who-said/game-utils";
 
@@ -186,9 +186,7 @@ export function Finale({
         <div className="new-sticker">
           <span className="sticker-shine" aria-hidden="true" />
           <span className="sticker-ribbon">Новая наклейка!</span>
-          <span className="sticker-card" style={{ ["--mat" as string]: "#fff0a6" }}>
-            <CardFace id={sticker} />
-          </span>
+          <img className="sticker-img" src={stickerSrc(sticker)} alt={BY_ID[sticker].name} />
         </div>
       )}
       {found.length > 0 && <p className="recap-title">{title}</p>}

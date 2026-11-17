@@ -250,6 +250,11 @@ export function idsFor(set: SetId) {
   return ITEMS.filter((item) => set === "mix" || item.mode === set).map((item) => item.id);
 }
 
+/** Die-cut sticker version of the toy (tools/make-stickers.py). */
+export function stickerSrc(id: string) {
+  return `/stickers/${id}.webp`;
+}
+
 export function cardSrc(id: string) {
   return `/felt/${id}.webp`;
 }

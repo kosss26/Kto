@@ -7,13 +7,13 @@ import {
   callSrc,
   cardSrc,
   idsFor,
-  matAt,
   nameSrc,
+  stickerSrc,
   type Mode,
 } from "@/lib/who-said/content";
 import { useTimers } from "@/lib/who-said/game-utils";
 import { useProgress } from "@/lib/who-said/progress";
-import { BackIcon, CardFace, Hills } from "./kit";
+import { BackIcon, Hills } from "./kit";
 
 const TAB_MATS = ["#bfe3a5", "#f7c9dc", "#ffd9a8", "#fff0a6", "#bfe0f5", "#d8cdf5"];
 
@@ -83,21 +83,26 @@ export function Album({ onBack }: { onBack: () => void }) {
         })}
       </div>
 
-      <div className="listen-grid album-grid">
+      <div className="album-page">
         {ids.map((id, index) => {
           const got = have.has(id);
+          // a small fixed tilt per toy, so stickers look hand-placed but don't jump around
+          const tilt = ((id.charCodeAt(0) + id.length * 7) % 9) - 4;
           return (
             <button
               key={id}
               type="button"
-              className={`card mini${got ? "" : " is-missing"}${playing === id ? " is-playing" : ""}`}
-              style={{ ["--mat" as string]: matAt(index, 0) }}
+              className={`slot${got ? " is-got" : ""}${playing === id ? " is-playing" : ""}`}
+              style={{
+                ["--tilt" as string]: `${tilt}deg`,
+                animationDelay: `${Math.min(index, 15) * 0.03}s`,
+              }}
               onClick={() => tap(id)}
               aria-label={got ? BY_ID[id].name : "Ещё не найдена"}
               aria-disabled={!got}
             >
-              <CardFace id={id} />
-              <span className="mini-name">{got ? BY_ID[id].name : "?"}</span>
+              <img src={got ? stickerSrc(id) : cardSrc(id)} alt="" draggable={false} />
+              <span className="slot-name">{got ? BY_ID[id].name : "?"}</span>
             </button>
           );
         })}
