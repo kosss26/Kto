@@ -7,12 +7,11 @@ import {
   callSrc,
   cardSrc,
   howSrc,
-  praiseSrc,
   soundIdsFor,
   similarTo,
   type SetId,
 } from "@/lib/who-said/content";
-import { getProgress, type Level } from "@/lib/who-said/progress";
+import { getProgress, praiseLine, type Level } from "@/lib/who-said/progress";
 import { CardFace, CheckIcon, Finale, Hills, SpeakerIcon, Sparks, Stars, TopBar } from "../kit";
 import { shuffle, useQuiet, useTimers } from "@/lib/who-said/game-utils";
 
@@ -97,7 +96,7 @@ export function ReverseGame({ set, onHome }: { set: SetId; onHome: () => void })
       // let the right voice play out, then cheer and move on
       later(() => {
         playYes();
-        const praise = praiseSrc();
+        const praise = praiseLine();
         void prepareClips([praise]).then(() => playClip(praise));
         setLive(null);
       }, len);

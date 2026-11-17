@@ -1,15 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { clipMs, playClip, playSoft, playYes, prepareClips, stopClip } from "@/lib/who-said/audio";
-import {
-  BY_ID,
-  callSrc,
-  idsFor,
-  matAt,
-  nameSrc,
-  praiseSrc,
-  type SetId,
-} from "@/lib/who-said/content";
-import { getProgress, type Level } from "@/lib/who-said/progress";
+import { BY_ID, callSrc, idsFor, matAt, nameSrc, type SetId } from "@/lib/who-said/content";
+import { getProgress, praiseLine, type Level } from "@/lib/who-said/progress";
 import { CardFace, Finale, Hills, TopBar } from "../kit";
 import { shuffle, useQuiet, useTimers } from "@/lib/who-said/game-utils";
 
@@ -80,7 +72,7 @@ export function PairsGame({ set, onHome }: { set: SetId; onHome: () => void }) {
         setOpen([]);
         if (now.length === LEVELS[level]) {
           later(() => {
-            const praise = praiseSrc();
+            const praise = praiseLine();
             void prepareClips([praise]).then(() => playClip(praise));
           }, 1200);
           later(() => setDone(true), 2600);

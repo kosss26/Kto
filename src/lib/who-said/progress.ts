@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from "react";
-import { ITEMS, idsFor, type SetId } from "./content";
+import { ITEMS, PRAISE, VOICE, idsFor, type SetId } from "./content";
+import { NAMES, nameLine } from "./names";
 
 /**
  * Everything the game remembers, kept in this browser only (no accounts).
@@ -13,10 +14,12 @@ type Progress = {
   plays: Partial<Record<SetId, number>>;
   misses: Record<string, number>;
   level: Level;
+  /** Id from NAMES, or "" when the game should not use a name. */
+  child: string;
 };
 
 const KEY = "kto-skazal:progress";
-const EMPTY: Progress = { stickers: [], plays: {}, misses: {}, level: "middle" };
+const EMPTY: Progress = { stickers: [], plays: {}, misses: {}, level: "middle", child: "" };
 
 let state: Progress = EMPTY;
 let loaded = false;
@@ -56,6 +59,40 @@ export function getProgress() {
 
 export function useProgress() {
   return useSyncExternalStore(subscribe, getProgress, () => EMPTY);
+}
+
+export function setChild(child: string) {
+  save({ ...getProgress(), child });
+}
+
+/** The chosen name as text, or "". */
+export function childName() {
+  const id = getProgress().child;
+  return NAMES.find((n) => n.id === id)?.name ?? "";
+}
+
+/** «Молодец, Маша!» when a name is set, plain «Молодец!» otherwise. */
+export function bravoLine() {
+  const id = getProgress().child;
+  return id ? nameLine(id, "bravo") : VOICE.bravo;
+}
+
+export function helloLine() {
+  const id = getProgress().child;
+  return id ? nameLine(id, "hi") : "";
+}
+
+/** Short cheer after a right answer; now and then it uses the child's name. */
+export function praiseLine() {
+  const id = getProgress().child;
+  if (id && Math.random() < 0.35) return nameLine(id, "smart");
+  return PRAISE[Math.floor(Math.random() * PRAISE.length)];
+}
+
+/** Names a child can hear itself called by, sometimes, after a right answer. */
+export function maybeSmartLine() {
+  const id = getProgress().child;
+  return id && Math.random() < 0.3 ? nameLine(id, "smart") : "";
 }
 
 export function setLevel(level: Level) {

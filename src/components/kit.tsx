@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { playClip, playFanfare } from "@/lib/who-said/audio";
-import { BY_ID, VOICE, cardSrc, matAt, stickerSrc, type SetId } from "@/lib/who-said/content";
-import { finishGame } from "@/lib/who-said/progress";
+import { playClip, playFanfare, prepareClips } from "@/lib/who-said/audio";
+import { BY_ID, cardSrc, matAt, stickerSrc, type SetId } from "@/lib/who-said/content";
+import { bravoLine, finishGame } from "@/lib/who-said/progress";
 import { useQuiet, useTimers } from "@/lib/who-said/game-utils";
 
 // ---------- icons ----------
@@ -172,7 +172,10 @@ export function Finale({
       setSticker(finishGame(set, found));
     }
     playFanfare();
-    later(() => playClip(VOICE.bravo), 700);
+    later(() => {
+      const line = bravoLine();
+      void prepareClips([line]).then(() => playClip(line));
+    }, 700);
   }, [found, later, set]);
   return (
     <main className="room done">

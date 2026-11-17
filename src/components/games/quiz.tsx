@@ -16,12 +16,27 @@ import {
   factSrc,
   idsFor,
   matAt,
-  nameSrc,
+  answerSrc,
+  answerSrcs,
   roundClips,
   type SetId,
   similarTo,
 } from "@/lib/who-said/content";
-import { getProgress, noteHit, noteMiss, pickWeighted, type Level } from "@/lib/who-said/progress";
+import {
+  getProgress,
+  maybeSmartLine,
+  noteHit,
+  noteMiss,
+  pickWeighted,
+  type Level,
+} from "@/lib/who-said/progress";
+import { nameLine } from "@/lib/who-said/names";
+
+/** The child's "Умница" line, so it is decoded before it might be needed. */
+function smartPrep() {
+  const id = getProgress().child;
+  return id ? nameLine(id, "smart") : "";
+}
 import { CardFace, CheckIcon, Finale, Hills, SpeakerIcon, Sparks, Stars, TopBar } from "../kit";
 import { shuffle, useQuiet, useTimers } from "@/lib/who-said/game-utils";
 
@@ -79,9 +94,9 @@ export function QuizGame({ set, onHome }: { set: SetId; onHome: () => void }) {
     (id: string) => {
       setRinging(true);
       // Already decoded for a single set; in the mix the clip may still be loading.
-      void prepareClips([callSrc(id), nameSrc(id), factSrc(id)]).then(() =>
-        playClip(callSrc(id), BY_ID[id].sound),
-      );
+      void prepareClips(
+        [callSrc(id), ...answerSrcs(id), factSrc(id), smartPrep()].filter(Boolean),
+      ).then(() => playClip(callSrc(id), BY_ID[id].sound));
       later(() => setRinging(false), 1100);
     },
     [later],
@@ -140,10 +155,15 @@ export function QuizGame({ set, onHome }: { set: SetId; onHome: () => void }) {
       setSolved(true);
       setIdleHint(false);
       playYes();
-      // "Это корова!" → "Корова даёт молоко." → next round; pauses follow the real clip lengths.
-      const nameEnds = 300 + (clipMs(nameSrc(id)) || 1000);
+      // ["Умница, Маша!"] → "Да, это корова!" → "Корова даёт молоко." → next round.
+      // Pauses follow the real clip lengths.
+      const smart = maybeSmartLine();
+      const said = answerSrc(id);
+      const smartEnds = smart && clipMs(smart) ? 300 + clipMs(smart) + 100 : 300;
+      const nameEnds = smartEnds + (clipMs(said) || 1000);
       const factEnds = nameEnds + 150 + (clipMs(factSrc(id)) || 0);
-      later(() => playClip(nameSrc(id)), 300);
+      if (smart && clipMs(smart)) later(() => playClip(smart), 300);
+      later(() => playClip(said), smartEnds);
       later(() => playClip(factSrc(id)), nameEnds + 150);
       setFound((list) => [...list, id]);
       later(

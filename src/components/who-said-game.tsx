@@ -1,6 +1,8 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  playClip,
   playTap,
+  prepareClips,
   prefetchClips,
   resumeAudio,
   startMusic,
@@ -18,7 +20,15 @@ import {
   stickerSrc,
   type SetId,
 } from "@/lib/who-said/content";
-import { LEVELS, setLevel, useProgress, type Level } from "@/lib/who-said/progress";
+import {
+  LEVELS,
+  helloLine,
+  setChild,
+  setLevel,
+  useProgress,
+  type Level,
+} from "@/lib/who-said/progress";
+import { NAMES, nameLine } from "@/lib/who-said/names";
 import { Album } from "./album";
 import { HomesGame } from "./games/homes";
 import { ListenGame } from "./games/listen";
@@ -91,6 +101,66 @@ function readMusicPref() {
   }
 }
 
+const norm = (text: string) => text.trim().toLowerCase().replaceAll("ё", "е");
+
+/** «Как зовут ребёнка?»: names that have recorded lines; tapping one says hello with it. */
+function NamePicker() {
+  const { child } = useProgress();
+  const current = NAMES.find((n) => n.id === child);
+  const [query, setQuery] = useState("");
+  const q = norm(query);
+  const matches = q ? NAMES.filter((n) => norm(n.name).startsWith(q)).slice(0, 8) : [];
+
+  function choose(id: string) {
+    playTap();
+    setChild(id);
+    setQuery("");
+    if (id) {
+      const line = nameLine(id, "hi");
+      void prepareClips([line]).then(() => playClip(line));
+    }
+  }
+
+  return (
+    <div className="name-picker">
+      <p className="sheet-title">Как зовут ребёнка?</p>
+      <p className="name-current">
+        {current ? (
+          <>
+            Игра говорит: «Молодец, <b>{current.name}</b>!»
+            <button type="button" className="name-clear" onClick={() => choose("")}>
+              без имени
+            </button>
+          </>
+        ) : (
+          "Начните вводить имя — игра будет хвалить ребёнка по имени"
+        )}
+      </p>
+      <input
+        id="child-name"
+        className="name-input"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Например, Маша"
+        autoComplete="off"
+        enterKeyHint="done"
+      />
+      {q && (
+        <div className="name-chips">
+          {matches.map((n) => (
+            <button key={n.id} type="button" className="name-chip" onClick={() => choose(n.id)}>
+              {n.name}
+            </button>
+          ))}
+          {!matches.length && (
+            <p className="name-missing">Такого имени пока нет в озвучке — его можно добавить.</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 type Screen =
   | { at: "menu" }
   | { at: "album" }
@@ -156,6 +226,20 @@ export function WhoSaidGame() {
       window.removeEventListener("pointerdown", kick);
     };
   }, [musicNow, screen.at]);
+
+  const greeted = useRef(false);
+  useEffect(() => {
+    if (screen.at !== "menu" || greeted.current) return;
+    const hello = () => {
+      const line = helloLine();
+      greeted.current = true;
+      if (!line) return;
+      unlockAudio();
+      void prepareClips([line]).then(() => playClip(line));
+    };
+    window.addEventListener("pointerdown", hello, { once: true });
+    return () => window.removeEventListener("pointerdown", hello);
+  }, [screen.at]);
 
   const setQuietStable = useCallback((q: boolean) => setQuiet(q), []);
 
@@ -380,7 +464,7 @@ export function WhoSaidGame() {
             className="sheet"
             role="dialog"
             aria-modal="true"
-            aria-label="Сложность"
+            aria-label="Настройки"
             onClick={(e) => e.stopPropagation()}
           >
             <p className="sheet-title">Сложность</p>
@@ -402,6 +486,7 @@ export function WhoSaidGame() {
                 </span>
               </button>
             ))}
+            <NamePicker />
           </div>
         </div>
       )}

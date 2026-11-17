@@ -29,6 +29,10 @@ facts = dict(re.findall(r'^  (\w+): "([^"]+)",$', src, re.M))
 for item_id, name in items:
     lines[f"where-{item_id}"] = f"Где {name}?"
     lines[f"this-{item_id}"] = f"Это {name}!"
+    # variety after a right answer
+    lines[f"yes-{item_id}-1"] = f"Да, это {name}!"
+    lines[f"yes-{item_id}-2"] = f"Правильно, {name}!"
+    lines[f"yes-{item_id}-3"] = f"Верно! Это {name}."
     if item_id in facts:
         lines[f"fact-{item_id}"] = facts[item_id]
     mode, has_sound = meta[item_id]
@@ -38,6 +42,12 @@ for item_id, name in items:
     if mode in WHERE and item_id != "panda":
         lines[f"homeq-{item_id}"] = f"Где живёт {name}?"
         lines[f"lives-{item_id}"] = f"{name[0].upper() + name[1:]} живёт {WHERE[mode]}."
+
+names_src = open("src/lib/who-said/names.ts", encoding="utf-8").read()
+for name_id, child in re.findall(r'\{ id: "(\w+)", name: "([^"]+)" \}', names_src):
+    lines[f"name-{name_id}-hi"] = f"Привет, {child}! Во что поиграем?"
+    lines[f"name-{name_id}-bravo"] = f"Молодец, {child}!"
+    lines[f"name-{name_id}-smart"] = f"Умница, {child}!"
 
 with tempfile.TemporaryDirectory() as tmp:
     for key, text in lines.items():

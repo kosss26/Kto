@@ -281,17 +281,38 @@ export function nameSrc(id: string) {
   return `/voice/this-${id}.mp3`;
 }
 
+/** «Это корова!», «Да, это корова!», «Правильно, корова!», «Верно! Это корова.» */
+export function answerSrcs(id: string) {
+  return [
+    nameSrc(id),
+    `/voice/yes-${id}-1.mp3`,
+    `/voice/yes-${id}-2.mp3`,
+    `/voice/yes-${id}-3.mp3`,
+  ];
+}
+
+export function answerSrc(id: string) {
+  const all = answerSrcs(id);
+  return all[Math.floor(Math.random() * all.length)];
+}
+
 export const VOICE = { bravo: "/voice/bravo.mp3", again: "/voice/again.mp3" };
 
 /** Every clip one set needs: riddles, names, praise. The mix loads round by round instead. */
 export function clipsFor(set: SetId) {
   if (set === "mix") return [VOICE.bravo, VOICE.again];
   const ids = idsFor(set);
-  return [...ids.map(callSrc), ...ids.map(nameSrc), ...ids.map(factSrc), VOICE.bravo, VOICE.again];
+  return [
+    ...ids.map(callSrc),
+    ...ids.flatMap(answerSrcs),
+    ...ids.map(factSrc),
+    VOICE.bravo,
+    VOICE.again,
+  ];
 }
 
 export function roundClips(ids: string[]) {
-  return [...ids.map(callSrc), ...ids.map(nameSrc), ...ids.map(factSrc)];
+  return [...ids.map(callSrc), ...ids.flatMap(answerSrcs), ...ids.map(factSrc)];
 }
 
 // ---------- «Кто где живёт» ----------
