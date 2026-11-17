@@ -29,6 +29,7 @@ import {
   type Level,
 } from "@/lib/who-said/progress";
 import { NAMES, nameLine } from "@/lib/who-said/names";
+import { startOffline, syncOffline, useOffline } from "@/lib/who-said/offline";
 import { Album } from "./album";
 import { HomesGame } from "./games/homes";
 import { ListenGame } from "./games/listen";
@@ -115,6 +116,8 @@ function NamePicker() {
     playTap();
     setChild(id);
     setQuery("");
+    // the new name's lines should work offline too
+    void syncOffline();
     if (id) {
       const line = nameLine(id, "hi");
       void prepareClips([line]).then(() => playClip(line));
@@ -161,6 +164,34 @@ function NamePicker() {
   );
 }
 
+/** «Без интернета»: how far the background download has got. */
+function OfflineRow() {
+  const offline = useOffline();
+  if (offline.stage === "off") return null;
+  const pct =
+    offline.stage === "ready" ? 100 : Math.round((offline.done / Math.max(1, offline.total)) * 100);
+  return (
+    <div className="offline-row">
+      <p className="sheet-title">Без интернета</p>
+      {offline.stage === "ready" ? (
+        <p className="offline-note is-ready">Готово: игра работает без интернета</p>
+      ) : offline.stage === "error" ? (
+        <p className="offline-note">
+          Скачано {pct}% — часть файлов не загрузилась.
+          <button type="button" className="name-clear" onClick={() => void syncOffline()}>
+            докачать
+          </button>
+        </p>
+      ) : (
+        <p className="offline-note">Скачиваю картинки и звуки… {pct}%</p>
+      )}
+      <span className="offline-bar" aria-hidden="true">
+        <i style={{ width: `${pct}%` }} />
+      </span>
+    </div>
+  );
+}
+
 type Screen =
   | { at: "menu" }
   | { at: "album" }
@@ -199,6 +230,7 @@ export function WhoSaidGame() {
 
   useEffect(() => {
     setMusicOn(readMusicPref());
+    startOffline();
     prefetchClips(clipsFor("farm"));
     warmImages([
       ...MODES.map((item) => item.cover),
@@ -487,6 +519,7 @@ export function WhoSaidGame() {
               </button>
             ))}
             <NamePicker />
+            <OfflineRow />
           </div>
         </div>
       )}

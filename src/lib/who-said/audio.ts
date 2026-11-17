@@ -159,12 +159,14 @@ export function playFanfare() {
 }
 
 // Background music: a plain <audio> element, streamed and looped, quiet under everything else.
+export const MUSIC_URL = asset("/music/carefree.mp3");
+
 let music: HTMLAudioElement | null = null;
 
 export function startMusic() {
   if (typeof window === "undefined") return;
   if (!music) {
-    music = new Audio(asset("/music/carefree.mp3"));
+    music = new Audio(MUSIC_URL);
     music.loop = true;
     music.volume = 0.22;
     music.preload = "auto";

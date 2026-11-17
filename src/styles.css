@@ -2145,3 +2145,41 @@ img {
   font: 700 0.88rem/1.3 var(--font-sans);
   color: var(--color-ink-soft);
 }
+
+/* ---------- без интернета ---------- */
+
+.offline-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+  padding-top: 0.9rem;
+  border-top: 2px dashed rgb(74 45 94 / 14%);
+}
+
+.offline-note {
+  margin: 0;
+  text-align: center;
+  font: 700 0.92rem/1.35 var(--font-sans);
+  color: var(--color-ink-soft);
+}
+
+.offline-note.is-ready {
+  color: var(--color-go-deep);
+}
+
+.offline-bar {
+  display: block;
+  height: 0.6rem;
+  border-radius: 999px;
+  background: rgb(74 45 94 / 10%);
+  overflow: hidden;
+}
+
+.offline-bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-go);
+  transition: width 0.4s ease;
+}
