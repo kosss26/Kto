@@ -28,85 +28,9 @@ const HOME_COUNTS: Record<Level, number[]> = {
   pro: [3, 3, 3, 4, 4, 4, 4, 4],
 };
 
-/** Little felt pictures of each home, drawn in code. */
+/** Felt picture of each home (cut from assets/felt-sheets/sheet-13.png). */
 function HomeArt({ id }: { id: HomeId }) {
-  switch (id) {
-    case "house":
-      return (
-        <svg viewBox="0 0 64 64" aria-hidden="true">
-          <path d="M10 30 32 12l22 18" fill="#e96a6a" />
-          <rect x="15" y="28" width="34" height="26" rx="3" fill="#fff4e0" />
-          <rect x="27" y="38" width="10" height="16" rx="2" fill="#a77bea" />
-          <path d="M43 33c-2-3-6-1-4 2l4 3 4-3c2-3-2-5-4-2Z" fill="#ff6b8b" />
-          <path
-            d="M10 30 32 12l22 18"
-            fill="none"
-            stroke="#fff"
-            strokeWidth="1.6"
-            strokeDasharray="3 2.5"
-          />
-        </svg>
-      );
-    case "farm":
-      return (
-        <svg viewBox="0 0 64 64" aria-hidden="true">
-          <path d="M8 28 32 12l24 16v26H8Z" fill="#d9483b" />
-          <path d="M8 28 32 12l24 16" fill="none" stroke="#fff" strokeWidth="2.4" />
-          <rect x="24" y="34" width="16" height="20" fill="#fff4e0" />
-          <path d="M24 34l16 20M40 34 24 54" stroke="#d9483b" strokeWidth="2.4" />
-          <circle cx="32" cy="25" r="3.5" fill="#fff4e0" />
-          <path d="M9 53h46" stroke="#fff" strokeWidth="1.4" strokeDasharray="3 2.5" />
-        </svg>
-      );
-    case "forest":
-      return (
-        <svg viewBox="0 0 64 64" aria-hidden="true">
-          <path d="M22 8 8 34h8L6 50h32L28 34h8Z" fill="#3f9a55" />
-          <path d="M44 16 33 38h6l-8 13h26l-8-13h6Z" fill="#5bb36a" />
-          <rect x="19.5" y="50" width="5" height="7" rx="1" fill="#8a5a3a" />
-          <rect x="41.5" y="51" width="5" height="6" rx="1" fill="#8a5a3a" />
-          <path
-            d="M22 13 11 33M44 21l-9 16"
-            stroke="#fff"
-            strokeWidth="1.3"
-            strokeDasharray="3 2.5"
-          />
-        </svg>
-      );
-    case "sea":
-      return (
-        <svg viewBox="0 0 64 64" aria-hidden="true">
-          <circle cx="46" cy="18" r="8" fill="#ffc93c" />
-          <path d="M4 34c6-6 10-6 15 0s10 6 15 0 10-6 15 0 10 6 11 0v26H4Z" fill="#3fa2e8" />
-          <path d="M4 46c6-6 10-6 15 0s10 6 15 0 10-6 15 0 10 6 11 0v14H4Z" fill="#2b7fc4" />
-          <path
-            d="M4 38c6-6 10-6 15 0s10 6 15 0 10-6 15 0"
-            fill="none"
-            stroke="#fff"
-            strokeWidth="1.4"
-            strokeDasharray="3 2.5"
-          />
-        </svg>
-      );
-    case "hot":
-      return (
-        <svg viewBox="0 0 64 64" aria-hidden="true">
-          <circle cx="48" cy="14" r="8" fill="#ff9d2e" />
-          <path d="M4 54c10-8 46-8 56 0v6H4Z" fill="#f1c76a" />
-          <path
-            d="M30 54c1-12 3-24 4-30"
-            stroke="#8a5a3a"
-            strokeWidth="4"
-            strokeLinecap="round"
-            fill="none"
-          />
-          <path
-            d="M34 24c-8-6-17-4-20 2 7-2 13-1 20-2ZM34 24c7-8 16-7 19-1-7-1-12 0-19 1ZM34 24c-2-8-8-12-14-11 6 3 10 6 14 11ZM34 24c4-7 10-9 15-7-6 1-10 3-15 7Z"
-            fill="#3f9a55"
-          />
-        </svg>
-      );
-  }
+  return <img src={`/felt/home-${id}.webp`} alt="" draggable={false} />;
 }
 
 type Fly = { x: number; y: number } | null;

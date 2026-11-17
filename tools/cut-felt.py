@@ -20,6 +20,7 @@ SHEETS = {
     "sheet-9.png": (3, ["rabbit", "hamster", "chinchilla", "ferret", "rat", "mouse", "gerbil", "degu", "budgie"], 40),
     "sheet-10.png": (3, ["octopus", "crab", "turtle", "seahorse", "jellyfish", "starfish", "stingray", "shark", "clownfish"], 40),
     "sheet-11.png": (2, ["guineapig", "squirrel", "deer", "moose", "boar", "hedgehog", "camel", "hippo"], 40),
+    "sheet-13.png": (2, ["home-house", "home-farm", "home-forest", "home-sea", "home-hot"], 150),
     "sheet-12.png": (3, ["tractor", "excavator", "bulldozer", "dumptruck", "crane", "mixer", "roller", "forklift", "combine"], 40),
 }
 OUT = 360

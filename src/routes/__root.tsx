@@ -13,6 +13,7 @@ export const Route = createRootRoute({
     ],
     links: [
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+      { rel: "icon", type: "image/png", sizes: "192x192", href: "/icon-192.png" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" },
       { rel: "preload", as: "image", href: "/felt/pig.webp" },
       { rel: "preload", as: "image", href: "/felt/bus.webp" },

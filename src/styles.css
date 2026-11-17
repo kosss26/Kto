@@ -1517,9 +1517,13 @@ img {
   border: 2px dashed rgb(255 255 255 / 85%);
 }
 
-.home-art svg {
-  width: 72%;
+.home-art img {
+  position: relative;
+  z-index: 1;
+  width: 86%;
   height: auto;
+  filter: drop-shadow(0 5px 4px rgb(60 40 30 / 22%));
+  pointer-events: none;
 }
 
 .home-name {
