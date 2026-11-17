@@ -1,6 +1,7 @@
-import { useEffect, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { playClip, playFanfare } from "@/lib/who-said/audio";
-import { BY_ID, VOICE, cardSrc, matAt } from "@/lib/who-said/content";
+import { BY_ID, VOICE, cardSrc, matAt, type SetId } from "@/lib/who-said/content";
+import { finishGame } from "@/lib/who-said/progress";
 import { useQuiet, useTimers } from "@/lib/who-said/game-utils";
 
 // ---------- icons ----------
@@ -148,22 +149,31 @@ export function TopBar({ onHome, children }: { onHome: () => void; children?: Re
 
 /** Stars, "Молодец!", the toys of this game, home / again. */
 export function Finale({
+  set,
   found,
   title = "Ты угадал:",
   onHome,
   onAgain,
 }: {
+  set: SetId;
   found: string[];
   title?: string;
   onHome: () => void;
   onAgain: () => void;
 }) {
   const { later } = useTimers();
+  const [sticker, setSticker] = useState<string | null>(null);
+  const awarded = useRef(false);
   useQuiet(false);
   useEffect(() => {
+    // one sticker per finished game (the ref keeps a dev double-run from paying twice)
+    if (!awarded.current) {
+      awarded.current = true;
+      setSticker(finishGame(set, found));
+    }
     playFanfare();
     later(() => playClip(VOICE.bravo), 700);
-  }, [later]);
+  }, [found, later, set]);
   return (
     <main className="room done">
       <div className="stars" aria-hidden="true">
@@ -172,6 +182,15 @@ export function Finale({
         <i />
       </div>
       <h1 className="praise">Молодец!</h1>
+      {sticker && (
+        <div className="new-sticker">
+          <span className="sticker-shine" aria-hidden="true" />
+          <span className="sticker-ribbon">Новая наклейка!</span>
+          <span className="sticker-card" style={{ ["--mat" as string]: "#fff0a6" }}>
+            <CardFace id={sticker} />
+          </span>
+        </div>
+      )}
       {found.length > 0 && <p className="recap-title">{title}</p>}
       <ul className="recap" data-count={found.length}>
         {found.map((id, index) => (

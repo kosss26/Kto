@@ -19,22 +19,42 @@ import {
   nameSrc,
   roundClips,
   type SetId,
+  similarTo,
 } from "@/lib/who-said/content";
+import { getProgress, noteHit, noteMiss, pickWeighted, type Level } from "@/lib/who-said/progress";
 import { CardFace, CheckIcon, Finale, Hills, SpeakerIcon, Sparks, Stars, TopBar } from "../kit";
 import { shuffle, useQuiet, useTimers } from "@/lib/who-said/game-utils";
 
 const ROUNDS = 8;
-const COUNTS = [2, 2, 3, 3, 4, 4, 4, 4];
+/** Cards per round for each level. */
+const COUNTS: Record<Level, number[]> = {
+  baby: [2, 2, 2, 2, 2, 2, 2, 2],
+  middle: [2, 2, 3, 3, 4, 4, 4, 4],
+  pro: [3, 3, 4, 4, 4, 6, 6, 6],
+};
 /** Silence before the sound repeats by itself, then before the right card starts to glow. */
 const IDLE_REPEAT_MS = 7000;
 const IDLE_HINT_MS = 13000;
 
 /** `asked` = targets already used this game: everyone gets a turn before anyone repeats. */
-function deal(ids: string[], count: number, previous: string | null, asked: string[]) {
+function deal(
+  ids: string[],
+  count: number,
+  previous: string | null,
+  asked: string[],
+  tricky: boolean,
+) {
   const fresh = ids.filter((id) => !asked.includes(id) && id !== previous);
   const pool = fresh.length ? fresh : ids.filter((id) => id !== previous);
-  const target = pool[Math.floor(Math.random() * pool.length)];
-  const others = shuffle(ids.filter((id) => id !== target)).slice(0, count - 1);
+  // toys the child mixed up before come back more often
+  const target = pickWeighted(pool);
+  const rest = ids.filter((id) => id !== target);
+  // «Умник»: look-alikes and sound-alikes go into the round first
+  const alike = tricky ? shuffle(similarTo(target, rest)).slice(0, 2) : [];
+  const others = [...alike, ...shuffle(rest.filter((id) => !alike.includes(id)))].slice(
+    0,
+    count - 1,
+  );
   return { target, choices: shuffle([target, ...others]) };
 }
 
@@ -72,7 +92,8 @@ export function QuizGame({ set, onHome }: { set: SetId; onHome: () => void }) {
       const ids = idsFor(set);
       // once every toy has had a turn, start a new lap
       const lap = index === 0 ? [] : asked.current.length >= ids.length ? [] : asked.current;
-      const next = deal(ids, COUNTS[index], previous, lap);
+      const level = getProgress().level;
+      const next = deal(ids, COUNTS[level][index], previous, lap, level === "pro");
       asked.current = [...lap, next.target];
       if (set === "mix") prefetchClips(roundClips(next.choices));
       setRound(index);
@@ -115,6 +136,7 @@ export function QuizGame({ set, onHome }: { set: SetId; onHome: () => void }) {
     if (done || solved || asleep.includes(id)) return;
     setIdleTick((n) => n + 1);
     if (id === target) {
+      if (!asleep.length) noteHit(id);
       setSolved(true);
       setIdleHint(false);
       playYes();
@@ -134,6 +156,7 @@ export function QuizGame({ set, onHome }: { set: SetId; onHome: () => void }) {
       return;
     }
     playSoft();
+    if (!asleep.length) noteMiss(target);
     setAsleep((list) => [...list, id]);
     setWobbling(id);
     later(() => setWobbling(null), 600);
@@ -141,7 +164,7 @@ export function QuizGame({ set, onHome }: { set: SetId; onHome: () => void }) {
     later(() => ring(target), 1500);
   }
 
-  if (done) return <Finale found={found} onHome={onHome} onAgain={begin} />;
+  if (done) return <Finale set={set} found={found} onHome={onHome} onAgain={begin} />;
 
   const hint = !solved && (asleep.length >= 2 || idleHint);
 

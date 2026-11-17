@@ -9,11 +9,13 @@ import {
   praiseSrc,
   type SetId,
 } from "@/lib/who-said/content";
+import { getProgress, type Level } from "@/lib/who-said/progress";
 import { CardFace, Finale, Hills, TopBar } from "../kit";
 import { shuffle, useQuiet, useTimers } from "@/lib/who-said/game-utils";
 
-/** Pairs per level: each win makes the next board a little bigger. */
-const LEVELS = [3, 4, 6];
+/** Pairs per board: each win makes the next board a little bigger. The age level picks where to start. */
+const LEVELS = [2, 3, 4, 6];
+const START: Record<Level, number> = { baby: 0, middle: 1, pro: 2 };
 
 type Tile = { key: number; id: string };
 
@@ -55,7 +57,7 @@ export function PairsGame({ set, onHome }: { set: SetId; onHome: () => void }) {
   );
 
   useEffect(() => {
-    deal(0);
+    deal(START[getProgress().level]);
     return () => stopClip();
   }, [deal]);
 
@@ -99,6 +101,7 @@ export function PairsGame({ set, onHome }: { set: SetId; onHome: () => void }) {
   if (done)
     return (
       <Finale
+        set={set}
         found={matched}
         title="Ты нашёл пары:"
         onHome={onHome}

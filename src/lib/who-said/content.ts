@@ -339,3 +339,31 @@ export const PRAISE = [
 export function praiseSrc() {
   return PRAISE[Math.floor(Math.random() * PRAISE.length)];
 }
+
+// ---------- похожие голоса и картинки (уровень «Умник») ----------
+
+const SIMILAR: string[][] = [
+  ["duck", "goose", "swan", "seagull"],
+  ["dog", "wolf", "fox"],
+  ["horse", "donkey", "zebra", "camel"],
+  ["sheep", "goat", "cow"],
+  ["hen", "rooster", "turkey", "peacock"],
+  ["crow", "pigeon", "sparrow", "robin", "nightingale"],
+  ["lion", "tiger", "cat"],
+  ["owl", "cuckoo", "woodpecker"],
+  ["dolphin", "orca", "seal", "walrus"],
+  ["police", "fire", "ambulance"],
+  ["deer", "moose"],
+  ["pig", "boar", "hippo", "rhino"],
+  ["rat", "mouse", "hamster", "guineapig", "gerbil", "degu", "chinchilla"],
+  ["parrot", "budgie", "flamingo"],
+  ["frog", "cricket", "bee"],
+  ["bus", "train", "tractor"],
+  ["excavator", "bulldozer", "crane", "roller", "forklift", "dumptruck", "mixer", "combine"],
+];
+
+/** Toys easy to mix up with this one, limited to the given pool. */
+export function similarTo(id: string, pool: string[]) {
+  const group = SIMILAR.find((g) => g.includes(id)) ?? [];
+  return group.filter((other) => other !== id && pool.includes(other));
+}

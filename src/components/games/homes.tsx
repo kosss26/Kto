@@ -16,12 +16,17 @@ import {
   livesSrc,
   type HomeId,
 } from "@/lib/who-said/content";
+import { getProgress, type Level } from "@/lib/who-said/progress";
 import { CardFace, Finale, Hills, Stars, TopBar } from "../kit";
 import { shuffle, useQuiet, useTimers } from "@/lib/who-said/game-utils";
 
 const ROUNDS = 8;
-/** Homes on screen per round: two for the first rounds, then three. */
-const HOME_COUNTS = [2, 2, 2, 3, 3, 3, 3, 3];
+/** Homes on screen per round for each level. */
+const HOME_COUNTS: Record<Level, number[]> = {
+  baby: [2, 2, 2, 2, 2, 2, 2, 2],
+  middle: [2, 2, 2, 3, 3, 3, 3, 3],
+  pro: [3, 3, 3, 4, 4, 4, 4, 4],
+};
 
 /** Little felt pictures of each home, drawn in code. */
 function HomeArt({ id }: { id: HomeId }) {
@@ -130,7 +135,7 @@ export function HomesGame({ onHome }: { onHome: () => void }) {
     const own = homeOf(id) as HomeId;
     const others = shuffle(HOMES.map((h) => h.id).filter((h) => h !== own)).slice(
       0,
-      HOME_COUNTS[index] - 1,
+      HOME_COUNTS[getProgress().level][index] - 1,
     );
     // keep the homes in a fixed left-to-right order so they don't jump around between rounds
     const shown = HOMES.map((h) => h.id).filter((h) => h === own || others.includes(h));
@@ -236,7 +241,8 @@ export function HomesGame({ onHome }: { onHome: () => void }) {
     else setDrag(null);
   }
 
-  if (done) return <Finale found={placed} title="Все дома:" onHome={onHome} onAgain={begin} />;
+  if (done)
+    return <Finale set="mix" found={placed} title="Все дома:" onHome={onHome} onAgain={begin} />;
 
   const transform = flyTo
     ? `translate(${flyTo.x}px, ${flyTo.y}px) scale(0.25)`

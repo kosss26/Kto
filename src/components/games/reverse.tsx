@@ -9,13 +9,20 @@ import {
   howSrc,
   praiseSrc,
   soundIdsFor,
+  similarTo,
   type SetId,
 } from "@/lib/who-said/content";
+import { getProgress, type Level } from "@/lib/who-said/progress";
 import { CardFace, CheckIcon, Finale, Hills, SpeakerIcon, Sparks, Stars, TopBar } from "../kit";
 import { shuffle, useQuiet, useTimers } from "@/lib/who-said/game-utils";
 
 const ROUNDS = 8;
-const COUNTS = [2, 2, 3, 3, 3, 3, 3, 3];
+/** Bells per round for each level. */
+const COUNTS: Record<Level, number[]> = {
+  baby: [2, 2, 2, 2, 2, 2, 2, 2],
+  middle: [2, 2, 3, 3, 3, 3, 3, 3],
+  pro: [3, 3, 3, 3, 3, 3, 3, 3],
+};
 const BELL_COLORS = ["#ffc93c", "#ff8fb1", "#7cc4f0"];
 
 /** Toys with a real call in this set; a set with too few borrows from all of them. */
@@ -45,7 +52,13 @@ export function ReverseGame({ set, onHome }: { set: SetId; onHome: () => void })
       const choicePool = fresh.length ? fresh : ids;
       const next = choicePool[Math.floor(Math.random() * choicePool.length)];
       asked.current = fresh.length ? [...asked.current, next] : [next];
-      const others = shuffle(ids.filter((id) => id !== next)).slice(0, COUNTS[index] - 1);
+      const level = getProgress().level;
+      const rest = ids.filter((id) => id !== next);
+      const alike = level === "pro" ? shuffle(similarTo(next, rest)).slice(0, 2) : [];
+      const others = [...alike, ...shuffle(rest.filter((id) => !alike.includes(id)))].slice(
+        0,
+        COUNTS[level][index] - 1,
+      );
       const order = shuffle([next, ...others]);
       setRound(index);
       setTarget(next);
@@ -102,7 +115,9 @@ export function ReverseGame({ set, onHome }: { set: SetId; onHome: () => void })
   }
 
   if (done)
-    return <Finale found={found} title="Ты узнал голоса:" onHome={onHome} onAgain={begin} />;
+    return (
+      <Finale set={set} found={found} title="Ты узнал голоса:" onHome={onHome} onAgain={begin} />
+    );
 
   return (
     <main className="room play reverse">

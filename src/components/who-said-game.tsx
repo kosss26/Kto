@@ -8,7 +8,9 @@ import {
   stopMusic,
   unlockAudio,
 } from "@/lib/who-said/audio";
-import { MIX, MODES, cardSrc, clipsFor, idsFor, type SetId } from "@/lib/who-said/content";
+import { ITEMS, MIX, MODES, cardSrc, clipsFor, idsFor, type SetId } from "@/lib/who-said/content";
+import { LEVELS, setLevel, useProgress, type Level } from "@/lib/who-said/progress";
+import { Album } from "./album";
 import { HomesGame } from "./games/homes";
 import { ListenGame } from "./games/listen";
 import { PairsGame } from "./games/pairs";
@@ -82,14 +84,39 @@ function readMusicPref() {
 
 type Screen =
   | { at: "menu" }
+  | { at: "album" }
   | { at: "sets"; game: GameId }
   | { at: "play"; game: GameId; set: SetId; run: number };
+
+/** Up to three stars: how many times the set was played to the end. */
+function SetStars({ plays }: { plays: number }) {
+  return (
+    <span className="set-stars" aria-label={`Пройдено ${plays} раз`}>
+      {[0, 1, 2].map((i) => (
+        <i key={i} className={i < plays ? "is-on" : ""} />
+      ))}
+    </span>
+  );
+}
+
+function LevelIcon({ level }: { level: Level }) {
+  const filled = level === "baby" ? 1 : level === "middle" ? 2 : 3;
+  return (
+    <span className="level-dots" aria-hidden="true">
+      {[0, 1, 2].map((i) => (
+        <i key={i} className={i < filled ? "is-on" : ""} />
+      ))}
+    </span>
+  );
+}
 
 export function WhoSaidGame() {
   const [screen, setScreen] = useState<Screen>({ at: "menu" });
   const [set, setSet] = useState<SetId>("farm");
   const [musicOn, setMusicOn] = useState(true);
   const [quiet, setQuiet] = useState(false);
+  const [levelOpen, setLevelOpen] = useState(false);
+  const progress = useProgress();
 
   useEffect(() => {
     setMusicOn(readMusicPref());
@@ -194,6 +221,8 @@ export function WhoSaidGame() {
     );
   }
 
+  if (screen.at === "album") return <Album onBack={goMenu} />;
+
   if (screen.at === "sets") {
     const game = GAMES.find((g) => g.id === screen.game)!;
     const parade =
@@ -228,6 +257,7 @@ export function WhoSaidGame() {
                 <img src={cardSrc(item.cover)} alt="" />
               </span>
               <span className="set-name">{item.label}</span>
+              <SetStars plays={progress.plays[item.id] ?? 0} />
             </button>
           ))}
           <button
@@ -246,6 +276,7 @@ export function WhoSaidGame() {
               <ShuffleIcon />
               {MIX.label}
             </span>
+            <SetStars plays={progress.plays.mix ?? 0} />
           </button>
         </div>
 
@@ -273,6 +304,18 @@ export function WhoSaidGame() {
 
   return (
     <main className="room hello menu">
+      <button
+        type="button"
+        className="level-chip"
+        onClick={() => {
+          playTap();
+          setLevelOpen(true);
+        }}
+        aria-label={`Сложность: ${LEVELS.find((l) => l.id === progress.level)?.label}`}
+      >
+        <LevelIcon level={progress.level} />
+        {LEVELS.find((l) => l.id === progress.level)?.label}
+      </button>
       {musicButton}
       <Logo />
       <nav className="games" aria-label="Игры">
@@ -297,10 +340,64 @@ export function WhoSaidGame() {
           </button>
         ))}
       </nav>
+      <button
+        type="button"
+        className="album-btn"
+        onClick={() => {
+          playTap();
+          setScreen({ at: "album" });
+        }}
+      >
+        <span className="album-stack" aria-hidden="true">
+          {(progress.stickers.length ? progress.stickers.slice(-3) : ["cat", "fox", "dolphin"]).map(
+            (id, i) => (
+              <img
+                key={`${id}-${i}`}
+                src={cardSrc(id)}
+                alt=""
+                className={progress.stickers.length ? "" : "is-ghost"}
+              />
+            ),
+          )}
+        </span>
+        <span className="album-label">Мои наклейки</span>
+        <span className="album-count">
+          {progress.stickers.length} из {ITEMS.length}
+        </span>
+      </button>
+      {levelOpen && (
+        <div className="sheet-backdrop" onClick={() => setLevelOpen(false)}>
+          <div
+            className="sheet"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Сложность"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="sheet-title">Сложность</p>
+            {LEVELS.map((level) => (
+              <button
+                key={level.id}
+                type="button"
+                className={progress.level === level.id ? "level-option is-on" : "level-option"}
+                onClick={() => {
+                  playTap();
+                  setLevel(level.id);
+                  setLevelOpen(false);
+                }}
+              >
+                <LevelIcon level={level.id} />
+                <span className="level-text">
+                  <span className="level-name">{level.label}</span>
+                  <span className="level-note">{level.note}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       <Hills />
-      <p className="credits">
-        Звуки: BBC, xeno-canto · Голос: Silero · Музыка: K. MacLeod
-      </p>
+      <p className="credits">Звуки: BBC, xeno-canto · Голос: Silero · Музыка: K. MacLeod</p>
     </main>
   );
 }
