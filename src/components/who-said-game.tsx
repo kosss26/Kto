@@ -13,6 +13,7 @@ import {
 } from "@/lib/who-said/audio";
 import {
   BY_ID,
+  MIX,
   MODES,
   VOICE,
   callSrc,
@@ -21,7 +22,8 @@ import {
   idsFor,
   matAt,
   nameSrc,
-  type Mode,
+  roundClips,
+  type SetId,
 } from "@/lib/who-said/content";
 
 const ROUNDS = 8;
@@ -93,6 +95,16 @@ function PlayIcon() {
   );
 }
 
+function ShuffleIcon() {
+  return (
+    <svg className="shuffle" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M3 7h3.5c2.2 0 3.6 1 4.8 3l1.4 2.4c1.2 2 2.6 3 4.8 3H21" />
+      <path d="M3 17h3.5c1.5 0 2.6-.5 3.5-1.5M14 8.5c.9-1 2-1.5 3.5-1.5H21" />
+      <path d="m18.5 4.5 2.5 2.5-2.5 2.5M18.5 13 21 15.5 18.5 18" />
+    </svg>
+  );
+}
+
 function SpeakerIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -151,7 +163,7 @@ const SET_MATS = ["#bfe3a5", "#f7c9dc", "#ffd9a8", "#fff0a6", "#bfe0f5", "#d8cdf
 
 export function WhoSaidGame() {
   const [phase, setPhase] = useState<Phase>("hello");
-  const [mode, setMode] = useState<Mode>("farm");
+  const [mode, setMode] = useState<SetId>("farm");
   const [round, setRound] = useState(0);
   const [target, setTarget] = useState("cow");
   const [choices, setChoices] = useState<string[]>(["cow", "hen"]);
@@ -192,7 +204,8 @@ export function WhoSaidGame() {
   const ring = useCallback(
     (id: string) => {
       setRinging(true);
-      playClip(callSrc(id), BY_ID[id].sound);
+      // Already decoded for a single set; in the mix the clip may still be loading.
+      void prepareClips([callSrc(id), nameSrc(id)]).then(() => playClip(callSrc(id), BY_ID[id].sound));
       later(() => setRinging(false), 1100);
     },
     [later],
@@ -215,6 +228,7 @@ export function WhoSaidGame() {
     const lap = index === 0 ? [] : asked.current.length >= ids.length ? [] : asked.current;
     const next = deal(ids, COUNTS[index], previous, lap);
     asked.current = [...lap, next.target];
+    if (mode === "mix") prefetchClips(roundClips(next.choices));
     setRound(index);
     setTarget(next.target);
     setChoices(next.choices);
@@ -272,15 +286,15 @@ export function WhoSaidGame() {
     later(() => ring(target), 1500);
   }
 
-  function pickMode(next: Mode) {
+  function pickMode(next: SetId) {
     playTap();
     setMode(next);
     prefetchClips(clipsFor(next));
-    warmImages(idsFor(next));
+    if (next !== "mix") warmImages(idsFor(next));
   }
 
   const hint = !solved && (asleep.length >= 2 || idleHint);
-  const parade = MODES.find((item) => item.id === mode)?.parade ?? [];
+  const parade = mode === "mix" ? MIX.parade : (MODES.find((item) => item.id === mode)?.parade ?? []);
 
   if (phase === "hello") {
     return (
@@ -304,6 +318,23 @@ export function WhoSaidGame() {
               <span className="set-name">{item.label}</span>
             </button>
           ))}
+          <button
+            type="button"
+            role="radio"
+            aria-checked={mode === "mix"}
+            className={mode === "mix" ? "set mix is-on" : "set mix"}
+            onClick={() => pickMode("mix")}
+          >
+            <span className="mix-pics">
+              {MIX.covers.map((id) => (
+                <img key={id} src={cardSrc(id)} alt="" />
+              ))}
+            </span>
+            <span className="set-name">
+              <ShuffleIcon />
+              {MIX.label}
+            </span>
+          </button>
         </div>
 
         <button type="button" className="play-btn" onClick={begin} aria-label="Играть">

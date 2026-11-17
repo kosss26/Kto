@@ -1,4 +1,6 @@
 export type Mode = "farm" | "pets" | "forest" | "zoo" | "sea" | "city";
+/** A set on the start screen: one of the six, or everything shuffled together. */
+export type SetId = Mode | "mix";
 
 export type Item = {
   id: string;
@@ -121,8 +123,10 @@ export const MODES: { id: Mode; label: string; cover: string; parade: string[] }
   { id: "city", label: "Машины", cover: "excavator", parade: ["tractor", "bus", "excavator", "train"] },
 ];
 
-export function idsFor(mode: Mode) {
-  return ITEMS.filter((item) => item.mode === mode).map((item) => item.id);
+export const MIX = { label: "Вперемешку", covers: ["cow", "giraffe", "dolphin", "excavator"], parade: ["hamster", "giraffe", "octopus", "tractor"] };
+
+export function idsFor(set: SetId) {
+  return ITEMS.filter((item) => set === "mix" || item.mode === set).map((item) => item.id);
 }
 
 export function cardSrc(id: string) {
@@ -148,8 +152,13 @@ export function nameSrc(id: string) {
 
 export const VOICE = { bravo: "/voice/bravo.mp3", again: "/voice/again.mp3" };
 
-/** Every clip one set needs: riddles, names, praise. */
-export function clipsFor(mode: Mode) {
-  const ids = idsFor(mode);
+/** Every clip one set needs: riddles, names, praise. The mix loads round by round instead. */
+export function clipsFor(set: SetId) {
+  if (set === "mix") return [VOICE.bravo, VOICE.again];
+  const ids = idsFor(set);
   return [...ids.map(callSrc), ...ids.map(nameSrc), VOICE.bravo, VOICE.again];
+}
+
+export function roundClips(ids: string[]) {
+  return [...ids.map(callSrc), ...ids.map(nameSrc)];
 }
