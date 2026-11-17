@@ -1,3 +1,4 @@
+import { asset } from "./assets";
 export type Mode = "farm" | "pets" | "forest" | "zoo" | "sea" | "city";
 /** A set on the start screen: one of the six, or everything shuffled together. */
 export type SetId = Mode | "mix";
@@ -252,11 +253,11 @@ export function idsFor(set: SetId) {
 
 /** Die-cut sticker version of the toy (tools/make-stickers.py). */
 export function stickerSrc(id: string) {
-  return `/stickers/${id}.webp`;
+  return asset(`/stickers/${id}.webp`);
 }
 
 export function cardSrc(id: string) {
-  return `/felt/${id}.webp`;
+  return asset(`/felt/${id}.webp`);
 }
 
 /** Pastel felt colours for the card mats; cards in one round never share a colour. */
@@ -268,26 +269,26 @@ export function matAt(index: number, round: number) {
 
 /** What the child hears as the riddle: the animal's own call, or the voice asking for it. */
 export function callSrc(id: string) {
-  return BY_ID[id].sound ? `/sfx/${id}.mp3` : `/voice/where-${id}.mp3`;
+  return BY_ID[id].sound ? asset(`/sfx/${id}.mp3`) : asset(`/voice/where-${id}.mp3`);
 }
 
 /** Voice telling the fact. */
 export function factSrc(id: string) {
-  return `/voice/fact-${id}.mp3`;
+  return asset(`/voice/fact-${id}.mp3`);
 }
 
 /** Voice naming the toy after a right answer. */
 export function nameSrc(id: string) {
-  return `/voice/this-${id}.mp3`;
+  return asset(`/voice/this-${id}.mp3`);
 }
 
 /** «Это корова!», «Да, это корова!», «Правильно, корова!», «Верно! Это корова.» */
 export function answerSrcs(id: string) {
   return [
     nameSrc(id),
-    `/voice/yes-${id}-1.mp3`,
-    `/voice/yes-${id}-2.mp3`,
-    `/voice/yes-${id}-3.mp3`,
+    asset(`/voice/yes-${id}-1.mp3`),
+    asset(`/voice/yes-${id}-2.mp3`),
+    asset(`/voice/yes-${id}-3.mp3`),
   ];
 }
 
@@ -296,7 +297,7 @@ export function answerSrc(id: string) {
   return all[Math.floor(Math.random() * all.length)];
 }
 
-export const VOICE = { bravo: "/voice/bravo.mp3", again: "/voice/again.mp3" };
+export const VOICE = { bravo: asset("/voice/bravo.mp3"), again: asset("/voice/again.mp3") };
 
 /** Every clip one set needs: riddles, names, praise. The mix loads round by round instead. */
 export function clipsFor(set: SetId) {
@@ -343,8 +344,8 @@ export function homeOf(id: string): HomeId | null {
 
 export const HOME_IDS = ITEMS.map((item) => item.id).filter((id) => homeOf(id));
 
-export const homeAskSrc = (id: string) => `/voice/homeq-${id}.mp3`;
-export const livesSrc = (id: string) => `/voice/lives-${id}.mp3`;
+export const homeAskSrc = (id: string) => asset(`/voice/homeq-${id}.mp3`);
+export const livesSrc = (id: string) => asset(`/voice/lives-${id}.mp3`);
 
 // ---------- «Наоборот» ----------
 
@@ -353,13 +354,13 @@ export function soundIdsFor(set: SetId) {
   return idsFor(set).filter((id) => BY_ID[id].sound);
 }
 
-export const howSrc = (id: string) => `/voice/how-${id}.mp3`;
+export const howSrc = (id: string) => asset(`/voice/how-${id}.mp3`);
 
 export const PRAISE = [
-  "/voice/praise-1.mp3",
-  "/voice/praise-2.mp3",
-  "/voice/praise-3.mp3",
-  "/voice/praise-4.mp3",
+  asset("/voice/praise-1.mp3"),
+  asset("/voice/praise-2.mp3"),
+  asset("/voice/praise-3.mp3"),
+  asset("/voice/praise-4.mp3"),
 ];
 
 export function praiseSrc() {

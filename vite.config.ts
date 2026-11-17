@@ -18,7 +18,7 @@ function staticCachePlugin(): Plugin {
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         const url = req.url?.split("?")[0] ?? "";
-        if (url.startsWith("/toys/") || url.startsWith("/felt/") || url.startsWith("/sfx/")) {
+        if (/^\/(felt|stickers|sfx|voice|music)\//.test(url)) {
           const setHeader = res.setHeader.bind(res);
           res.setHeader = (name, value) => {
             if (String(name).toLowerCase() === "cache-control") {
@@ -197,6 +197,15 @@ export default defineConfig(({ command, isPreview }) => ({
             // manifest + head-tag middleware). Nitro v3 defaults serverDir to
             // false, so removing this silently unwires /?install=1 on deploys.
             serverDir: "./server",
+            // Game media: every URL carries ?v=<content hash> (tools/asset-versions.mjs),
+            // so a year-long immutable cache is safe and replays are instant.
+            routeRules: {
+              "/felt/**": { headers: { "cache-control": "public, max-age=31536000, immutable" } },
+              "/stickers/**": { headers: { "cache-control": "public, max-age=31536000, immutable" } },
+              "/sfx/**": { headers: { "cache-control": "public, max-age=31536000, immutable" } },
+              "/voice/**": { headers: { "cache-control": "public, max-age=31536000, immutable" } },
+              "/music/**": { headers: { "cache-control": "public, max-age=31536000, immutable" } },
+            },
           }),
         ]
       : []),

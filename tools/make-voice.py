@@ -64,5 +64,5 @@ with tempfile.TemporaryDirectory() as tmp:
             w.writeframes(pcm.tobytes())
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", wav,
                         "-af", "silenceremove=start_periods=1:start_threshold=-55dB:start_silence=0.08,areverse,silenceremove=start_periods=1:start_threshold=-55dB:start_silence=0.12,areverse,loudnorm=I=-16:TP=-1.5,apad=pad_dur=0.08",
-                        "-ar", "44100", "-ac", "1", "-b:a", "64k", target], check=True)
+                        "-ar", "24000", "-ac", "1", "-b:a", "40k", "-map_metadata", "-1", target], check=True)
 print(len(lines), "lines")

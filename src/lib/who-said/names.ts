@@ -1,3 +1,4 @@
+import { asset } from "./assets";
 /**
  * Child names the voice can say. Each one is pre-recorded by tools/make-voice.py:
  *   /voice/name-<id>-hi.mp3     "Привет, Маша! Во что поиграем?"
@@ -132,4 +133,4 @@ export const NAMES: { id: string; name: string }[] = [
 ];
 
 export const nameLine = (id: string, kind: "hi" | "bravo" | "smart") =>
-  `/voice/name-${id}-${kind}.mp3`;
+  asset(`/voice/name-${id}-${kind}.mp3`);

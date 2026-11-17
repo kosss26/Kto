@@ -1,3 +1,4 @@
+import { asset } from "./assets";
 // Every clip (animal call or voice line) is addressed by its URL.
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
@@ -163,7 +164,7 @@ let music: HTMLAudioElement | null = null;
 export function startMusic() {
   if (typeof window === "undefined") return;
   if (!music) {
-    music = new Audio("/music/carefree.mp3");
+    music = new Audio(asset("/music/carefree.mp3"));
     music.loop = true;
     music.volume = 0.22;
     music.preload = "auto";

@@ -19,6 +19,7 @@ import {
 import { getProgress, type Level } from "@/lib/who-said/progress";
 import { CardFace, Finale, Hills, Stars, TopBar } from "../kit";
 import { shuffle, useQuiet, useTimers } from "@/lib/who-said/game-utils";
+import { asset } from "@/lib/who-said/assets";
 
 const ROUNDS = 8;
 /** Homes on screen per round for each level. */
@@ -30,7 +31,7 @@ const HOME_COUNTS: Record<Level, number[]> = {
 
 /** Felt picture of each home (cut from assets/felt-sheets/sheet-13.png). */
 function HomeArt({ id }: { id: HomeId }) {
-  return <img src={`/felt/home-${id}.webp`} alt="" draggable={false} />;
+  return <img src={asset(`/felt/home-${id}.webp`)} alt="" draggable={false} />;
 }
 
 type Fly = { x: number; y: number } | null;
