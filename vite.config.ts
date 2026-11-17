@@ -18,18 +18,7 @@ function staticCachePlugin(): Plugin {
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         const url = req.url?.split("?")[0] ?? "";
-        if (url === "/kto-skazal.zip") {
-          const setHeader = res.setHeader.bind(res);
-          res.setHeader = (name, value) => {
-            if (String(name).toLowerCase() === "content-type") {
-              return setHeader("Content-Type", "application/octet-stream");
-            }
-            return setHeader(name, value);
-          };
-          setHeader("Content-Type", "application/octet-stream");
-          setHeader("Content-Disposition", 'attachment; filename="kto-skazal.zip"');
-          setHeader("X-Content-Type-Options", "nosniff");
-        } else if (url.startsWith("/toys/") || url.startsWith("/sfx/")) {
+        if (url.startsWith("/toys/") || url.startsWith("/cards/") || url.startsWith("/sfx/")) {
           const setHeader = res.setHeader.bind(res);
           res.setHeader = (name, value) => {
             if (String(name).toLowerCase() === "cache-control") {

@@ -154,20 +154,37 @@ export function playYes() {
   chime(784, 0.09, 0.1, 0.22);
 }
 
-export function playNo() {
+/** Soft "oh-oh": two gentle falling notes, never a buzzer. */
+export function playSoft() {
+  chime(440, 0, 0.06, 0.2);
+  chime(370, 0.16, 0.05, 0.26);
+}
+
+/** Wooden knock for every tap. */
+export function playTap() {
   const audio = context();
   if (!master) return;
   const now = audio.currentTime;
   const osc = audio.createOscillator();
   const gain = audio.createGain();
   osc.type = "triangle";
-  osc.frequency.setValueAtTime(196, now);
-  osc.frequency.exponentialRampToValueAtTime(110, now + 0.12);
+  osc.frequency.setValueAtTime(820, now);
+  osc.frequency.exponentialRampToValueAtTime(420, now + 0.05);
   gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.exponentialRampToValueAtTime(0.045, now + 0.015);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.14);
+  gain.gain.exponentialRampToValueAtTime(0.09, now + 0.004);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.07);
   osc.connect(gain);
   gain.connect(master);
   osc.start(now);
-  osc.stop(now + 0.16);
+  osc.stop(now + 0.08);
+}
+
+/** Little xylophone run for the finish. */
+export function playFanfare() {
+  [523, 659, 784, 1047].forEach((freq, index) => chime(freq, index * 0.11, 0.1, 0.3));
+  chime(1319, 0.5, 0.08, 0.5);
+}
+
+export function stopVoice() {
+  if (typeof speechSynthesis !== "undefined") speechSynthesis.cancel();
 }
