@@ -1,0 +1,393 @@
+[
+  {
+    "file": "01-telenok.png",
+    "baby_name_ru": "Телёнок",
+    "adult_ids": [
+      "cow"
+    ],
+    "adult_name_ru": "Корова",
+    "category_ru": "Домашние",
+    "source_sheet": "babies-01-farm.png",
+    "source_row": 1,
+    "source_column": 1,
+    "width": 512,
+    "height": 512,
+    "sha256": "38aa4c18ad04fe4f1c95e4774b5783dab921b30ff0aec115952f4f62262815d7"
+  },
+  {
+    "file": "02-tsyplenok.png",
+    "baby_name_ru": "Цыплёнок",
+    "adult_ids": [
+      "hen",
+      "rooster"
+    ],
+    "adult_name_ru": "Курица, петух",
+    "category_ru": "Домашние",
+    "source_sheet": "babies-01-farm.png",
+    "source_row": 1,
+    "source_column": 2,
+    "width": 512,
+    "height": 512,
+    "sha256": "1581c2e25b660d0e3bbaf28e8011e6872d721eaa1000d746a01bd68118696e4a"
+  },
+  {
+    "file": "03-shchenok.png",
+    "baby_name_ru": "Щенок",
+    "adult_ids": [
+      "dog"
+    ],
+    "adult_name_ru": "Собака",
+    "category_ru": "Домашние",
+    "source_sheet": "babies-01-farm.png",
+    "source_row": 1,
+    "source_column": 3,
+    "width": 512,
+    "height": 512,
+    "sha256": "cba092b12d46f44bd4eb54e7c3695e47fbb5b1b9afb994cec810a0cc5c748339"
+  },
+  {
+    "file": "04-kotenok.png",
+    "baby_name_ru": "Котёнок",
+    "adult_ids": [
+      "cat"
+    ],
+    "adult_name_ru": "Кошка",
+    "category_ru": "Домашние",
+    "source_sheet": "babies-01-farm.png",
+    "source_row": 2,
+    "source_column": 1,
+    "width": 512,
+    "height": 512,
+    "sha256": "4272b6b798be428990d0ad94c4043fa260365cfafedafd65a91aaa109e667376"
+  },
+  {
+    "file": "05-porosenok.png",
+    "baby_name_ru": "Поросёнок",
+    "adult_ids": [
+      "pig"
+    ],
+    "adult_name_ru": "Свинья",
+    "category_ru": "Домашние",
+    "source_sheet": "babies-01-farm.png",
+    "source_row": 3,
+    "source_column": 1,
+    "width": 512,
+    "height": 512,
+    "sha256": "996b0b12556413de33858b70fa386479a45463fc99514a96121fcb492523d999"
+  },
+  {
+    "file": "06-yagnenok.png",
+    "baby_name_ru": "Ягнёнок",
+    "adult_ids": [
+      "sheep"
+    ],
+    "adult_name_ru": "Овца",
+    "category_ru": "Домашние",
+    "source_sheet": "babies-01-farm.png",
+    "source_row": 2,
+    "source_column": 2,
+    "width": 512,
+    "height": 512,
+    "sha256": "4b4e750a7fe5e927027bbd24eb50306a027c8b9f04ca1a9ccb57c6a995e9db30"
+  },
+  {
+    "file": "07-kozlenok.png",
+    "baby_name_ru": "Козлёнок",
+    "adult_ids": [
+      "goat"
+    ],
+    "adult_name_ru": "Коза",
+    "category_ru": "Домашние",
+    "source_sheet": "babies-01-farm.png",
+    "source_row": 3,
+    "source_column": 3,
+    "width": 512,
+    "height": 512,
+    "sha256": "b510e0e6bf297f714a82c652900b16b976467a4c1c1916cb4a0c94a6b80d3df4"
+  },
+  {
+    "file": "08-zherebenok.png",
+    "baby_name_ru": "Жеребёнок",
+    "adult_ids": [
+      "horse"
+    ],
+    "adult_name_ru": "Лошадь",
+    "category_ru": "Домашние",
+    "source_sheet": "babies-01-farm.png",
+    "source_row": 2,
+    "source_column": 3,
+    "width": 512,
+    "height": 512,
+    "sha256": "0fb8665014136c46ed7558e6167d98cfb96d9b9dd42747045ea135eeb4ce5f5a"
+  },
+  {
+    "file": "09-utenok.png",
+    "baby_name_ru": "Утёнок",
+    "adult_ids": [
+      "duck"
+    ],
+    "adult_name_ru": "Утка",
+    "category_ru": "Домашние",
+    "source_sheet": "babies-01-farm.png",
+    "source_row": 3,
+    "source_column": 2,
+    "width": 512,
+    "height": 512,
+    "sha256": "8ea661589a91b040cea8e131b0f523b16f6f0f4b5dedfd4f8111d22a0ac85899"
+  },
+  {
+    "file": "10-gusenok.png",
+    "baby_name_ru": "Гусёнок",
+    "adult_ids": [
+      "goose"
+    ],
+    "adult_name_ru": "Гусь",
+    "category_ru": "Домашние",
+    "source_sheet": "babies-02-farm-pets.png",
+    "source_row": 1,
+    "source_column": 1,
+    "width": 512,
+    "height": 512,
+    "sha256": "9bb8a80d9ae23184a7aa3594e0753af9360f6862a9e1d02160b3859074646390"
+  },
+  {
+    "file": "11-oslik-malysh.png",
+    "baby_name_ru": "Ослик-малыш",
+    "adult_ids": [
+      "donkey"
+    ],
+    "adult_name_ru": "Осёл",
+    "category_ru": "Домашние",
+    "source_sheet": "babies-02-farm-pets.png",
+    "source_row": 1,
+    "source_column": 2,
+    "width": 512,
+    "height": 512,
+    "sha256": "451a16971fdb8ce8db5b987d323a7dd72f95c9b050c522f695c0db2925dd3e92"
+  },
+  {
+    "file": "12-krolchonok.png",
+    "baby_name_ru": "Крольчонок",
+    "adult_ids": [
+      "rabbit"
+    ],
+    "adult_name_ru": "Кролик",
+    "category_ru": "Питомцы",
+    "source_sheet": "babies-02-farm-pets.png",
+    "source_row": 2,
+    "source_column": 3,
+    "width": 512,
+    "height": 512,
+    "sha256": "e6480d321ca78159d16df26cb24994cf5b3d71117f00fe1efaf251e933d96056"
+  },
+  {
+    "file": "13-medvezhonok.png",
+    "baby_name_ru": "Медвежонок",
+    "adult_ids": [
+      "bear"
+    ],
+    "adult_name_ru": "Медведь",
+    "category_ru": "Лесные",
+    "source_sheet": "babies-03-pets-forest.png",
+    "source_row": 3,
+    "source_column": 3,
+    "width": 512,
+    "height": 512,
+    "sha256": "fb9b2b240fef7ff61c8e54e28b6328d1aef6504fd6517b1d2502bbd82ed09b0f"
+  },
+  {
+    "file": "14-lisenok.png",
+    "baby_name_ru": "Лисёнок",
+    "adult_ids": [
+      "fox"
+    ],
+    "adult_name_ru": "Лиса",
+    "category_ru": "Лесные",
+    "source_sheet": "babies-03-pets-forest.png",
+    "source_row": 3,
+    "source_column": 1,
+    "width": 512,
+    "height": 512,
+    "sha256": "ef7b9daa8d1e4dee9499aa60ff64a07362af65518b071feab3c98534bd5b08c9"
+  },
+  {
+    "file": "15-volchonok.png",
+    "baby_name_ru": "Волчонок",
+    "adult_ids": [
+      "wolf"
+    ],
+    "adult_name_ru": "Волк",
+    "category_ru": "Лесные",
+    "source_sheet": "babies-03-pets-forest.png",
+    "source_row": 3,
+    "source_column": 2,
+    "width": 512,
+    "height": 512,
+    "sha256": "15a4a88b41cf5505838709185a36f10e0f976af82057d4a697a3fea51dd18df7"
+  },
+  {
+    "file": "16-zaychonok.png",
+    "baby_name_ru": "Зайчонок",
+    "adult_ids": [
+      "hare"
+    ],
+    "adult_name_ru": "Заяц",
+    "category_ru": "Лесные",
+    "source_sheet": "babies-04-forest.png",
+    "source_row": 2,
+    "source_column": 2,
+    "width": 512,
+    "height": 512,
+    "sha256": "c1d7efce3d6475401c8437fd280d9365119f2d27ffff6d3244cfb19cd5bee7f4"
+  },
+  {
+    "file": "17-belchonok.png",
+    "baby_name_ru": "Бельчонок",
+    "adult_ids": [
+      "squirrel"
+    ],
+    "adult_name_ru": "Белка",
+    "category_ru": "Лесные",
+    "source_sheet": "babies-03-pets-forest.png",
+    "source_row": 2,
+    "source_column": 3,
+    "width": 512,
+    "height": 512,
+    "sha256": "0e258acbaf9cb9823ab6f259063b7768033171b45d7177da9c31b3ccd9cf8e43"
+  },
+  {
+    "file": "18-ezhonok.png",
+    "baby_name_ru": "Ежонок",
+    "adult_ids": [
+      "hedgehog"
+    ],
+    "adult_name_ru": "Ёж",
+    "category_ru": "Лесные",
+    "source_sheet": "babies-04-forest.png",
+    "source_row": 2,
+    "source_column": 1,
+    "width": 512,
+    "height": 512,
+    "sha256": "fa8ac5c5cc810fbaf1959b778be1f868b6f5d61e5262456d9d4625294e659135"
+  },
+  {
+    "file": "19-olenenok.png",
+    "baby_name_ru": "Оленёнок",
+    "adult_ids": [
+      "deer"
+    ],
+    "adult_name_ru": "Олень",
+    "category_ru": "Лесные",
+    "source_sheet": "babies-04-forest.png",
+    "source_row": 1,
+    "source_column": 1,
+    "width": 512,
+    "height": 512,
+    "sha256": "99fd5054f0a272a0597307fee5c4b7b9d9fe9327a28f1efe6b7c6dc08c431d98"
+  },
+  {
+    "file": "20-losyonok.png",
+    "baby_name_ru": "Лосёнок",
+    "adult_ids": [
+      "moose"
+    ],
+    "adult_name_ru": "Лось",
+    "category_ru": "Лесные",
+    "source_sheet": "babies-04-forest.png",
+    "source_row": 1,
+    "source_column": 2,
+    "width": 512,
+    "height": 512,
+    "sha256": "afffee7a6732b21dbf2932dde4617a6d7a2c6241ad93198e15e5f9015815f5ce"
+  },
+  {
+    "file": "21-kabanchik.png",
+    "baby_name_ru": "Кабанчик",
+    "adult_ids": [
+      "boar"
+    ],
+    "adult_name_ru": "Кабан",
+    "category_ru": "Лесные",
+    "source_sheet": "babies-04-forest.png",
+    "source_row": 1,
+    "source_column": 3,
+    "width": 512,
+    "height": 512,
+    "sha256": "de6cf981d0771a126f3412072d369b008d1639fa5603b74017e7d4b45de05d54"
+  },
+  {
+    "file": "22-enotik.png",
+    "baby_name_ru": "Енотик",
+    "adult_ids": [
+      "raccoon"
+    ],
+    "adult_name_ru": "Енот",
+    "category_ru": "Лесные",
+    "source_sheet": "babies-04-forest.png",
+    "source_row": 2,
+    "source_column": 3,
+    "width": 512,
+    "height": 512,
+    "sha256": "139ad6be3f9ce46729d8b73ca774b6fd50e060a2867f1486dadc554e90346d6f"
+  },
+  {
+    "file": "23-bobrenok.png",
+    "baby_name_ru": "Бобрёнок",
+    "adult_ids": [
+      "beaver"
+    ],
+    "adult_name_ru": "Бобр",
+    "category_ru": "Лесные",
+    "source_sheet": "babies-04-forest.png",
+    "source_row": 3,
+    "source_column": 1,
+    "width": 512,
+    "height": 512,
+    "sha256": "8d4dd32bd308e7777942d7a2c7f7f93b5a72e879907e922e4aae5f1972a08be2"
+  },
+  {
+    "file": "24-barsuchonok.png",
+    "baby_name_ru": "Барсучонок",
+    "adult_ids": [
+      "badger"
+    ],
+    "adult_name_ru": "Барсук",
+    "category_ru": "Лесные",
+    "source_sheet": "babies-04-forest.png",
+    "source_row": 3,
+    "source_column": 2,
+    "width": 512,
+    "height": 512,
+    "sha256": "43a186ce6171920698f6e8b84119e116a10dcd28a432da48e4f204505d65d072"
+  },
+  {
+    "file": "25-koala-malysh.png",
+    "baby_name_ru": "Коала-малыш",
+    "adult_ids": [
+      "koala"
+    ],
+    "adult_name_ru": "Коала",
+    "category_ru": "Зоопарк",
+    "source_sheet": "babies-04-forest.png",
+    "source_row": 3,
+    "source_column": 3,
+    "width": 512,
+    "height": 512,
+    "sha256": "9c33500073a281b64c8c51ba228f0505c6094133585ec84cebe6dcc03e41846d"
+  },
+  {
+    "file": "26-pavlinyonok.png",
+    "baby_name_ru": "Павлинёнок",
+    "adult_ids": [
+      "peacock"
+    ],
+    "adult_name_ru": "Павлин",
+    "category_ru": "Зоопарк",
+    "source_sheet": "babies-07-birds.png",
+    "source_row": 2,
+    "source_column": 3,
+    "width": 512,
+    "height": 512,
+    "sha256": "b21b2437549a3564d3e5461e372c7b82c1664facc2ea1e64bf88235f6aaacbaf"
+  }
+]

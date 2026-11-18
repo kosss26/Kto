@@ -123,7 +123,7 @@ const GAMES: {
     title: "Мама и малыш",
     note: "Найди малыша",
     pics: [],
-    art: [cardSrc("elephant"), babyCard("elephant"), babyCard("penguin"), cardSrc("penguin")],
+    art: [cardSrc("cow"), babyCard("cow"), babyCard("cat"), cardSrc("cat")],
     mat: "#ffd9a8",
     needsSet: false,
   },
