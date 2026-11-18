@@ -15,7 +15,7 @@ import {
   type Mode,
   type SetId,
 } from "@/lib/who-said/content";
-import { bravoLine, finishGame, setToCelebrate } from "@/lib/who-said/progress";
+import { bravoLine, finishGame, setToCelebrate, timeIsUp } from "@/lib/who-said/progress";
 import { useQuiet, useTimers } from "@/lib/who-said/game-utils";
 
 // ---------- icons ----------
@@ -240,9 +240,16 @@ export function Finale({
         <button type="button" className="round-btn is-white" onClick={onHome} aria-label="Домой">
           <HomeIcon />
         </button>
-        <button type="button" className="round-btn is-go" onClick={onAgain} aria-label="Играть ещё">
-          <AgainIcon />
-        </button>
+        {!timeIsUp() && (
+          <button
+            type="button"
+            className="round-btn is-go"
+            onClick={onAgain}
+            aria-label="Играть ещё"
+          >
+            <AgainIcon />
+          </button>
+        )}
       </div>
       <Backdrop set={set} />
       {party && <SetParty mode={party} onClose={() => setParty(null)} />}

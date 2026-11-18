@@ -1,4 +1,12 @@
-import { createContext, useCallback, useContext, useEffect, useRef } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useSyncExternalStore,
+} from "react";
+import { pauseAudio, resumeAudio } from "./audio";
 import { cardSrc } from "./content";
 
 export function shuffle<T>(list: T[]) {
@@ -19,26 +27,98 @@ export function warmImages(ids: string[]) {
   }
 }
 
-/** setTimeout that is cancelled when the screen goes away. */
+// ---------- pause: app hidden / screen locked ----------
+
+let paused = false;
+const pauseListeners = new Set<() => void>();
+
+/** Called by the shell on visibilitychange: freezes sounds and every game timer, then carries on. */
+export function setPaused(next: boolean) {
+  if (next === paused) return;
+  paused = next;
+  if (next) pauseAudio();
+  else resumeAudio();
+  for (const fn of pauseListeners) fn();
+}
+
+function subscribePause(fn: () => void) {
+  pauseListeners.add(fn);
+  return () => {
+    pauseListeners.delete(fn);
+  };
+}
+
+export function usePaused() {
+  return useSyncExternalStore(
+    subscribePause,
+    () => paused,
+    () => false,
+  );
+}
+
+/** Runs `fn` each time the app comes back from the background. */
+export function useOnResume(fn: () => void) {
+  const ref = useRef(fn);
+  ref.current = fn;
+  useEffect(
+    () =>
+      subscribePause(() => {
+        if (!paused) ref.current();
+      }),
+    [],
+  );
+}
+
+type Timer = { id: number; fn: () => void; due: number; left: number };
+
+/**
+ * setTimeout that is cancelled when the screen goes away and that stops while the app is hidden:
+ * a round waits exactly where it was and continues when the child comes back.
+ */
 export function useTimers() {
-  const timers = useRef(new Set<number>());
-  const later = useCallback((fn: () => void, ms: number) => {
-    const id = window.setTimeout(() => {
-      timers.current.delete(id);
-      fn();
+  const timers = useRef(new Set<Timer>());
+
+  const arm = useCallback((t: Timer, ms: number) => {
+    t.due = Date.now() + ms;
+    t.id = window.setTimeout(() => {
+      timers.current.delete(t);
+      t.fn();
     }, ms);
-    timers.current.add(id);
   }, []);
+
+  const later = useCallback(
+    (fn: () => void, ms: number) => {
+      const t: Timer = { id: 0, fn, due: 0, left: ms };
+      timers.current.add(t);
+      if (paused) t.left = ms;
+      else arm(t, ms);
+    },
+    [arm],
+  );
+
   const clearTimers = useCallback(() => {
-    for (const id of timers.current) window.clearTimeout(id);
+    for (const t of timers.current) window.clearTimeout(t.id);
     timers.current.clear();
   }, []);
+
   useEffect(() => {
-    const pending = timers.current;
+    const all = timers.current;
+    const off = subscribePause(() => {
+      for (const t of all) {
+        if (paused) {
+          window.clearTimeout(t.id);
+          t.left = Math.max(0, t.due - Date.now());
+        } else {
+          arm(t, t.left);
+        }
+      }
+    });
     return () => {
-      for (const id of pending) window.clearTimeout(id);
+      off();
+      for (const t of all) window.clearTimeout(t.id);
     };
-  }, []);
+  }, [arm]);
+
   return { later, clearTimers };
 }
 

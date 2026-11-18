@@ -5,6 +5,11 @@ let master: GainNode | null = null;
 const raw = new Map<string, Promise<ArrayBuffer>>();
 const buffers = new Map<string, AudioBuffer>();
 let clipNode: AudioBufferSourceNode | null = null;
+/** Separate volume for the spoken lines, for animal calls and effects, and for the music (parents' corner). */
+let voiceBus: GainNode | null = null;
+let soundBus: GainNode | null = null;
+const volumes = { voice: 1, sounds: 1, music: 1 };
+let paused = false;
 
 function context() {
   if (!ctx) ctx = new AudioContext({ latencyHint: "interactive" });
@@ -12,12 +17,86 @@ function context() {
     master = ctx.createGain();
     master.gain.value = 1;
     master.connect(ctx.destination);
+    voiceBus = ctx.createGain();
+    soundBus = ctx.createGain();
+    voiceBus.gain.value = volumes.voice;
+    soundBus.gain.value = volumes.sounds;
+    voiceBus.connect(master);
+    soundBus.connect(master);
   }
-  if (ctx.state === "suspended") void ctx.resume();
+  if (ctx.state === "suspended" && !paused) void ctx.resume();
   return ctx;
 }
 
+const busFor = (url: string) => (url.includes("/voice/") ? voiceBus : soundBus);
+
+export function setVolumes(next: { voice: number; sounds: number; music: number }) {
+  Object.assign(volumes, next);
+  if (voiceBus) voiceBus.gain.value = volumes.voice;
+  if (soundBus) soundBus.gain.value = volumes.sounds;
+  if (music) music.volume = MUSIC_BASE * volumes.music;
+}
+
+// ---------- iPhone / iPad silent switch ----------
+// iOS mutes Web Audio when the ring/silent switch is on. Telling it this page is a media player
+// (iOS 17+: navigator.audioSession) or keeping a silent <audio> element playing (older iOS)
+// moves the page to the "playback" category, which plays through the silent switch.
+
+let silentEl: HTMLAudioElement | null = null;
+
+function silentWavUrl() {
+  const rate = 8000;
+  const samples = rate / 2;
+  const buf = new ArrayBuffer(44 + samples * 2);
+  const v = new DataView(buf);
+  const text = (o: number, t: string) =>
+    [...t].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
+  text(0, "RIFF");
+  v.setUint32(4, 36 + samples * 2, true);
+  text(8, "WAVE");
+  text(12, "fmt ");
+  v.setUint32(16, 16, true);
+  v.setUint16(20, 1, true);
+  v.setUint16(22, 1, true);
+  v.setUint32(24, rate, true);
+  v.setUint32(28, rate * 2, true);
+  v.setUint16(32, 2, true);
+  v.setUint16(34, 16, true);
+  text(36, "data");
+  v.setUint32(40, samples * 2, true);
+  return URL.createObjectURL(new Blob([buf], { type: "audio/wav" }));
+}
+
+const isAppleTouch = () =>
+  typeof navigator !== "undefined" &&
+  (/iP(hone|ad|od)/.test(navigator.userAgent) ||
+    (navigator.userAgent.includes("Macintosh") && navigator.maxTouchPoints > 1));
+
+function playThroughSilentSwitch() {
+  const session = (navigator as Navigator & { audioSession?: { type: string } }).audioSession;
+  if (session) {
+    try {
+      session.type = "playback";
+      return;
+    } catch {
+      /* fall back to the silent element */
+    }
+  }
+  if (!isAppleTouch()) return;
+  if (!silentEl) {
+    silentEl = document.createElement("audio");
+    silentEl.src = silentWavUrl();
+    silentEl.loop = true;
+    silentEl.setAttribute("playsinline", "");
+    silentEl.setAttribute("x-webkit-airplay", "deny");
+    silentEl.preload = "auto";
+  }
+  if (silentEl.paused && !paused) void silentEl.play().catch(() => {});
+}
+
+/** Call from a tap: opens the audio context and lets sound play even with the silent switch on. */
 export function unlockAudio() {
+  playThroughSilentSwitch();
   const audio = context();
   const buffer = audio.createBuffer(1, 1, audio.sampleRate);
   const src = audio.createBufferSource();
@@ -27,8 +106,27 @@ export function unlockAudio() {
   return audio;
 }
 
+// ---------- pause when the app is hidden ----------
+
+let musicWasPlaying = false;
+
+/** App went to the background / screen locked: freeze every sound exactly where it is. */
+export function pauseAudio() {
+  if (paused) return;
+  paused = true;
+  if (ctx && ctx.state === "running") void ctx.suspend();
+  musicWasPlaying = Boolean(music && !music.paused);
+  music?.pause();
+  silentEl?.pause();
+}
+
+/** Back in the app: carry on from the same place. */
 export function resumeAudio() {
-  if (ctx && ctx.state === "suspended") void ctx.resume();
+  paused = false;
+  if (ctx && ctx.state !== "running") void ctx.resume();
+  if (silentEl) void silentEl.play().catch(() => {});
+  if (musicWasPlaying && music) void music.play().catch(() => {});
+  musicWasPlaying = false;
 }
 
 function bytes(url: string) {
@@ -96,7 +194,7 @@ export function playClip(url: string, wobble = false) {
   gain.gain.setValueAtTime(0.0001, now);
   gain.gain.exponentialRampToValueAtTime(0.95, now + 0.02);
   src.connect(gain);
-  gain.connect(master);
+  gain.connect(busFor(url) ?? master);
   src.start();
   clipNode = src;
   src.onended = () => {
@@ -118,7 +216,7 @@ export function playLayer(url: string, delay = 0, gain = 0.55) {
   g.gain.setValueAtTime(0.0001, at);
   g.gain.exponentialRampToValueAtTime(gain, at + 0.03);
   src.connect(g);
-  g.connect(master);
+  g.connect(busFor(url) ?? master);
   src.start(at);
   src.onended = () => g.disconnect();
 }
@@ -135,7 +233,7 @@ function chime(freq: number, delay: number, peak: number, dur: number) {
   gain.gain.exponentialRampToValueAtTime(peak, now + 0.02);
   gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
   osc.connect(gain);
-  gain.connect(master);
+  gain.connect(soundBus ?? master);
   osc.start(now);
   osc.stop(now + dur + 0.02);
 }
@@ -165,7 +263,7 @@ export function playTap() {
   gain.gain.exponentialRampToValueAtTime(0.09, now + 0.004);
   gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.07);
   osc.connect(gain);
-  gain.connect(master);
+  gain.connect(soundBus ?? master);
   osc.start(now);
   osc.stop(now + 0.08);
 }
@@ -180,16 +278,17 @@ export function playFanfare() {
 export const MUSIC_URL = asset("/music/carefree.mp3");
 
 let music: HTMLAudioElement | null = null;
+const MUSIC_BASE = 0.22;
 
 export function startMusic() {
   if (typeof window === "undefined") return;
   if (!music) {
     music = new Audio(MUSIC_URL);
     music.loop = true;
-    music.volume = 0.22;
+    music.volume = MUSIC_BASE * volumes.music;
     music.preload = "auto";
   }
-  if (music.paused) void music.play().catch(() => {});
+  if (music.paused && !paused && volumes.music > 0) void music.play().catch(() => {});
 }
 
 export function stopMusic() {

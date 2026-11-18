@@ -5,7 +5,7 @@ import {
   playTap,
   prepareClips,
   prefetchClips,
-  resumeAudio,
+  setVolumes,
   startMusic,
   stopClip,
   stopMusic,
@@ -28,21 +28,24 @@ import {
   type Mode,
   type SetId,
 } from "@/lib/who-said/content";
+import { asset } from "@/lib/who-said/assets";
+
+const REST_LINE = asset("/voice/rest.mp3");
 import {
   LEVELS,
+  addBonusMinutes,
+  addPlayTime,
   guestOfDay,
+  timeIsUp,
   helloLine,
   isSetComplete,
   meetGuest,
   setToCelebrate,
-  setChild,
-  setLevel,
   useProgress,
-  type Level,
 } from "@/lib/who-said/progress";
-import { NAMES, nameLine } from "@/lib/who-said/names";
-import { startOffline, syncOffline, useOffline } from "@/lib/who-said/offline";
+import { startOffline } from "@/lib/who-said/offline";
 import { Album } from "./album";
+import { LevelIcon, ParentSheet } from "./parents";
 import { HomesGame } from "./games/homes";
 import { ListenGame } from "./games/listen";
 import { PairsGame } from "./games/pairs";
@@ -59,7 +62,7 @@ import {
   SetParty,
   ShuffleIcon,
 } from "./kit";
-import { QuietContext, warmImages } from "@/lib/who-said/game-utils";
+import { QuietContext, setPaused, warmImages } from "@/lib/who-said/game-utils";
 
 type GameId = "quiz" | "listen" | "reverse" | "pairs" | "homes";
 
@@ -124,97 +127,6 @@ function readMusicPref() {
   }
 }
 
-const norm = (text: string) => text.trim().toLowerCase().replaceAll("ё", "е");
-
-/** «Как зовут ребёнка?»: names that have recorded lines; tapping one says hello with it. */
-function NamePicker() {
-  const { child } = useProgress();
-  const current = NAMES.find((n) => n.id === child);
-  const [query, setQuery] = useState("");
-  const q = norm(query);
-  const matches = q ? NAMES.filter((n) => norm(n.name).startsWith(q)).slice(0, 8) : [];
-
-  function choose(id: string) {
-    playTap();
-    setChild(id);
-    setQuery("");
-    // the new name's lines should work offline too
-    void syncOffline();
-    if (id) {
-      const line = nameLine(id, "hi");
-      void prepareClips([line]).then(() => playClip(line));
-    }
-  }
-
-  return (
-    <div className="name-picker">
-      <p className="sheet-title">Как зовут ребёнка?</p>
-      <p className="name-current">
-        {current ? (
-          <>
-            Игра говорит: «Молодец, <b>{current.name}</b>!»
-            <button type="button" className="name-clear" onClick={() => choose("")}>
-              без имени
-            </button>
-          </>
-        ) : (
-          "Начните вводить имя — игра будет хвалить ребёнка по имени"
-        )}
-      </p>
-      <input
-        id="child-name"
-        className="name-input"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Например, Маша"
-        autoComplete="off"
-        enterKeyHint="done"
-      />
-      {q && (
-        <div className="name-chips">
-          {matches.map((n) => (
-            <button key={n.id} type="button" className="name-chip" onClick={() => choose(n.id)}>
-              {n.name}
-            </button>
-          ))}
-          {!matches.length && (
-            <p className="name-missing">Такого имени пока нет в озвучке — его можно добавить.</p>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/** «Без интернета»: how far the background download has got. */
-function OfflineRow() {
-  const offline = useOffline();
-  if (offline.stage === "off") return null;
-  const pct =
-    offline.stage === "ready" ? 100 : Math.round((offline.done / Math.max(1, offline.total)) * 100);
-  return (
-    <div className="offline-row">
-      <p className="sheet-title">Без интернета</p>
-      {offline.stage === "ready" ? (
-        <p className="offline-note is-ready">Готово: игра работает без интернета</p>
-      ) : offline.stage === "error" ? (
-        <p className="offline-note">
-          Скачано {pct}% — часть файлов не загрузилась.
-          <button type="button" className="name-clear" onClick={() => void syncOffline()}>
-            докачать
-          </button>
-        </p>
-      ) : (
-        <p className="offline-note">Скачиваю картинки и звуки… {pct}%</p>
-      )}
-      <span className="offline-bar" aria-hidden="true">
-        <i style={{ width: `${pct}%` }} />
-      </span>
-    </div>
-  );
-}
-
-
 /**
  * «Гость дня»: one toy visits the shelf each day. Tapping it plays its voice and a fact;
  * the first tap leaves its sticker in the album (and may complete a set).
@@ -225,8 +137,12 @@ function GuestOfDay({ onParty }: { onParty: (mode: Mode) => void }) {
   const [gift, setGift] = useState(false);
   const timers = useRef<number[]>([]);
 
+  const off = useProgress().settings.off;
   useEffect(() => {
+    // re-checked when a grown-up switches sets off, so the guest never comes from a hidden set
     setGuest(guestOfDay());
+  }, [off]);
+  useEffect(() => {
     const pending = timers.current;
     return () => pending.forEach((t) => window.clearTimeout(t));
   }, []);
@@ -270,6 +186,46 @@ function GuestOfDay({ onParty }: { onParty: (mode: Mode) => void }) {
       {talking && <Notes />}
       {gift && <span className="guest-gift">+ наклейка!</span>}
     </button>
+  );
+}
+
+/** «Пора отдохнуть!»: today's time is up; the toys fall asleep until tomorrow. */
+function RestScreen({ onMore }: { onMore: () => void }) {
+  const said = useRef(false);
+  useEffect(() => {
+    stopMusic();
+    const speak = () => {
+      if (said.current) return;
+      said.current = true;
+      unlockAudio();
+      void prepareClips([REST_LINE]).then(() => playClip(REST_LINE));
+    };
+    speak();
+    window.addEventListener("pointerdown", speak, { once: true });
+    return () => window.removeEventListener("pointerdown", speak);
+  }, []);
+  return (
+    <main className="room hello rest">
+      <div className="rest-moon" aria-hidden="true" />
+      <h1 className="praise rest-title">Пора отдохнуть!</h1>
+      <p className="rest-note">Зверята ложатся спать. Поиграем завтра!</p>
+      <div className="rest-toys" aria-hidden="true">
+        {["cat", "bear", "owl", "hamster"].map((id) => (
+          <span key={id} className="rest-toy">
+            <img src={cardSrc(id)} alt="" />
+            <i>z</i>
+          </span>
+        ))}
+      </div>
+      <HoldButton
+        className="rest-more"
+        label="Для взрослых: удерживайте, чтобы добавить 10 минут"
+        onHold={onMore}
+      >
+        Для взрослых: ещё 10 минут
+      </HoldButton>
+      <Hills />
+    </main>
   );
 }
 
@@ -366,17 +322,6 @@ function SetStars({ plays }: { plays: number }) {
   );
 }
 
-function LevelIcon({ level }: { level: Level }) {
-  const filled = level === "baby" ? 1 : level === "middle" ? 2 : 3;
-  return (
-    <span className="level-dots" aria-hidden="true">
-      {[0, 1, 2].map((i) => (
-        <i key={i} className={i < filled ? "is-on" : ""} />
-      ))}
-    </span>
-  );
-}
-
 export function WhoSaidGame() {
   const [screen, setScreen] = useState<Screen>({ at: "menu" });
   const [set, setSet] = useState<SetId>("farm");
@@ -429,6 +374,34 @@ export function WhoSaidGame() {
   }
   const progress = useProgress();
 
+  // parents' volumes apply from the first sound
+  useEffect(() => {
+    setVolumes(progress.settings.volume);
+  }, [progress.settings.volume]);
+
+  // count play time while a game is on screen and the app is in front
+  const playing = screen.at === "play";
+  useEffect(() => {
+    if (!playing) return;
+    const tick = window.setInterval(() => {
+      if (document.visibilityState === "visible") addPlayTime(10);
+    }, 10000);
+    return () => window.clearInterval(tick);
+  }, [playing]);
+
+  // read only after mount: the server can't know today's play time, the page must hydrate as the shelf
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const resting = mounted && screen.at !== "play" && timeIsUp();
+
+  // the chosen set was switched off by a grown-up: pick the first one still on
+  useEffect(() => {
+    const off = progress.settings.off;
+    if (set !== "mix" && off.includes(set)) {
+      setSet(MODES.find((m) => !off.includes(m.id))?.id ?? "mix");
+    }
+  }, [progress.settings.off, set]);
+
   useEffect(() => {
     setMusicOn(readMusicPref());
     startOffline();
@@ -453,7 +426,8 @@ export function WhoSaidGame() {
       ...GAMES.flatMap((g) => g.pics),
       ...idsFor("farm"),
     ]);
-    const onBack = () => resumeAudio();
+    // app hidden or screen locked: everything freezes and continues on return
+    const onBack = () => setPaused(document.visibilityState === "hidden");
     document.addEventListener("visibilitychange", onBack);
     return () => {
       document.removeEventListener("visibilitychange", onBack);
@@ -515,6 +489,12 @@ export function WhoSaidGame() {
   }
 
   function play(game: GameId, chosen: SetId) {
+    // time's up: the rest screen shows instead of a new game
+    if (timeIsUp()) {
+      playTap();
+      if (screenRef.current.at === "play") goMenu();
+      return;
+    }
     unlockAudio();
     playTap();
     stopMusic();
@@ -573,6 +553,13 @@ export function WhoSaidGame() {
     );
   }
 
+  if (resting)
+    return (
+      <QuietContext.Provider value={setQuietStable}>
+        <RestScreen onMore={() => addBonusMinutes(10)} />
+      </QuietContext.Provider>
+    );
+
   if (screen.at === "album") return <Album onBack={goMenu} />;
 
   if (screen.at === "sets") {
@@ -595,7 +582,7 @@ export function WhoSaidGame() {
         </header>
 
         <div className="sets" role="radiogroup" aria-label="Кого берём">
-          {MODES.map((item, index) => (
+          {MODES.filter((item) => !progress.settings.off.includes(item.id)).map((item, index) => (
             <button
               key={item.id}
               type="button"
@@ -716,39 +703,7 @@ export function WhoSaidGame() {
           {progress.stickers.length} из {ITEMS.length}
         </span>
       </button>
-      {levelOpen && (
-        <div className="sheet-backdrop" onClick={closeSheet}>
-          <div
-            className="sheet"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Настройки"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <p className="sheet-title">Сложность</p>
-            {LEVELS.map((level) => (
-              <button
-                key={level.id}
-                type="button"
-                className={progress.level === level.id ? "level-option is-on" : "level-option"}
-                onClick={() => {
-                  playTap();
-                  setLevel(level.id);
-                  closeSheet();
-                }}
-              >
-                <LevelIcon level={level.id} />
-                <span className="level-text">
-                  <span className="level-name">{level.label}</span>
-                  <span className="level-note">{level.note}</span>
-                </span>
-              </button>
-            ))}
-            <NamePicker />
-            <OfflineRow />
-          </div>
-        </div>
-      )}
+      {levelOpen && <ParentSheet onClose={closeSheet} />}
       <GuestOfDay onParty={setParty} />
       {party && <SetParty mode={party} onClose={() => setParty(null)} />}
       <Hills />

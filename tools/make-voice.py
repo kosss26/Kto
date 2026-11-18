@@ -24,6 +24,7 @@ out = "public/voice"
 os.makedirs(out, exist_ok=True)
 
 lines = {"bravo": "Молодец!", "again": "Попробуй ещё!",
+         "rest": "Пора отдохнуть! Зверята ложатся спать.",
          "praise-1": "Правильно!", "praise-2": "Верно!", "praise-3": "Ура!", "praise-4": "Отлично!"}
 facts = dict(re.findall(r'^  (\w+): "([^"]+)",$', src, re.M))
 for item_id, name in items:

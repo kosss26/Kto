@@ -77,7 +77,8 @@ export function allMediaUrls() {
     urls.add(worldSrc(m.id));
   }
   for (const h of HOMES) urls.add(asset(`/felt/home-${h.id}.webp`));
-  for (const u of [...PRAISE, VOICE.bravo, VOICE.again, MUSIC_URL]) urls.add(u);
+  for (const u of [...PRAISE, VOICE.bravo, VOICE.again, MUSIC_URL, asset("/voice/rest.mp3")])
+    urls.add(u);
   const child = getProgress().child;
   if (child) for (const kind of ["hi", "bravo", "smart"] as const) urls.add(nameLine(child, kind));
   return [...urls];
@@ -108,7 +109,30 @@ export function syncOffline() {
       .getEntriesByType("resource")
       .map((e) => e.name)
       .filter((u) => u.startsWith(location.origin + "/assets/"));
-    await Promise.all([location.origin + "/", ...own].map((u) => shell.add(u).catch(() => {})));
+    const icons = ["/favicon.svg", "/icon-192.png", "/apple-touch-icon.png"].map(
+      (u) => location.origin + u,
+    );
+    await Promise.all(
+      [location.origin + "/", ...own, ...icons].map((u) => shell.add(u).catch(() => {})),
+    );
+
+    // the Nunito font: its stylesheet and the font files it points to
+    const fonts = await caches.open("kto-fonts");
+    for (const link of document.querySelectorAll<HTMLLinkElement>(
+      'link[rel="stylesheet"][href*="fonts.googleapis.com"]',
+    )) {
+      try {
+        const res = await fetch(link.href, { mode: "cors" });
+        if (!res.ok) continue;
+        const css = await res.clone().text();
+        await fonts.put(link.href, res);
+        for (const m of css.matchAll(/url\((https:\/\/fonts\.gstatic\.com[^)]+)\)/g)) {
+          if (!(await fonts.match(m[1]))) await fonts.add(m[1]).catch(() => {});
+        }
+      } catch {
+        /* offline already: the system font will do */
+      }
+    }
     // scripts from earlier versions of the game are no longer needed
     if (own.length) {
       for (const req of await shell.keys()) {

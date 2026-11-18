@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { clipMs, playClip, playSoft, playYes, prepareClips, stopClip } from "@/lib/who-said/audio";
-import { BY_ID, callSrc, idsFor, matAt, nameSrc, type SetId } from "@/lib/who-said/content";
-import { getProgress, praiseLine, type Level } from "@/lib/who-said/progress";
+import { BY_ID, callSrc, matAt, nameSrc, type SetId } from "@/lib/who-said/content";
+import { activeIdsFor, getProgress, praiseLine, type Level } from "@/lib/who-said/progress";
 import { CardFace, Finale, Backdrop, TopBar } from "../kit";
 import { shuffle, useQuiet, useTimers } from "@/lib/who-said/game-utils";
 
@@ -24,6 +24,7 @@ export function PairsGame({ set, onHome }: { set: SetId; onHome: () => void }) {
   const [matched, setMatched] = useState<string[]>([]);
   const [shake, setShake] = useState<number[]>([]);
   const [done, setDone] = useState(false);
+  const openRef = useRef<number[]>([]);
   const { later, clearTimers } = useTimers();
   useQuiet(!done);
 
@@ -31,7 +32,7 @@ export function PairsGame({ set, onHome }: { set: SetId; onHome: () => void }) {
     (lvl: number) => {
       clearTimers();
       stopClip();
-      const all = idsFor(set);
+      const all = activeIdsFor(set);
       // toys with their own call first: they make the best pairs to find by ear
       const voiced = shuffle(all.filter((id) => BY_ID[id].sound));
       const silent = shuffle(all.filter((id) => !BY_ID[id].sound));
@@ -40,7 +41,10 @@ export function PairsGame({ set, onHome }: { set: SetId; onHome: () => void }) {
       void prepareClips(picked.flatMap((id) => [voiceOf(id), nameSrc(id)]));
       setLevel(lvl);
       setTiles(deck);
-      setOpen([]);
+      {
+        openRef.current = [];
+        setOpen([]);
+      }
       setMatched([]);
       setShake([]);
       setDone(false);
@@ -54,8 +58,11 @@ export function PairsGame({ set, onHome }: { set: SetId; onHome: () => void }) {
   }, [deal]);
 
   function turn(tile: Tile) {
-    if (done || open.length >= 2 || open.includes(tile.key) || matched.includes(tile.id)) return;
-    const next = [...open, tile.key];
+    // openRef is updated at once, so three fast taps can't turn three cards
+    const now = openRef.current;
+    if (done || now.length >= 2 || now.includes(tile.key) || matched.includes(tile.id)) return;
+    const next = [...now, tile.key];
+    openRef.current = next;
     setOpen(next);
     void prepareClips([voiceOf(tile.id)]).then(() => playClip(voiceOf(tile.id), true));
     if (next.length < 2) return;
@@ -69,7 +76,10 @@ export function PairsGame({ set, onHome }: { set: SetId; onHome: () => void }) {
         playClip(nameSrc(tile.id));
         const now = [...matched, tile.id];
         setMatched(now);
-        setOpen([]);
+        {
+          openRef.current = [];
+          setOpen([]);
+        }
         if (now.length === LEVELS[level]) {
           later(() => {
             const praise = praiseLine();
@@ -85,7 +95,10 @@ export function PairsGame({ set, onHome }: { set: SetId; onHome: () => void }) {
       }, wait);
       later(() => {
         setShake([]);
-        setOpen([]);
+        {
+          openRef.current = [];
+          setOpen([]);
+        }
       }, wait + 700);
     }
   }

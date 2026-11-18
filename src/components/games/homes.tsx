@@ -16,9 +16,9 @@ import {
   livesSrc,
   type HomeId,
 } from "@/lib/who-said/content";
-import { getProgress, type Level } from "@/lib/who-said/progress";
+import { activeIdsFor, getProgress, type Level } from "@/lib/who-said/progress";
 import { CardFace, Finale, Hills, Stars, TopBar } from "../kit";
-import { shuffle, useQuiet, useTimers } from "@/lib/who-said/game-utils";
+import { shuffle, useQuiet, useTimers, useOnResume } from "@/lib/who-said/game-utils";
 import { asset } from "@/lib/who-said/assets";
 
 const ROUNDS = 8;
@@ -52,6 +52,7 @@ export function HomesGame({ onHome }: { onHome: () => void }) {
   const cardRef = useRef<HTMLButtonElement>(null);
   const homeRefs = useRef<Partial<Record<HomeId, HTMLButtonElement | null>>>({});
   const order = useRef<string[]>([]);
+  const busyRef = useRef(false);
   const { later, clearTimers } = useTimers();
   useQuiet(!done);
 
@@ -71,6 +72,7 @@ export function HomesGame({ onHome }: { onHome: () => void }) {
     setDrag(null);
     setWrongHome(null);
     setBusy(false);
+    busyRef.current = false;
     void prepareClips([homeAskSrc(id), livesSrc(id)]).then(() => playClip(homeAskSrc(id)));
   }, []);
 
@@ -78,9 +80,14 @@ export function HomesGame({ onHome }: { onHome: () => void }) {
     clearTimers();
     stopClip();
     // one toy from as many different homes as possible
-    const byHome = HOMES.map((h) => shuffle(HOME_IDS.filter((id) => homeOf(id) === h.id)));
+    // toys of the sets the parents switched off sit this game out
+    const active = new Set(activeIdsFor("mix"));
+    const usable = HOME_IDS.filter((id) => active.has(id));
+    const ids = usable.length >= 2 ? usable : HOME_IDS;
+    const byHome = HOMES.map((h) => shuffle(ids.filter((id) => homeOf(id) === h.id)));
     const picked: string[] = [];
-    for (let i = 0; picked.length < ROUNDS; i++) {
+    const rounds = Math.min(ROUNDS, ids.length);
+    for (let i = 0; picked.length < rounds; i++) {
       const list = byHome[i % byHome.length];
       const next = list.shift();
       if (next) picked.push(next);
@@ -97,6 +104,10 @@ export function HomesGame({ onHome }: { onHome: () => void }) {
     return () => stopClip();
   }, [begin]);
 
+  useOnResume(() => {
+    if (!done && !busyRef.current && animal) later(() => playClip(homeAskSrc(animal)), 500);
+  });
+
   function homeAt(x: number, y: number): HomeId | null {
     for (const id of homes) {
       const el = homeRefs.current[id];
@@ -108,8 +119,9 @@ export function HomesGame({ onHome }: { onHome: () => void }) {
   }
 
   function drop(home: HomeId) {
-    if (busy || !animal) return;
+    if (busy || busyRef.current || !animal) return;
     if (homeOf(animal) === home) {
+      busyRef.current = true;
       setBusy(true);
       const target = homeRefs.current[home]?.getBoundingClientRect();
       const card = cardRef.current?.getBoundingClientRect();

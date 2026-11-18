@@ -14,7 +14,6 @@ import {
   callSrc,
   clipsFor,
   factSrc,
-  idsFor,
   matAt,
   answerSrc,
   answerSrcs,
@@ -23,6 +22,8 @@ import {
   similarTo,
 } from "@/lib/who-said/content";
 import {
+  activeIdsFor,
+  factsOn,
   getProgress,
   maybeSmartLine,
   noteHit,
@@ -48,7 +49,7 @@ import {
   Stars,
   TopBar,
 } from "../kit";
-import { shuffle, useQuiet, useTimers } from "@/lib/who-said/game-utils";
+import { shuffle, useOnResume, usePaused, useQuiet, useTimers } from "@/lib/who-said/game-utils";
 
 const ROUNDS = 8;
 /** Cards per round for each level. */
@@ -97,6 +98,11 @@ export function QuizGame({ set, onHome }: { set: SetId; onHome: () => void }) {
   const [idleTick, setIdleTick] = useState(0);
   const [found, setFound] = useState<string[]>([]);
   const asked = useRef<string[]>([]);
+  // set synchronously on a tap, so a fast double tap can't answer twice
+  const tapLock = useRef(false);
+  const solvedRef = useRef(false);
+  const lastRing = useRef(0);
+  const paused = usePaused();
   const { later, clearTimers } = useTimers();
   useQuiet(!done);
 
@@ -114,7 +120,7 @@ export function QuizGame({ set, onHome }: { set: SetId; onHome: () => void }) {
 
   const startRound = useCallback(
     (index: number, previous: string | null) => {
-      const ids = idsFor(set);
+      const ids = activeIdsFor(set);
       // once every toy has had a turn, start a new lap
       const lap = index === 0 ? [] : asked.current.length >= ids.length ? [] : asked.current;
       const level = getProgress().level;
@@ -127,6 +133,8 @@ export function QuizGame({ set, onHome }: { set: SetId; onHome: () => void }) {
       setAsleep([]);
       setSolved(false);
       setIdleHint(false);
+      tapLock.current = false;
+      solvedRef.current = false;
       return next.target;
     },
     [set],
@@ -148,20 +156,27 @@ export function QuizGame({ set, onHome }: { set: SetId; onHome: () => void }) {
 
   // If the child goes quiet: ring again, then let the right card glow.
   useEffect(() => {
-    if (done || solved || !target) return;
+    if (done || solved || !target || paused) return;
     const repeat = window.setTimeout(() => ring(target), IDLE_REPEAT_MS);
     const hint = window.setTimeout(() => setIdleHint(true), IDLE_HINT_MS);
     return () => {
       window.clearTimeout(repeat);
       window.clearTimeout(hint);
     };
-  }, [done, solved, target, round, idleTick, ring]);
+  }, [done, solved, target, round, idleTick, ring, paused]);
+
+  // back from the background: remind the riddle
+  useOnResume(() => {
+    if (!done && !solvedRef.current && target) later(() => ring(target), 500);
+  });
 
   function choose(id: string) {
-    if (done || solved || asleep.includes(id)) return;
+    if (done || solved || tapLock.current || asleep.includes(id)) return;
+    tapLock.current = true;
     setIdleTick((n) => n + 1);
     if (id === target) {
       if (!asleep.length) noteHit(id);
+      solvedRef.current = true;
       setSolved(true);
       setIdleHint(false);
       playYes();
@@ -171,10 +186,11 @@ export function QuizGame({ set, onHome }: { set: SetId; onHome: () => void }) {
       const said = answerSrc(id);
       const smartEnds = smart && clipMs(smart) ? 300 + clipMs(smart) + 100 : 300;
       const nameEnds = smartEnds + (clipMs(said) || 1000);
-      const factEnds = nameEnds + 150 + (clipMs(factSrc(id)) || 0);
+      const withFact = factsOn();
+      const factEnds = withFact ? nameEnds + 150 + (clipMs(factSrc(id)) || 0) : nameEnds;
       if (smart && clipMs(smart)) later(() => playClip(smart), 300);
       later(() => playClip(said), smartEnds);
-      later(() => playClip(factSrc(id)), nameEnds + 150);
+      if (withFact) later(() => playClip(factSrc(id)), nameEnds + 150);
       setFound((list) => [...list, id]);
       later(
         () => {
@@ -185,6 +201,8 @@ export function QuizGame({ set, onHome }: { set: SetId; onHome: () => void }) {
       );
       return;
     }
+    // a wrong card unlocks after a moment; the same card can't count twice
+    later(() => (tapLock.current = false), 350);
     playSoft();
     if (!asleep.length) noteMiss(target);
     setAsleep((list) => [...list, id]);
@@ -209,6 +227,9 @@ export function QuizGame({ set, onHome }: { set: SetId; onHome: () => void }) {
           type="button"
           className={ringing ? "sound-btn is-live" : "sound-btn"}
           onClick={() => {
+            // drumming on the speaker shouldn't restart the clip every few milliseconds
+            if (Date.now() - lastRing.current < 600) return;
+            lastRing.current = Date.now();
             setIdleTick((n) => n + 1);
             ring(target);
           }}

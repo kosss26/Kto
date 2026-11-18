@@ -11,7 +11,7 @@ import {
   similarTo,
   type SetId,
 } from "@/lib/who-said/content";
-import { getProgress, praiseLine, type Level } from "@/lib/who-said/progress";
+import { activeIdsFor, getProgress, praiseLine, type Level } from "@/lib/who-said/progress";
 import {
   CardFace,
   CheckIcon,
@@ -23,7 +23,7 @@ import {
   Stars,
   TopBar,
 } from "../kit";
-import { shuffle, useQuiet, useTimers } from "@/lib/who-said/game-utils";
+import { shuffle, useQuiet, useTimers, useOnResume } from "@/lib/who-said/game-utils";
 
 const ROUNDS = 8;
 /** Bells per round for each level. */
@@ -36,8 +36,11 @@ const BELL_COLORS = ["#ffc93c", "#ff8fb1", "#7cc4f0"];
 
 /** Toys with a real call in this set; a set with too few borrows from all of them. */
 function pool(set: SetId) {
-  const own = soundIdsFor(set);
-  return own.length >= 4 ? own : ITEMS.filter((item) => item.sound).map((item) => item.id);
+  const active = new Set(activeIdsFor(set));
+  const own = soundIdsFor(set).filter((id) => active.has(id));
+  if (own.length >= 4) return own;
+  const all = activeIdsFor("mix").filter((id) => BY_ID[id].sound);
+  return all.length >= 4 ? all : ITEMS.filter((item) => item.sound).map((item) => item.id);
 }
 
 /** «Наоборот»: we show a toy, the child finds its voice among 2–3 bells. Every tap plays that bell. */
@@ -51,6 +54,8 @@ export function ReverseGame({ set, onHome }: { set: SetId; onHome: () => void })
   const [solved, setSolved] = useState(false);
   const [found, setFound] = useState<string[]>([]);
   const asked = useRef<string[]>([]);
+  const bellLock = useRef(false);
+  const solvedRef = useRef(false);
   const { later, clearTimers } = useTimers();
   useQuiet(!done);
 
@@ -74,6 +79,8 @@ export function ReverseGame({ set, onHome }: { set: SetId; onHome: () => void })
       setBells(order);
       setTried([]);
       setSolved(false);
+      bellLock.current = false;
+      solvedRef.current = false;
       setLive(null);
       void prepareClips([howSrc(next), ...order.map(callSrc)]).then(() => playClip(howSrc(next)));
     },
@@ -96,11 +103,14 @@ export function ReverseGame({ set, onHome }: { set: SetId; onHome: () => void })
   }, [begin]);
 
   function ring(id: string) {
-    if (solved || done) return;
+    // one bell at a time: taps while a voice is still playing are ignored
+    if (solved || done || bellLock.current) return;
+    bellLock.current = true;
     setLive(id);
     playClip(callSrc(id), true);
     const len = Math.min(clipMs(callSrc(id)) || 1500, 2600);
     if (id === target) {
+      solvedRef.current = true;
       setSolved(true);
       setFound((list) => [...list, id]);
       // let the right voice play out, then cheer and move on
@@ -120,8 +130,13 @@ export function ReverseGame({ set, onHome }: { set: SetId; onHome: () => void })
       setLive(null);
       setTried((list) => [...list, id]);
       playSoft();
+      bellLock.current = false;
     }, len);
   }
+
+  useOnResume(() => {
+    if (!done && !solvedRef.current && target) later(() => playClip(howSrc(target)), 500);
+  });
 
   if (done)
     return (
