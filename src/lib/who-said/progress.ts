@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { ITEMS, PRAISE, VOICE, idsFor, type SetId } from "./content";
+import { BY_ID, ITEMS, PRAISE, VOICE, idsFor, type Mode, type SetId } from "./content";
 import { NAMES, nameLine } from "./names";
 
 /**
@@ -16,10 +16,22 @@ type Progress = {
   level: Level;
   /** Id from NAMES, or "" when the game should not use a name. */
   child: string;
+  /** Today's guest on the shelf: picked once a day, met = the child already tapped it. */
+  guest: { day: string; id: string; met: boolean } | null;
+  /** Sets whose full sticker collection was already celebrated. */
+  partied: Mode[];
 };
 
 const KEY = "kto-skazal:progress";
-const EMPTY: Progress = { stickers: [], plays: {}, misses: {}, level: "middle", child: "" };
+const EMPTY: Progress = {
+  stickers: [],
+  plays: {},
+  misses: {},
+  level: "middle",
+  child: "",
+  guest: null,
+  partied: [],
+};
 
 let state: Progress = EMPTY;
 let loaded = false;
@@ -151,3 +163,55 @@ export const LEVELS: { id: Level; label: string; note: string }[] = [
   { id: "middle", label: "Знайка", note: "3–4 года · до четырёх" },
   { id: "pro", label: "Умник", note: "5–6 лет · до шести и похожие голоса" },
 ];
+
+// ---------- «Зверь дня» ----------
+
+function today() {
+  const d = new Date();
+  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+}
+
+/** Today's guest: a toy the child hasn't collected yet if there is one, the same all day. */
+export function guestOfDay() {
+  const p = getProgress();
+  const day = today();
+  if (p.guest?.day === day) return p.guest;
+  const have = new Set(p.stickers);
+  const fresh = ITEMS.filter((item) => !have.has(item.id)).map((item) => item.id);
+  const pool = fresh.length ? fresh : ITEMS.map((item) => item.id);
+  let hash = 0;
+  for (const ch of day) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+  const guest = { day, id: pool[hash % pool.length], met: false };
+  save({ ...p, guest });
+  return guest;
+}
+
+/** The child said hello to the guest: it leaves its sticker (once). Returns true if the sticker is new. */
+export function meetGuest() {
+  const p = getProgress();
+  if (!p.guest || p.guest.met) return false;
+  const isNew = !p.stickers.includes(p.guest.id);
+  save({
+    ...p,
+    guest: { ...p.guest, met: true },
+    stickers: isNew ? [...p.stickers, p.guest.id] : p.stickers,
+  });
+  return isNew;
+}
+
+// ---------- собранные наборы ----------
+
+export function isSetComplete(mode: Mode, stickers = getProgress().stickers) {
+  const have = new Set(stickers);
+  return idsFor(mode).every((id) => have.has(id));
+}
+
+/** The set this new sticker completes, if it completes one that wasn't celebrated yet. */
+export function setToCelebrate(sticker: string | null): Mode | null {
+  if (!sticker) return null;
+  const mode = BY_ID[sticker].mode;
+  const p = getProgress();
+  if (p.partied.includes(mode) || !isSetComplete(mode, p.stickers)) return null;
+  save({ ...p, partied: [...p.partied, mode] });
+  return mode;
+}

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import {
+  clipMs,
   playClip,
   playTap,
   prepareClips,
@@ -11,18 +12,29 @@ import {
   unlockAudio,
 } from "@/lib/who-said/audio";
 import {
+  BY_ID,
+  FACTS,
   ITEMS,
   MIX,
   MODES,
   cardSrc,
+  callSrc,
   clipsFor,
+  factSrc,
+  guestSrc,
   idsFor,
+  nameSrc,
   stickerSrc,
+  type Mode,
   type SetId,
 } from "@/lib/who-said/content";
 import {
   LEVELS,
+  guestOfDay,
   helloLine,
+  isSetComplete,
+  meetGuest,
+  setToCelebrate,
   setChild,
   setLevel,
   useProgress,
@@ -36,7 +48,7 @@ import { ListenGame } from "./games/listen";
 import { PairsGame } from "./games/pairs";
 import { QuizGame } from "./games/quiz";
 import { ReverseGame } from "./games/reverse";
-import { BackIcon, Hills, Logo, MusicIcon, PlayIcon, ShuffleIcon } from "./kit";
+import { BackIcon, Hills, Logo, MusicIcon, Notes, PlayIcon, SetParty, ShuffleIcon } from "./kit";
 import { QuietContext, warmImages } from "@/lib/who-said/game-utils";
 
 type GameId = "quiz" | "listen" | "reverse" | "pairs" | "homes";
@@ -192,6 +204,68 @@ function OfflineRow() {
   );
 }
 
+/** True when the guest has room on screen (it hides on short phones). */
+const guestFits = () =>
+  typeof window !== "undefined" && window.matchMedia("(min-height: 720px)").matches;
+
+/**
+ * «Гость дня»: one toy visits the shelf each day. Tapping it plays its voice and a fact;
+ * the first tap leaves its sticker in the album (and may complete a set).
+ */
+function GuestOfDay({ onParty }: { onParty: (mode: Mode) => void }) {
+  const [guest, setGuest] = useState<{ id: string; met: boolean } | null>(null);
+  const [talking, setTalking] = useState(false);
+  const [gift, setGift] = useState(false);
+  const timers = useRef<number[]>([]);
+
+  useEffect(() => {
+    setGuest(guestOfDay());
+    const pending = timers.current;
+    return () => pending.forEach((t) => window.clearTimeout(t));
+  }, []);
+
+  if (!guest) return null;
+  const id = guest.id;
+
+  async function tap() {
+    unlockAudio();
+    const voice = BY_ID[id].sound ? callSrc(id) : nameSrc(id);
+    await prepareClips([voice, nameSrc(id), factSrc(id)]);
+    setTalking(true);
+    playClip(voice, true);
+    const first = Math.min(clipMs(voice) || 1200, 2400) + 200;
+    const later = (fn: () => void, ms: number) => timers.current.push(window.setTimeout(fn, ms));
+    if (BY_ID[id].sound) later(() => playClip(nameSrc(id)), first);
+    const factAt = BY_ID[id].sound ? first + (clipMs(nameSrc(id)) || 1000) + 150 : first;
+    later(() => playClip(factSrc(id)), factAt);
+    later(() => setTalking(false), factAt + (clipMs(factSrc(id)) || 1800));
+    if (!guest?.met) {
+      const isNew = meetGuest();
+      setGuest({ id, met: true });
+      if (isNew) {
+        setGift(true);
+        later(() => setGift(false), 2600);
+        const complete = setToCelebrate(id);
+        if (complete) later(() => onParty(complete), factAt + (clipMs(factSrc(id)) || 1800) + 400);
+      }
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      className={`guest${talking ? " is-talking" : ""}${guest.met ? "" : " is-new"}`}
+      onClick={() => void tap()}
+      aria-label={`Гость дня: ${BY_ID[id].name}. ${FACTS[id] ?? ""}`}
+    >
+      <span className="guest-tag">{guest.met ? "Гость дня" : "Привет!"}</span>
+      <img src={cardSrc(id)} alt="" draggable={false} />
+      {talking && <Notes />}
+      {gift && <span className="guest-gift">+ наклейка!</span>}
+    </button>
+  );
+}
+
 const HOLD_MS = 2500;
 
 /**
@@ -302,6 +376,7 @@ export function WhoSaidGame() {
   const [musicOn, setMusicOn] = useState(true);
   const [quiet, setQuiet] = useState(false);
   const [levelOpen, setLevelOpen] = useState(false);
+  const [party, setParty] = useState<Mode | null>(null);
   const screenRef = useRef(screen);
   screenRef.current = screen;
 
@@ -403,11 +478,17 @@ export function WhoSaidGame() {
   useEffect(() => {
     if (screen.at !== "menu" || greeted.current) return;
     const hello = () => {
-      const line = helloLine();
       greeted.current = true;
-      if (!line) return;
+      const line = helloLine();
+      const guest = guestOfDay();
+      // the guest introduces itself until the child has met it today
+      const guestLine = !guest.met ? guestSrc(guest.id) : "";
+      if (!line && !guestLine) return;
       unlockAudio();
-      void prepareClips([line]).then(() => playClip(line));
+      void prepareClips([line, guestLine].filter(Boolean)).then(() => {
+        if (line) playClip(line);
+        if (guestLine) window.setTimeout(() => playClip(guestLine), line ? clipMs(line) + 250 : 0);
+      });
     };
     window.addEventListener("pointerdown", hello, { once: true });
     return () => window.removeEventListener("pointerdown", hello);
@@ -513,7 +594,7 @@ export function WhoSaidGame() {
               type="button"
               role="radio"
               aria-checked={set === item.id}
-              className={set === item.id ? "set is-on" : "set"}
+              className={`set${set === item.id ? " is-on" : ""}${isSetComplete(item.id, progress.stickers) ? " is-gold" : ""}`}
               style={{ ["--mat" as string]: SET_MATS[index] }}
               onClick={() => pickSet(item.id)}
             >
@@ -661,6 +742,8 @@ export function WhoSaidGame() {
           </div>
         </div>
       )}
+      <GuestOfDay onParty={setParty} />
+      {party && <SetParty mode={party} onClose={() => setParty(null)} />}
       <Hills />
       <p className="credits">Звуки: BBC, xeno-canto · Голос: Silero · Музыка: K. MacLeod</p>
     </main>

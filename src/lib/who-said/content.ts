@@ -394,3 +394,13 @@ export function similarTo(id: string, pool: string[]) {
   const group = SIMILAR.find((g) => g.includes(id)) ?? [];
   return group.filter((other) => other !== id && pool.includes(other));
 }
+
+// ---------- «Зверь дня» и собранные наборы ----------
+
+export const guestSrc = (id: string) => asset(`/voice/guest-${id}.mp3`);
+export const setDoneSrc = (mode: Mode) => asset(`/voice/setdone-${mode}.mp3`);
+
+/** Short call for the chorus: toys with a real recording. */
+export function chorusIds(mode: Mode) {
+  return idsFor(mode).filter((id) => BY_ID[id].sound);
+}

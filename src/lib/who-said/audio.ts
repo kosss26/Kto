@@ -105,6 +105,24 @@ export function playClip(url: string, wobble = false) {
   };
 }
 
+/** Plays a clip on top of whatever is playing (the chorus); quieter, never cuts other clips. */
+export function playLayer(url: string, delay = 0, gain = 0.55) {
+  const audio = context();
+  const buffer = buffers.get(url);
+  if (!buffer || !master) return;
+  const src = audio.createBufferSource();
+  const g = audio.createGain();
+  const at = audio.currentTime + delay;
+  src.buffer = buffer;
+  src.playbackRate.value = 0.97 + Math.random() * 0.06;
+  g.gain.setValueAtTime(0.0001, at);
+  g.gain.exponentialRampToValueAtTime(gain, at + 0.03);
+  src.connect(g);
+  g.connect(master);
+  src.start(at);
+  src.onended = () => g.disconnect();
+}
+
 function chime(freq: number, delay: number, peak: number, dur: number) {
   const audio = context();
   if (!master) return;

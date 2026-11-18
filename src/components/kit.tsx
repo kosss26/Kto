@@ -1,7 +1,19 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { playClip, playFanfare, prepareClips } from "@/lib/who-said/audio";
-import { BY_ID, cardSrc, matAt, stickerSrc, type SetId } from "@/lib/who-said/content";
-import { bravoLine, finishGame } from "@/lib/who-said/progress";
+import { playClip, playFanfare, playLayer, prepareClips } from "@/lib/who-said/audio";
+import {
+  BY_ID,
+  MODES,
+  callSrc,
+  cardSrc,
+  chorusIds,
+  idsFor,
+  matAt,
+  setDoneSrc,
+  stickerSrc,
+  type Mode,
+  type SetId,
+} from "@/lib/who-said/content";
+import { bravoLine, finishGame, setToCelebrate } from "@/lib/who-said/progress";
 import { useQuiet, useTimers } from "@/lib/who-said/game-utils";
 
 // ---------- icons ----------
@@ -165,11 +177,15 @@ export function Finale({
   const [sticker, setSticker] = useState<string | null>(null);
   const awarded = useRef(false);
   useQuiet(false);
+  const [party, setParty] = useState<Mode | null>(null);
   useEffect(() => {
     // one sticker per finished game (the ref keeps a dev double-run from paying twice)
     if (!awarded.current) {
       awarded.current = true;
-      setSticker(finishGame(set, found));
+      const got = finishGame(set, found);
+      setSticker(got);
+      const complete = setToCelebrate(got);
+      if (complete) later(() => setParty(complete), 2600);
     }
     playFanfare();
     later(() => {
@@ -215,6 +231,7 @@ export function Finale({
         </button>
       </div>
       <Hills />
+      {party && <SetParty mode={party} onClose={() => setParty(null)} />}
     </main>
   );
 }
@@ -238,5 +255,57 @@ export function CardFace({ id, style }: { id: string; style?: CSSProperties }) {
     <span className="card-face" style={style}>
       <img src={cardSrc(id)} alt="" draggable={false} />
     </span>
+  );
+}
+
+/** Floating notes over a toy that is "talking". */
+export function Notes() {
+  return (
+    <span className="notes" aria-hidden="true">
+      <i>♪</i>
+      <i>♫</i>
+      <i>♪</i>
+    </span>
+  );
+}
+
+/**
+ * A whole set of stickers is collected: golden frame, every toy of the set bouncing,
+ * the voiced ones calling together like a choir, then «Ура! Все лесные жители в альбоме!».
+ */
+export function SetParty({ mode, onClose }: { mode: Mode; onClose: () => void }) {
+  const ids = idsFor(mode);
+  const label = MODES.find((m) => m.id === mode)?.label ?? "";
+  const { later } = useTimers();
+  useEffect(() => {
+    const voices = chorusIds(mode).slice(0, 8);
+    const line = setDoneSrc(mode);
+    void prepareClips([line, ...voices.map(callSrc)]).then(() => {
+      playFanfare();
+      voices.forEach((id, i) => playLayer(callSrc(id), 0.5 + i * 0.32, 0.5));
+      later(() => playClip(line), 600 + voices.length * 320 + 900);
+    });
+  }, [later, mode]);
+  return (
+    <div className="party" role="dialog" aria-modal="true" aria-label={`Набор «${label}» собран`}>
+      <span className="party-rays" aria-hidden="true" />
+      <div className="party-card">
+        <p className="party-ribbon">Набор собран!</p>
+        <h2 className="party-title">{label}</h2>
+        <div className="party-grid" data-count={ids.length}>
+          {ids.map((id, i) => (
+            <img
+              key={id}
+              src={stickerSrc(id)}
+              alt={BY_ID[id].name}
+              style={{ animationDelay: `${(i % 6) * 0.12}s` }}
+            />
+          ))}
+        </div>
+        <button type="button" className="party-ok" onClick={onClose}>
+          Ура!
+        </button>
+      </div>
+    </div>
   );
 }

@@ -29,6 +29,7 @@ facts = dict(re.findall(r'^  (\w+): "([^"]+)",$', src, re.M))
 for item_id, name in items:
     lines[f"where-{item_id}"] = f"Где {name}?"
     lines[f"this-{item_id}"] = f"Это {name}!"
+    lines[f"guest-{item_id}"] = f"Сегодня к нам в гости — {name}!"
     # variety after a right answer
     lines[f"yes-{item_id}-1"] = f"Да, это {name}!"
     lines[f"yes-{item_id}-2"] = f"Правильно, {name}!"
@@ -42,6 +43,17 @@ for item_id, name in items:
     if mode in WHERE and item_id != "panda":
         lines[f"homeq-{item_id}"] = f"Где живёт {name}?"
         lines[f"lives-{item_id}"] = f"{name[0].upper() + name[1:]} живёт {WHERE[mode]}."
+
+SET_DONE = {
+    "farm": "Ура! Все домашние животные в альбоме!",
+    "pets": "Ура! Все питомцы в альбоме!",
+    "forest": "Ура! Все лесные жители в альбоме!",
+    "zoo": "Ура! Весь зоопарк в альбоме!",
+    "sea": "Ура! Все морские жители в альбоме!",
+    "city": "Ура! Все машины в альбоме!",
+}
+for mode, text in SET_DONE.items():
+    lines[f"setdone-{mode}"] = text
 
 names_src = open("src/lib/who-said/names.ts", encoding="utf-8").read()
 for name_id, child in re.findall(r'\{ id: "(\w+)", name: "([^"]+)" \}', names_src):

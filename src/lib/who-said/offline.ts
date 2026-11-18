@@ -11,6 +11,9 @@ import {
   callSrc,
   cardSrc,
   factSrc,
+  guestSrc,
+  MODES,
+  setDoneSrc,
   homeAskSrc,
   howSrc,
   livesSrc,
@@ -60,6 +63,7 @@ export function allMediaUrls() {
     urls.add(stickerSrc(id));
     urls.add(callSrc(id));
     urls.add(factSrc(id));
+    urls.add(guestSrc(id));
     for (const u of answerSrcs(id)) urls.add(u);
     if (sound) urls.add(howSrc(id));
   }
@@ -67,6 +71,7 @@ export function allMediaUrls() {
     urls.add(homeAskSrc(id));
     urls.add(livesSrc(id));
   }
+  for (const m of MODES) urls.add(setDoneSrc(m.id));
   for (const h of HOMES) urls.add(asset(`/felt/home-${h.id}.webp`));
   for (const u of [...PRAISE, VOICE.bravo, VOICE.again, MUSIC_URL]) urls.add(u);
   const child = getProgress().child;

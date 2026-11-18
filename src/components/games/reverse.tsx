@@ -12,7 +12,17 @@ import {
   type SetId,
 } from "@/lib/who-said/content";
 import { getProgress, praiseLine, type Level } from "@/lib/who-said/progress";
-import { CardFace, CheckIcon, Finale, Hills, SpeakerIcon, Sparks, Stars, TopBar } from "../kit";
+import {
+  CardFace,
+  CheckIcon,
+  Finale,
+  Hills,
+  Notes,
+  SpeakerIcon,
+  Sparks,
+  Stars,
+  TopBar,
+} from "../kit";
 import { shuffle, useQuiet, useTimers } from "@/lib/who-said/game-utils";
 
 const ROUNDS = 8;
@@ -140,6 +150,7 @@ export function ReverseGame({ set, onHome }: { set: SetId; onHome: () => void })
           {target ? BY_ID[target].name : ""}
         </span>
         <Sparks />
+        {solved && <Notes />}
       </button>
 
       <p className="hint-line">Чей голос? Нажимай на колокольчики</p>

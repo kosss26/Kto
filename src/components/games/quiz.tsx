@@ -37,7 +37,17 @@ function smartPrep() {
   const id = getProgress().child;
   return id ? nameLine(id, "smart") : "";
 }
-import { CardFace, CheckIcon, Finale, Hills, SpeakerIcon, Sparks, Stars, TopBar } from "../kit";
+import {
+  CardFace,
+  CheckIcon,
+  Finale,
+  Hills,
+  Notes,
+  SpeakerIcon,
+  Sparks,
+  Stars,
+  TopBar,
+} from "../kit";
 import { shuffle, useQuiet, useTimers } from "@/lib/who-said/game-utils";
 
 const ROUNDS = 8;
@@ -249,6 +259,7 @@ export function QuizGame({ set, onHome }: { set: SetId; onHome: () => void }) {
                 {BY_ID[id].name}
               </span>
               <Sparks />
+              {good && <Notes />}
             </button>
           );
         })}

@@ -13,7 +13,7 @@ import {
 } from "@/lib/who-said/content";
 import { useTimers } from "@/lib/who-said/game-utils";
 import { useProgress } from "@/lib/who-said/progress";
-import { BackIcon, Hills } from "./kit";
+import { BackIcon, Hills, Notes } from "./kit";
 
 const TAB_MATS = ["#bfe3a5", "#f7c9dc", "#ffd9a8", "#fff0a6", "#bfe0f5", "#d8cdf5"];
 
@@ -72,7 +72,7 @@ export function Album({ onBack }: { onBack: () => void }) {
               role="tab"
               aria-selected={tab === mode.id}
               aria-label={`${mode.label}: ${got} из ${idsFor(mode.id).length}`}
-              className={tab === mode.id ? "album-tab is-on" : "album-tab"}
+              className={`album-tab${tab === mode.id ? " is-on" : ""}${got === idsFor(mode.id).length ? " is-gold" : ""}`}
               style={{ ["--mat" as string]: TAB_MATS[index] }}
               onClick={() => setTab(mode.id)}
             >
@@ -103,6 +103,7 @@ export function Album({ onBack }: { onBack: () => void }) {
             >
               <img src={got ? stickerSrc(id) : cardSrc(id)} alt="" draggable={false} />
               <span className="slot-name">{got ? BY_ID[id].name : "?"}</span>
+              {playing === id && <Notes />}
             </button>
           );
         })}

@@ -3,6 +3,6 @@ export const ASSET_VERSIONS: Record<string, string> = {
   "felt": "00cf5563",
   "stickers": "951af739",
   "sfx": "61cbe2e7",
-  "voice": "d853ef70",
+  "voice": "449bb97f",
   "music": "8068ea67"
 };
