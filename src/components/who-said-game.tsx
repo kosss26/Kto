@@ -14,6 +14,7 @@ import {
 import {
   BY_ID,
   FACTS,
+  babyCard,
   ITEMS,
   MIX,
   MODES,
@@ -46,6 +47,7 @@ import {
 import { startOffline } from "@/lib/who-said/offline";
 import { Album } from "./album";
 import { LevelIcon, ParentSheet } from "./parents";
+import { BabiesGame } from "./games/babies";
 import { HomesGame } from "./games/homes";
 import { ListenGame } from "./games/listen";
 import { PairsGame } from "./games/pairs";
@@ -64,13 +66,15 @@ import {
 } from "./kit";
 import { QuietContext, setPaused, warmImages } from "@/lib/who-said/game-utils";
 
-type GameId = "quiz" | "listen" | "reverse" | "pairs" | "homes";
+type GameId = "quiz" | "listen" | "reverse" | "pairs" | "homes" | "babies";
 
 const GAMES: {
   id: GameId;
   title: string;
   note: string;
+  /** toy ids for the tile picture, or ready image URLs in `art` */
   pics: string[];
+  art?: string[];
   mat: string;
   needsSet: boolean;
 }[] = [
@@ -112,6 +116,15 @@ const GAMES: {
     note: "Отведи домой",
     pics: ["dolphin", "squirrel"],
     mat: "#bfe0f5",
+    needsSet: false,
+  },
+  {
+    id: "babies",
+    title: "Мама и малыш",
+    note: "Найди малыша",
+    pics: [],
+    art: [cardSrc("elephant"), babyCard("elephant"), babyCard("penguin"), cardSrc("penguin")],
+    mat: "#ffd9a8",
     needsSet: false,
   },
 ];
@@ -549,6 +562,7 @@ export function WhoSaidGame() {
         {screen.game === "reverse" && <ReverseGame key={key} {...props} />}
         {screen.game === "pairs" && <PairsGame key={key} {...props} />}
         {screen.game === "homes" && <HomesGame key={key} onHome={goMenu} />}
+        {screen.game === "babies" && <BabiesGame key={key} onHome={goMenu} />}
       </QuietContext.Provider>
     );
   }
@@ -666,8 +680,8 @@ export function WhoSaidGame() {
             onClick={() => openGame(game.id)}
           >
             <span className="game-art" aria-hidden="true">
-              {game.pics.map((id, i) => (
-                <img key={`${id}-${i}`} src={cardSrc(id)} alt="" />
+              {(game.art ?? game.pics.map(cardSrc)).map((src, i) => (
+                <img key={`${src}-${i}`} src={src} alt="" />
               ))}
               <span className="game-badge" />
             </span>

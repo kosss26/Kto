@@ -416,3 +416,80 @@ export const setDoneSrc = (mode: Mode) => asset(`/voice/setdone-${mode}.mp3`);
 export function chorusIds(mode: Mode) {
   return idsFor(mode).filter((id) => BY_ID[id].sound);
 }
+
+// ---------- «Мама и малыш» ----------
+
+/**
+ * Babies drawn so far (public/felt/baby-<id>.webp, cut from assets/baby-sheets).
+ * A new sheet = new lines here, then tools/make-voice.py only-missing.
+ */
+export const BABIES: Record<string, string> = {
+  elephant: "слонёнок",
+  lion: "львёнок",
+  monkey: "обезьянка",
+  parrot: "птенец попугая",
+  penguin: "пингвинёнок",
+  tiger: "тигрёнок",
+  giraffe: "жирафёнок",
+  zebra: "зебрёнок",
+  panda: "малыш панды",
+  kangaroo: "кенгурёнок",
+  camel: "верблюжонок",
+  hippo: "бегемотик",
+  rhino: "малыш носорога",
+  seal: "тюленёнок",
+  dolphin: "дельфинёнок",
+  walrus: "моржонок",
+  otter: "выдрёнок",
+  orca: "малыш косатки",
+  crow: "воронёнок",
+  owl: "совёнок",
+  sparrow: "воробушек",
+  cuckoo: "кукушонок",
+  woodpecker: "дятлёнок",
+  nightingale: "соловьёнок",
+  seagull: "птенец чайки",
+  turkey: "индюшонок",
+  robin: "птенец малиновки",
+  stork: "аистёнок",
+  octopus: "осьминожка",
+  crab: "крабик",
+  turtle: "черепашонок",
+  seahorse: "малыш морского конька",
+  jellyfish: "медузка",
+  starfish: "морская звёздочка",
+  stingray: "скатик",
+  shark: "акулёнок",
+  clownfish: "малыш рыбки-клоуна",
+  frog: "головастик",
+  bee: "пчёлка-малышка",
+  cricket: "сверчонок",
+  gecko: "ящерка",
+  crocodile: "крокодильчик",
+  snake: "змейка",
+  swan: "лебедёнок",
+  flamingo: "птенец фламинго",
+  ostrich: "страусёнок",
+};
+
+/**
+ * Babies that look like a small copy of their mum (fish, crab, starfish, insects…) are drawn
+ * but sit «Мама и малыш» out: the child couldn't tell mum from baby.
+ */
+export const LOOKALIKE_BABIES = new Set([
+  "octopus",
+  "crab",
+  "jellyfish",
+  "starfish",
+  "stingray",
+  "shark",
+  "clownfish",
+  "seahorse",
+  "bee",
+  "cricket",
+]);
+
+export const babyCard = (id: string) => asset(`/felt/baby-${id}.webp`);
+export const babyWhereSrc = (id: string) => asset(`/voice/babywhere-${id}.mp3`);
+export const babyThisSrc = (id: string) => asset(`/voice/babythis-${id}.mp3`);
+export const WHOSE_BABY = asset("/voice/whose-baby.mp3");

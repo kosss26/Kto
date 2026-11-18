@@ -26,7 +26,8 @@ os.makedirs(out, exist_ok=True)
 lines = {"bravo": "Молодец!", "again": "Попробуй ещё!",
          "rest": "Пора отдохнуть! Зверята ложатся спать.",
          "praise-1": "Правильно!", "praise-2": "Верно!", "praise-3": "Ура!", "praise-4": "Отлично!"}
-facts = dict(re.findall(r'^  (\w+): "([^"]+)",$', src, re.M))
+facts_block = src.split("export const FACTS")[1].split("};")[0]
+facts = dict(re.findall(r'^  (\w+): "([^"]+)",$', facts_block, re.M))
 for item_id, name in items:
     lines[f"where-{item_id}"] = f"Где {name}?"
     lines[f"this-{item_id}"] = f"Это {name}!"
@@ -44,6 +45,12 @@ for item_id, name in items:
     if mode in WHERE and item_id != "panda":
         lines[f"homeq-{item_id}"] = f"Где живёт {name}?"
         lines[f"lives-{item_id}"] = f"{name[0].upper() + name[1:]} живёт {WHERE[mode]}."
+
+babies = dict(re.findall(r'^  (\w+): "([^"]+)",$', src.split("export const BABIES")[1].split("};")[0], re.M)) if "export const BABIES" in src else {}
+for baby_id, baby in babies.items():
+    lines[f"babywhere-{baby_id}"] = f"Где {baby}?"
+    lines[f"babythis-{baby_id}"] = f"Это {baby}!"
+lines["whose-baby"] = "Чей это малыш? Найди маму!"
 
 SET_DONE = {
     "farm": "Ура! Все домашние животные в альбоме!",

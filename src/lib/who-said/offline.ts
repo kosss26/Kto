@@ -2,6 +2,11 @@ import { useSyncExternalStore } from "react";
 import { MUSIC_URL } from "./audio";
 import { asset } from "./assets";
 import {
+  BABIES,
+  WHOSE_BABY,
+  babyCard,
+  babyThisSrc,
+  babyWhereSrc,
   HOMES,
   HOME_IDS,
   ITEMS,
@@ -76,6 +81,12 @@ export function allMediaUrls() {
     urls.add(setDoneSrc(m.id));
     urls.add(worldSrc(m.id));
   }
+  for (const id of Object.keys(BABIES)) {
+    urls.add(babyCard(id));
+    urls.add(babyWhereSrc(id));
+    urls.add(babyThisSrc(id));
+  }
+  urls.add(WHOSE_BABY);
   for (const h of HOMES) urls.add(asset(`/felt/home-${h.id}.webp`));
   for (const u of [...PRAISE, VOICE.bravo, VOICE.again, MUSIC_URL, asset("/voice/rest.mp3")])
     urls.add(u);

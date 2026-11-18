@@ -21,6 +21,12 @@ SHEETS = {
     "sheet-10.png": (3, ["octopus", "crab", "turtle", "seahorse", "jellyfish", "starfish", "stingray", "shark", "clownfish"], 40),
     "sheet-11.png": (2, ["guineapig", "squirrel", "deer", "moose", "boar", "hedgehog", "camel", "hippo"], 40),
     "sheet-13.png": (2, ["home-house", "home-farm", "home-forest", "home-sea", "home-hot"], 150),
+    # babies («Мама и малыш»), cut with: python3 tools/cut-felt.py assets/baby-sheets public/felt
+    "babies-1.png": (3, ["baby-elephant", "baby-lion", "baby-monkey", "baby-parrot", "baby-penguin", "baby-tiger", "baby-giraffe", "baby-zebra", "baby-panda"], 40),
+    "babies-2.png": (3, ["baby-kangaroo", "baby-camel", "baby-hippo", "baby-rhino", "baby-seal", "baby-dolphin", "baby-walrus", "baby-otter", "baby-orca"], 150),
+    "babies-3.png": (2, ["baby-crow", "baby-owl", "baby-sparrow", "baby-cuckoo", "baby-woodpecker", "baby-nightingale", "baby-seagull", "baby-turkey", "baby-robin", "baby-stork"], 150),
+    "babies-4.png": (3, ["baby-octopus", "baby-crab", "baby-turtle", "baby-seahorse", "baby-jellyfish", "baby-starfish", "baby-stingray", "baby-shark", "baby-clownfish"], 200),
+    "babies-5.png": (3, ["baby-frog", "baby-bee", "baby-cricket", "baby-gecko", "baby-crocodile", "baby-snake", "baby-swan", "baby-flamingo", "baby-ostrich"], 150),
     "sheet-12.png": (3, ["tractor", "excavator", "bulldozer", "dumptruck", "crane", "mixer", "roller", "forklift", "combine"], 40),
 }
 OUT = 360
@@ -29,6 +35,8 @@ preview = sys.argv[3] if len(sys.argv) > 3 else None
 tiles = []
 
 for sheet, (rows, names, floor) in SHEETS.items():
+    if not __import__("os").path.exists(f"{src_dir}/{sheet}"):
+        continue
     img = np.array(Image.open(f"{src_dir}/{sheet}").convert("RGBA"))
     alpha = img[:, :, 3].astype(float)
     solid = alpha >= max(140, floor + 40)

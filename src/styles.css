@@ -3225,3 +3225,60 @@ body {
   font: 700 0.8rem/1.4 var(--font-sans);
   color: var(--color-ink-soft);
 }
+
+/* ---------- Мама и малыш ---------- */
+
+.game-tile.is-babies {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  align-items: center;
+  text-align: left;
+  gap: 0.8rem;
+}
+
+.game-tile.is-babies .game-art {
+  flex: 0 0 52%;
+  order: 2;
+}
+
+.game-tile.is-babies .game-art img:nth-child(2n) {
+  height: 58%;
+}
+
+.game-tile.is-babies .game-text {
+  padding-left: 0.4rem;
+}
+
+.is-babies .game-badge {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff6b8b'%3E%3Cpath d='M12 20s-7-4.4-7-9.5A4 4 0 0 1 12 8a4 4 0 0 1 7 2.5C19 15.6 12 20 12 20Z'/%3E%3C/svg%3E");
+}
+
+.babies .card.hero {
+  width: min(44vw, 11rem, 24dvh);
+  margin-top: 0.4rem;
+}
+
+.babies .card.hero.is-baby {
+  width: min(36vw, 9rem, 20dvh);
+}
+
+.hero-tag {
+  position: absolute;
+  left: 50%;
+  bottom: -0.8rem;
+  translate: -50% 0;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  background: var(--color-coral);
+  color: #fff;
+  font: 900 0.85rem/1 var(--font-sans);
+  box-shadow: 0 0 0 3px #fff;
+}
+
+.babies .hint-line {
+  margin-top: 1.2rem;
+}
+
+.babies .cards {
+  max-width: min(100%, calc((100dvh - 24rem) * 1.02), 26rem);
+}

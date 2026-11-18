@@ -3,9 +3,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { finaleShown, openGame, openPhone } from "./helpers.mjs";
 
-test("shelf shows five games, fits the phone", async (t) => {
+test("shelf shows six games, fits the phone", async (t) => {
   const { browser, page, errors } = await openPhone(t);
-  assert.equal(await page.locator(".game-tile").count(), 5);
+  assert.equal(await page.locator(".game-tile").count(), 6);
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
   assert.deepEqual(errors, []);
   await browser.close();
@@ -120,6 +120,28 @@ test("«Послушать»: a tap plays the toy", async (t) => {
   await page.locator(".card.mini").nth(2).click();
   await page.waitForTimeout(1500);
   assert.ok((await page.evaluate(() => window.__sounds.length)) >= 1);
+  assert.deepEqual(errors, []);
+  await browser.close();
+});
+
+test("«Мама и малыш»: mums and babies to the finale", async (t) => {
+  const { browser, page, errors } = await openPhone(t, { autoplay: true });
+  await openGame(page, "babies");
+  for (let round = 0; round < 8 && !(await finaleShown(page)); round++) {
+    for (let k = 0; k < 4; k++) {
+      if (await page.locator(".card.is-good").count()) break;
+      const free = page.locator('.cards .card:not([aria-disabled="true"])');
+      if (!(await free.count())) break;
+      await free.first().click({ force: true });
+      await page.waitForTimeout(450);
+    }
+    for (let w = 0; w < 30; w++) {
+      await page.waitForTimeout(250);
+      if ((await finaleShown(page)) || !(await page.locator(".card.is-good").count())) break;
+    }
+  }
+  assert.equal(await finaleShown(page), 1);
+  assert.ok((await page.evaluate(() => window.__sounds.length)) > 8, "sounds played");
   assert.deepEqual(errors, []);
   await browser.close();
 });

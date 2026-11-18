@@ -24,7 +24,7 @@ test(
     await context.setOffline(true);
     await page.reload({ waitUntil: "load" });
     await page.waitForTimeout(1500);
-    assert.equal(await page.locator(".game-tile").count(), 5, "shelf opens offline");
+    assert.equal(await page.locator(".game-tile").count(), 6, "shelf opens offline");
     await openGame(page, "quiz", "Море");
     await page.locator(".cards .card").first().click({ force: true });
     await page.waitForTimeout(2500);
