@@ -6,7 +6,7 @@ import { createHash } from "node:crypto";
 import { readdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 
-const DIRS = ["felt", "stickers", "sfx", "voice", "music"];
+const DIRS = ["felt", "stickers", "sfx", "voice", "music", "worlds"];
 const out = {};
 for (const dir of DIRS) {
   const root = join("public", dir);

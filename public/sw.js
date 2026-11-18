@@ -7,7 +7,7 @@ const SHELL = "kto-shell-v1";
 const MEDIA = "kto-media";
 const FONTS = "kto-fonts";
 const KEEP = [SHELL, MEDIA, FONTS];
-const MEDIA_PATH = /^\/(felt|stickers|sfx|voice|music)\//;
+const MEDIA_PATH = /^\/(felt|stickers|sfx|voice|music|worlds)\//;
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();

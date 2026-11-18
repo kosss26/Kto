@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { clipMs, playClip, playSoft, playYes, prepareClips, stopClip } from "@/lib/who-said/audio";
 import { BY_ID, callSrc, idsFor, matAt, nameSrc, type SetId } from "@/lib/who-said/content";
 import { getProgress, praiseLine, type Level } from "@/lib/who-said/progress";
-import { CardFace, Finale, Hills, TopBar } from "../kit";
+import { CardFace, Finale, Backdrop, TopBar } from "../kit";
 import { shuffle, useQuiet, useTimers } from "@/lib/who-said/game-utils";
 
 /** Pairs per board: each win makes the next board a little bigger. The age level picks where to start. */
@@ -132,7 +132,7 @@ export function PairsGame({ set, onHome }: { set: SetId; onHome: () => void }) {
           );
         })}
       </div>
-      <Hills />
+      <Backdrop set={set} />
     </main>
   );
 }

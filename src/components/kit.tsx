@@ -10,6 +10,8 @@ import {
   matAt,
   setDoneSrc,
   stickerSrc,
+  WORLDS,
+  worldSrc,
   type Mode,
   type SetId,
 } from "@/lib/who-said/content";
@@ -127,6 +129,18 @@ export function Hills() {
   );
 }
 
+/** The set's felt world behind the screen; the mix and «Кто где живёт» keep the plain hills. */
+export function Backdrop({ set }: { set?: SetId }) {
+  if (!set || set === "mix") return <Hills />;
+  return (
+    <div
+      className="world"
+      aria-hidden="true"
+      style={{ ["--sky" as string]: WORLDS[set].sky, backgroundImage: `url("${worldSrc(set)}")` }}
+    />
+  );
+}
+
 export function Stars({ count, total }: { count: number; total: number }) {
   return (
     <ol className="track" aria-label={`Готово ${count} из ${total}`}>
@@ -230,7 +244,7 @@ export function Finale({
           <AgainIcon />
         </button>
       </div>
-      <Hills />
+      <Backdrop set={set} />
       {party && <SetParty mode={party} onClose={() => setParty(null)} />}
     </main>
   );

@@ -2830,3 +2830,31 @@ body {
 .album-stack img {
   width: 2.2rem;
 }
+
+/* ---------- миры наборов ---------- */
+
+.world {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  /* the picture sits on the bottom edge; above it its own sky colour carries on */
+  background-color: var(--sky);
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  background-size: max(100vw, 69dvh) auto;
+  animation: fade-in 0.5s ease;
+}
+
+.world::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--felt);
+  opacity: 0.6;
+}
+
+/* the sets screen swaps worlds as the child taps a set */
+.sets-screen .world {
+  transition: background-color 0.4s ease;
+}

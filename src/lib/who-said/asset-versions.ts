@@ -4,5 +4,6 @@ export const ASSET_VERSIONS: Record<string, string> = {
   "stickers": "951af739",
   "sfx": "61cbe2e7",
   "voice": "449bb97f",
-  "music": "8068ea67"
+  "music": "8068ea67",
+  "worlds": "6c31122c"
 };

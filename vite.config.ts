@@ -18,7 +18,7 @@ function staticCachePlugin(): Plugin {
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         const url = req.url?.split("?")[0] ?? "";
-        if (/^\/(felt|stickers|sfx|voice|music)\//.test(url)) {
+        if (/^\/(felt|stickers|sfx|voice|music|worlds)\//.test(url)) {
           const setHeader = res.setHeader.bind(res);
           res.setHeader = (name, value) => {
             if (String(name).toLowerCase() === "cache-control") {
@@ -205,6 +205,7 @@ export default defineConfig(({ command, isPreview }) => ({
               "/sfx/**": { headers: { "cache-control": "public, max-age=31536000, immutable" } },
               "/voice/**": { headers: { "cache-control": "public, max-age=31536000, immutable" } },
               "/music/**": { headers: { "cache-control": "public, max-age=31536000, immutable" } },
+              "/worlds/**": { headers: { "cache-control": "public, max-age=31536000, immutable" } },
             },
           }),
         ]

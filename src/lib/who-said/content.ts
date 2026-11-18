@@ -397,6 +397,18 @@ export function similarTo(id: string, pool: string[]) {
 
 // ---------- «Зверь дня» и собранные наборы ----------
 
+/** Felt landscape behind each set, with its sky colour (continues the picture upwards on tall screens). */
+export const WORLDS: Record<Mode, { sky: string }> = {
+  farm: { sky: "#b4e0fa" },
+  pets: { sky: "#f9dfbd" },
+  forest: { sky: "#c0deed" },
+  zoo: { sky: "#fdd1b1" },
+  sea: { sky: "#b2dbf4" },
+  city: { sky: "#b3daf2" },
+};
+
+export const worldSrc = (mode: Mode) => asset(`/worlds/${mode}.webp`);
+
 export const guestSrc = (id: string) => asset(`/voice/guest-${id}.mp3`);
 export const setDoneSrc = (mode: Mode) => asset(`/voice/setdone-${mode}.mp3`);
 

@@ -16,7 +16,7 @@ import {
   CardFace,
   CheckIcon,
   Finale,
-  Hills,
+  Backdrop,
   Notes,
   SpeakerIcon,
   Sparks,
@@ -181,7 +181,7 @@ export function ReverseGame({ set, onHome }: { set: SetId; onHome: () => void })
           );
         })}
       </div>
-      <Hills />
+      <Backdrop set={set} />
     </main>
   );
 }

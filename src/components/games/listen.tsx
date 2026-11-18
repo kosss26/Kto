@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { clipMs, playClip, prefetchClips, prepareClips, stopClip } from "@/lib/who-said/audio";
 import { BY_ID, callSrc, idsFor, matAt, nameSrc, type SetId } from "@/lib/who-said/content";
-import { CardFace, Hills, Notes, TopBar } from "../kit";
+import { CardFace, Backdrop, Notes, TopBar } from "../kit";
 import { useQuiet, useTimers } from "@/lib/who-said/game-utils";
 
 /** «Просто послушать»: every toy of the set on the table; tap one to hear it and its name. No tasks, no mistakes. */
@@ -61,7 +61,7 @@ export function ListenGame({ set, onHome }: { set: SetId; onHome: () => void }) 
           </button>
         ))}
       </div>
-      <Hills />
+      <Backdrop set={set} />
     </main>
   );
 }

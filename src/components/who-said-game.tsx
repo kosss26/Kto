@@ -48,7 +48,17 @@ import { ListenGame } from "./games/listen";
 import { PairsGame } from "./games/pairs";
 import { QuizGame } from "./games/quiz";
 import { ReverseGame } from "./games/reverse";
-import { BackIcon, Hills, Logo, MusicIcon, Notes, PlayIcon, SetParty, ShuffleIcon } from "./kit";
+import {
+  BackIcon,
+  Backdrop,
+  Hills,
+  Logo,
+  MusicIcon,
+  Notes,
+  PlayIcon,
+  SetParty,
+  ShuffleIcon,
+} from "./kit";
 import { QuietContext, warmImages } from "@/lib/who-said/game-utils";
 
 type GameId = "quiz" | "listen" | "reverse" | "pairs" | "homes";
@@ -204,9 +214,6 @@ function OfflineRow() {
   );
 }
 
-/** True when the guest has room on screen (it hides on short phones). */
-const guestFits = () =>
-  typeof window !== "undefined" && window.matchMedia("(min-height: 720px)").matches;
 
 /**
  * «Гость дня»: one toy visits the shelf each day. Tapping it plays its voice and a fact;
@@ -642,7 +649,7 @@ export function WhoSaidGame() {
             <img key={id} src={cardSrc(id)} alt="" />
           ))}
         </div>
-        <Hills />
+        <Backdrop set={set} />
       </main>
     );
   }
