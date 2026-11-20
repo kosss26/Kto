@@ -3,9 +3,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { finaleShown, openGame, openPhone } from "./helpers.mjs";
 
-test("shelf shows six games, fits the phone", async (t) => {
+test("shelf shows seven games, fits the phone", async (t) => {
   const { browser, page, errors } = await openPhone(t);
-  assert.equal(await page.locator(".game-tile").count(), 6);
+  assert.equal(await page.locator(".game-tile").count(), 7);
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
   assert.deepEqual(errors, []);
   await browser.close();
@@ -142,6 +142,28 @@ test("«Мама и малыш»: mums and babies to the finale", async (t) => {
   }
   assert.equal(await finaleShown(page), 1);
   assert.ok((await page.evaluate(() => window.__sounds.length)) > 8, "sounds played");
+  assert.deepEqual(errors, []);
+  await browser.close();
+});
+
+test("«Прятки»: find the hidden toy by ear, to the finale", async (t) => {
+  const { browser, page, errors } = await openPhone(t, { autoplay: true });
+  await openGame(page, "hide", "Лесные");
+  for (let round = 0; round < 8 && !(await finaleShown(page)); round++) {
+    const spots = page.locator(".hide-spot");
+    for (let k = 0; k < (await spots.count()); k++) {
+      if (await page.locator(".hide-spot.is-found").count()) break;
+      if ((await spots.nth(k).getAttribute("aria-disabled")) === "true") continue;
+      await spots.nth(k).click();
+      await page.waitForTimeout(1600);
+    }
+    for (let w = 0; w < 40; w++) {
+      await page.waitForTimeout(250);
+      if ((await finaleShown(page)) || !(await page.locator(".hide-spot.is-found").count())) break;
+    }
+  }
+  assert.equal(await finaleShown(page), 1);
+  assert.ok((await page.evaluate(() => window.__sounds.length)) > 8, "calls played");
   assert.deepEqual(errors, []);
   await browser.close();
 });

@@ -24,7 +24,7 @@ test("time limit: rest screen, a grown-up adds 10 minutes", async (t) => {
   assert.equal(await page.locator(".rest").count(), 1, "rest screen");
   await hold(page, ".rest-more");
   assert.equal(await page.locator(".rest").count(), 0);
-  assert.equal(await page.locator(".game-tile").count(), 6);
+  assert.equal(await page.locator(".game-tile").count(), 7);
   assert.deepEqual(errors, []);
   await browser.close();
 });

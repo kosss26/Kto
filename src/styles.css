@@ -3282,3 +3282,218 @@ body {
 .babies .cards {
   max-width: min(100%, calc((100dvh - 24rem) * 1.02), 26rem);
 }
+
+/* =========================================================
+   Прятки
+   ========================================================= */
+
+.is-hide .game-badge {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a2d5e' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z'/%3E%3Ccircle cx='12' cy='12' r='2.5' fill='%234a2d5e'/%3E%3C/svg%3E");
+}
+
+.hide-ask {
+  display: grid;
+  justify-items: center;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+}
+
+.sound-btn.hide-ear {
+  width: clamp(4.4rem, 11dvh, 5.6rem);
+}
+
+.bushes {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.5rem, 3vw, 1rem);
+  align-content: end;
+  padding-bottom: clamp(4rem, 14dvh, 7rem);
+}
+
+.bushes[data-count="3"] {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.bushes[data-count="4"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  row-gap: clamp(1rem, 3dvh, 1.6rem);
+}
+
+.hide-spot {
+  position: relative;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  aspect-ratio: 1.2;
+  display: grid;
+  align-items: end;
+  animation: arrive 0.45s cubic-bezier(0.2, 0.9, 0.2, 1.3) backwards;
+  touch-action: manipulation;
+}
+
+.bush-art {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 6px 4px rgb(30 70 30 / 30%));
+  transform-origin: 50% 100%;
+}
+
+/* the toy sits low behind the bush, invisible until found */
+.hider {
+  position: absolute;
+  left: 50%;
+  bottom: 18%;
+  width: 72%;
+  z-index: 1;
+  translate: -50% 0;
+  transform: translateY(45%);
+  opacity: 0;
+  transition:
+    transform 0.5s cubic-bezier(0.2, 0.9, 0.2, 1.4),
+    opacity 0.3s ease;
+}
+
+.hider img {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 4px 4px rgb(40 40 30 / 25%));
+}
+
+/* while the toy calls, its bush rustles a little */
+.hide-spot.is-rustle .bush-art {
+  animation: rustle 0.35s ease-in-out 3;
+}
+
+.hide-spot.is-peek .hider {
+  opacity: 1;
+  transform: translateY(28%);
+}
+
+.hide-spot.is-found .hider {
+  opacity: 1;
+  z-index: 3;
+  transform: translateY(-38%) scale(1.08);
+}
+
+.hide-spot.is-found .bush-art {
+  animation: rustle 0.4s ease-in-out 2;
+}
+
+.hide-spot.is-shaking .bush-art {
+  animation: wobble-home 0.55s ease;
+}
+
+.hide-spot.is-empty .bush-art {
+  filter: saturate(0.4) brightness(1.05) drop-shadow(0 6px 4px rgb(30 70 30 / 20%));
+}
+
+.hide-none {
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  translate: -50% 0;
+  z-index: 3;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 85%);
+  font: 800 0.8rem/1 var(--font-sans);
+  color: var(--color-ink-soft);
+}
+
+.hide-plate {
+  opacity: 1;
+  bottom: auto;
+  top: -0.6rem;
+  transform: translate(-50%, 0);
+  z-index: 4;
+  animation: plate-in 0.45s cubic-bezier(0.2, 0.9, 0.2, 1.3) 0.3s backwards;
+}
+
+.hide-spot .sparks {
+  z-index: 4;
+}
+
+.hide-spot.is-found .sparks i {
+  animation: burst 0.95s ease-out forwards;
+}
+
+@keyframes rustle {
+  0%,
+  100% {
+    transform: rotate(0) scaleX(1);
+  }
+  30% {
+    transform: rotate(-2.5deg) scaleX(1.03);
+  }
+  70% {
+    transform: rotate(2.5deg) scaleX(0.98);
+  }
+}
+
+/* bushes stand on the ground of the world picture */
+.bushes {
+  padding-bottom: clamp(1.5rem, 6dvh, 3.5rem);
+}
+
+.hide-plate {
+  top: auto;
+  bottom: -0.4rem;
+}
+
+/* shelf: «Прятки» and «Мама и малыш» side by side */
+.game-tile.is-babies {
+  grid-column: auto;
+  flex-direction: column;
+  text-align: center;
+  gap: 0.35rem;
+}
+
+.game-tile.is-babies .game-art {
+  flex: none;
+  order: 0;
+}
+
+.game-tile.is-babies .game-text {
+  padding-left: 0.2rem;
+}
+
+.game-tile.is-babies .game-art img {
+  margin: 0 -0.55rem 0.2rem;
+}
+
+.game-tile.is-babies .game-art {
+  width: 100%;
+}
+
+/* short phones: smaller pictures so the whole shelf fits without scrolling */
+@media (max-height: 760px) {
+  .menu {
+    padding-top: max(3.4rem, calc(env(safe-area-inset-top) + 3rem));
+    gap: 0.5rem;
+  }
+  .menu .logo {
+    font-size: clamp(2rem, 6.4dvh, 3rem);
+  }
+  .menu .game-art {
+    height: clamp(2.8rem, 7.5dvh, 4rem);
+  }
+  .menu .game-tile.is-quiz .game-art {
+    height: clamp(3.2rem, 8.5dvh, 4.4rem);
+  }
+  .menu .games {
+    gap: 0.45rem;
+  }
+  .menu .game-note {
+    display: none;
+  }
+  .album-btn {
+    padding-block: 0.35rem;
+  }
+  .album-stack img {
+    width: 1.9rem;
+  }
+}

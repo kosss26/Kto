@@ -48,6 +48,7 @@ import { startOffline } from "@/lib/who-said/offline";
 import { Album } from "./album";
 import { LevelIcon, ParentSheet } from "./parents";
 import { BabiesGame } from "./games/babies";
+import { HideGame } from "./games/hide";
 import { HomesGame } from "./games/homes";
 import { ListenGame } from "./games/listen";
 import { PairsGame } from "./games/pairs";
@@ -66,7 +67,7 @@ import {
 } from "./kit";
 import { QuietContext, setPaused, warmImages } from "@/lib/who-said/game-utils";
 
-type GameId = "quiz" | "listen" | "reverse" | "pairs" | "homes" | "babies";
+type GameId = "quiz" | "listen" | "reverse" | "pairs" | "homes" | "babies" | "hide";
 
 const GAMES: {
   id: GameId;
@@ -119,11 +120,19 @@ const GAMES: {
     needsSet: false,
   },
   {
+    id: "hide",
+    title: "Прятки",
+    note: "Найди по голосу",
+    pics: ["fox"],
+    mat: "#bfe3a5",
+    needsSet: true,
+  },
+  {
     id: "babies",
     title: "Мама и малыш",
     note: "Найди малыша",
     pics: [],
-    art: [cardSrc("cow"), babyCard("cow"), babyCard("cat"), cardSrc("cat")],
+    art: [cardSrc("cow"), babyCard("cow")],
     mat: "#ffd9a8",
     needsSet: false,
   },
@@ -563,6 +572,7 @@ export function WhoSaidGame() {
         {screen.game === "pairs" && <PairsGame key={key} {...props} />}
         {screen.game === "homes" && <HomesGame key={key} onHome={goMenu} />}
         {screen.game === "babies" && <BabiesGame key={key} onHome={goMenu} />}
+        {screen.game === "hide" && <HideGame key={key} {...props} />}
       </QuietContext.Provider>
     );
   }

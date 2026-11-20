@@ -3,6 +3,7 @@ import { MUSIC_URL } from "./audio";
 import { asset } from "./assets";
 import {
   BABIES,
+  HIDE,
   WHOSE_BABY,
   babyCard,
   babyThisSrc,
@@ -87,6 +88,7 @@ export function allMediaUrls() {
     urls.add(babyThisSrc(id));
   }
   urls.add(WHOSE_BABY);
+  for (const u of Object.values(HIDE)) urls.add(u);
   for (const h of HOMES) urls.add(asset(`/felt/home-${h.id}.webp`));
   for (const u of [...PRAISE, VOICE.bravo, VOICE.again, MUSIC_URL, asset("/voice/rest.mp3")])
     urls.add(u);

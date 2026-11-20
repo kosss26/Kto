@@ -24,6 +24,9 @@ out = "public/voice"
 os.makedirs(out, exist_ok=True)
 
 lines = {"bravo": "Молодец!", "again": "Попробуй ещё!",
+         "hide-intro": "Кто-то спрятался! Послушай и найди!",
+         "hide-empty": "Здесь никого нет!",
+         "hide-found": "Нашёл!",
          "rest": "Пора отдохнуть! Зверята ложатся спать.",
          "praise-1": "Правильно!", "praise-2": "Верно!", "praise-3": "Ура!", "praise-4": "Отлично!"}
 facts_block = src.split("export const FACTS")[1].split("};")[0]

@@ -37,7 +37,7 @@
 | orca | BBC Sound Effects NHU05008124 | BBC | RemArc: только личное, учебное, исследовательское использование |
 | seal | BBC Sound Effects NHU05010170 | BBC | RemArc: только личное, учебное, исследовательское использование |
 | guineapig | BBC Sound Effects NHU05102204 | BBC | RemArc: только личное, учебное, исследовательское использование |
-| rat | BBC Sound Effects NHU05076230 | BBC | RemArc: только личное, учебное, исследовательское использование |
+| rat | BBC Sound Effects NHU05085152 (серая крыса) | BBC | RemArc: только личное, учебное, исследовательское использование |
 | hedgehog | BBC Sound Effects NHU05099093 | BBC | RemArc: только личное, учебное, исследовательское использование |
 | police | BBC Sound Effects 07045259 | BBC | RemArc: только личное, учебное, исследовательское использование |
 | fire | BBC Sound Effects 07045295 | BBC | RemArc: только личное, учебное, исследовательское использование |
@@ -51,6 +51,11 @@
 | koala | xeno-canto XC1107493 | см. страницу записи | CC BY-NC-SA / CC BY-NC-ND (личное использование) |
 | squirrel | xeno-canto XC961016 | см. страницу записи | CC BY-NC-SA / CC BY-NC-ND (личное использование) |
 | otter | xeno-canto XC961005 | см. страницу записи | CC BY-NC-SA / CC BY-NC-ND (личное использование) |
+| rhino | BBC Sound Effects NHU05102195 (чёрный носорог) | BBC | RemArc: только личное, учебное, исследовательское использование |
+| crocodile | BBC Sound Effects NHU05101144 (нильский крокодил) | BBC | RemArc: только личное, учебное, исследовательское использование |
+| badger | BBC Sound Effects NHU05085083 | BBC | RemArc: только личное, учебное, исследовательское использование |
+| dumptruck | BBC Sound Effects 07001004 (высыпание камня) | BBC | RemArc: только личное, учебное, исследовательское использование |
+| crane | BBC Sound Effects 07054068 (лебёдка) | BBC | RemArc: только личное, учебное, исследовательское использование |
 
 ## Голос
 

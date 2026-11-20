@@ -57,7 +57,7 @@ export const ITEMS: Item[] = [
   { id: "boar", name: "кабан", mode: "forest", sound: true },
   { id: "raccoon", name: "енот", mode: "forest" },
   { id: "beaver", name: "бобр", mode: "forest" },
-  { id: "badger", name: "барсук", mode: "forest" },
+  { id: "badger", name: "барсук", mode: "forest", sound: true },
   { id: "cricket", name: "сверчок", mode: "forest", sound: true },
   { id: "swan", name: "лебедь", mode: "forest", sound: true },
   { id: "stork", name: "аист", mode: "forest", sound: true },
@@ -68,13 +68,13 @@ export const ITEMS: Item[] = [
   { id: "parrot", name: "попугай", mode: "zoo", sound: true },
   { id: "giraffe", name: "жираф", mode: "zoo" },
   { id: "zebra", name: "зебра", mode: "zoo", sound: true },
-  { id: "rhino", name: "носорог", mode: "zoo" },
+  { id: "rhino", name: "носорог", mode: "zoo", sound: true },
   { id: "hippo", name: "бегемот", mode: "zoo", sound: true },
   { id: "camel", name: "верблюд", mode: "zoo", sound: true },
   { id: "kangaroo", name: "кенгуру", mode: "zoo" },
   { id: "koala", name: "коала", mode: "zoo", sound: true },
   { id: "panda", name: "панда", mode: "zoo" },
-  { id: "crocodile", name: "крокодил", mode: "zoo" },
+  { id: "crocodile", name: "крокодил", mode: "zoo", sound: true },
   { id: "snake", name: "змея", mode: "zoo", sound: true },
   { id: "flamingo", name: "фламинго", mode: "zoo", sound: true },
   { id: "ostrich", name: "страус", mode: "zoo", sound: true },
@@ -105,8 +105,8 @@ export const ITEMS: Item[] = [
   { id: "tractor", name: "трактор", mode: "city", sound: true },
   { id: "excavator", name: "экскаватор", mode: "city" },
   { id: "bulldozer", name: "бульдозер", mode: "city" },
-  { id: "dumptruck", name: "самосвал", mode: "city" },
-  { id: "crane", name: "кран", mode: "city" },
+  { id: "dumptruck", name: "самосвал", mode: "city", sound: true },
+  { id: "crane", name: "кран", mode: "city", sound: true },
   { id: "mixer", name: "бетономешалка", mode: "city" },
   { id: "roller", name: "каток", mode: "city" },
   { id: "forklift", name: "погрузчик", mode: "city" },
@@ -519,3 +519,11 @@ export const babyCard = (id: string) => asset(`/felt/baby-${id}.webp`);
 export const babyWhereSrc = (id: string) => asset(`/voice/babywhere-${id}.mp3`);
 export const babyThisSrc = (id: string) => asset(`/voice/babythis-${id}.mp3`);
 export const WHOSE_BABY = asset("/voice/whose-baby.mp3");
+
+// ---------- «Прятки» ----------
+
+export const HIDE = {
+  intro: asset("/voice/hide-intro.mp3"),
+  empty: asset("/voice/hide-empty.mp3"),
+  found: asset("/voice/hide-found.mp3"),
+};

@@ -180,8 +180,8 @@ export function stopClip() {
   clipNode = null;
 }
 
-/** Plays one clip; a new clip cuts the previous one off. */
-export function playClip(url: string, wobble = false) {
+/** Plays one clip; a new clip cuts the previous one off. `pan` −1…1 puts it left or right. */
+export function playClip(url: string, wobble = false, pan = 0) {
   const audio = context();
   const buffer = buffers.get(url);
   if (!buffer || !master) return;
@@ -194,7 +194,15 @@ export function playClip(url: string, wobble = false) {
   gain.gain.setValueAtTime(0.0001, now);
   gain.gain.exponentialRampToValueAtTime(0.95, now + 0.02);
   src.connect(gain);
-  gain.connect(busFor(url) ?? master);
+  const bus = busFor(url) ?? master;
+  if (pan && audio.createStereoPanner) {
+    const panner = audio.createStereoPanner();
+    panner.pan.value = Math.max(-1, Math.min(1, pan));
+    gain.connect(panner);
+    panner.connect(bus);
+  } else {
+    gain.connect(bus);
+  }
   src.start();
   clipNode = src;
   src.onended = () => {
