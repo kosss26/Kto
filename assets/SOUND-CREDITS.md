@@ -26,12 +26,10 @@
 | stork | BBC Sound Effects NHU05033112 | BBC | RemArc: только личное, учебное, исследовательское использование |
 | flamingo | BBC Sound Effects NHU05048052 | BBC | RemArc: только личное, учебное, исследовательское использование |
 | deer | BBC Sound Effects NHU05103057 | BBC | RemArc: только личное, учебное, исследовательское использование |
-| moose | BBC Sound Effects NHU05076234 | BBC | RemArc: только личное, учебное, исследовательское использование |
 | boar | BBC Sound Effects NHU05095014 | BBC | RemArc: только личное, учебное, исследовательское использование |
 | hippo | BBC Sound Effects NHU05098061 | BBC | RemArc: только личное, учебное, исследовательское использование |
 | camel | BBC Sound Effects NHU05013110 | BBC | RemArc: только личное, учебное, исследовательское использование |
 | zebra | BBC Sound Effects 07062022 | BBC | RemArc: только личное, учебное, исследовательское использование |
-| snake | BBC Sound Effects NHU05078130 | BBC | RemArc: только личное, учебное, исследовательское использование |
 | gecko | BBC Sound Effects NHU05047044 | BBC | RemArc: только личное, учебное, исследовательское использование |
 | dolphin | BBC Sound Effects NHU05091084 | BBC | RemArc: только личное, учебное, исследовательское использование |
 | orca | BBC Sound Effects NHU05008124 | BBC | RemArc: только личное, учебное, исследовательское использование |
@@ -83,6 +81,13 @@
 | xylophone | University of Iowa Electronic Music Studios, MIS | University of Iowa | свободно, без ограничений |
 | guitar | University of Iowa Electronic Music Studios, MIS | University of Iowa | свободно, без ограничений |
 | tambourine | University of Iowa Electronic Music Studios, MIS | University of Iowa | свободно, без ограничений |
+| snake | Freesound 553374 | см. страницу звука | личное некоммерческое использование |
+| moose | Freesound 486554 (Moose_Elk) | см. страницу звука | личное некоммерческое использование |
+| mouse | Freesound 188043 | см. страницу звука | личное некоммерческое использование |
+| ferret | Freesound 155115 | см. страницу звука | личное некоммерческое использование |
+| raccoon | Freesound 717839 | см. страницу звука | личное некоммерческое использование |
+| accordion | Freesound 149091 | см. страницу звука | личное некоммерческое использование |
+| rabbit | Freesound 84141 (кролик ест морковку) | см. страницу звука | личное некоммерческое использование |
 
 Мелодии инструментов собраны из отдельных нот скриптом `tools/make-melody.py`.
 

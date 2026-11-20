@@ -25,8 +25,8 @@ HOW_VERB = {"drum": "стучит", "trumpet": "играет", "violin": "игр
             "guitar": "играет", "flute": "играет", "xylophone": "звенит", "tambourine": "звенит",
             "grasshopper": "стрекочет", "cicada": "стрекочет", "mosquito": "пищит",
             "kettle": "свистит", "vacuum": "гудит", "toilet": "шумит", "rubberduck": "пищит",
-            "telephone": "звонит", "thunder": "гремит", "campfire": "трещит"}
-HOW_LINE = {"cuckooclock": "Как кукуют часы с кукушкой?"}
+            "telephone": "звонит", "mouse": "пищит", "accordion": "играет", "thunder": "гремит", "campfire": "трещит"}
+HOW_LINE = {"cuckooclock": "Как кукуют часы с кукушкой?", "rabbit": "Как кролик грызёт морковку?"}
 out = "public/voice"
 os.makedirs(out, exist_ok=True)
 

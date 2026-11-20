@@ -2,8 +2,8 @@
 export const ASSET_VERSIONS: Record<string, string> = {
   "felt": "ccf72b2d",
   "stickers": "8f886318",
-  "sfx": "cfc1e152",
-  "voice": "3b4a6066",
+  "sfx": "5ba7876e",
+  "voice": "fceee8a7",
   "music": "8068ea67",
   "worlds": "45046436"
 };
