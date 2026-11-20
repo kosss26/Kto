@@ -33,6 +33,8 @@ SHEETS = {
     "insects.png": (3, ["grasshopper", "mosquito", "fly", "bumblebee", "ladybird", "butterfly", "dragonfly", "cicada", "beetle"], 170),
     "home.png": (3, ["doorbell", "kettle", "alarmclock", "telephone", "vacuum", "washer", "cuckooclock", "rubberduck", "toilet"], 150),
     "weather.png": (3, ["rain", "thunder", "wind", "snowman", "campfire", "waterfall", "wave", "sun", "rainbow"], 150),
+    # scenes made of several pieces (a bell and its notes): pieces closer than 40 px stay together
+    "tiles.png": (3, ["tile-quiz", "tile-listen", "tile-reverse", "tile-pairs", "tile-homes", "tile-hide", "tile-babies", "tile-album", "tile-mix"], 150, 40),
     "sheet-12.png": (3, ["tractor", "excavator", "bulldozer", "dumptruck", "crane", "mixer", "roller", "forklift", "combine"], 40),
 }
 OUT = 360
@@ -40,7 +42,8 @@ src_dir, out_dir = sys.argv[1], sys.argv[2]
 preview = sys.argv[3] if len(sys.argv) > 3 else None
 tiles = []
 
-for sheet, (rows, names, floor) in SHEETS.items():
+for sheet, (rows, names, floor, *rest) in SHEETS.items():
+    merge = rest[0] if rest else 0
     if not __import__("os").path.exists(f"{src_dir}/{sheet}"):
         continue
     img = np.array(Image.open(f"{src_dir}/{sheet}").convert("RGBA"))
@@ -48,7 +51,31 @@ for sheet, (rows, names, floor) in SHEETS.items():
     solid = alpha >= max(140, floor + 40)
     cell = img.shape[0] / rows
     solid = ndi.binary_opening(solid, iterations=2)
-    labels, count = ndi.label(solid)
+    if merge:
+        # a scene: tiny specks go, then nearby pieces are labelled as one
+        specks, n = ndi.label(solid)
+        big = ndi.sum(solid, specks, range(1, n + 1)) >= 150
+        solid = np.isin(specks, np.where(big)[0] + 1)
+        # ...but never across the sheet's grid lines; a toy poking over a line is cut there,
+        # and the small sliver left in the neighbour's cell is dropped
+        cols = -(-len(names) // rows)
+        lines = np.zeros_like(solid)
+        for k in range(1, rows):
+            lines[int(k * cell) - 1 : int(k * cell) + 1] = True
+        for k in range(1, cols):
+            x = int(k * img.shape[1] / cols)
+            lines[:, x - 1 : x + 1] = True
+        solid &= ~lines
+        pieces, n = ndi.label(solid)
+        size = ndi.sum(solid, pieces, range(1, n + 1))
+        touch = set(np.unique(pieces[ndi.binary_dilation(lines, iterations=2)])) - {0}
+        sliver = [i + 1 for i in range(n) if i + 1 in touch and size[i] < 4000]
+        solid &= ~np.isin(pieces, sliver)
+        grown = ndi.binary_dilation(solid, iterations=merge) & ~lines
+        groups, count = ndi.label(grown)
+        labels = np.where(solid, groups, 0)
+    else:
+        labels, count = ndi.label(solid)
     sizes = ndi.sum(solid, labels, range(1, count + 1))
     keep = np.argsort(sizes)[::-1][: len(names)] + 1
     centres = ndi.center_of_mass(solid, labels, keep)
@@ -74,6 +101,12 @@ for sheet, (rows, names, floor) in SHEETS.items():
         rgba[rgba[:, :, 3] == 0, :3] = 0
         toy = Image.fromarray(rgba, "RGBA")
         h, w = rgba.shape[:2]
+        if merge:
+            # scenes for wide tiles keep their own shape, with a small margin
+            scene = Image.new("RGBA", (w + 12, h + 12), (0, 0, 0, 0))
+            scene.paste(toy, (6, 6))
+            scene.save(f"{out_dir}/{name}.webp", "WEBP", quality=88, method=6)
+            continue
         side = int(max(h, w) * 1.1)
         canvas = Image.new("RGBA", (side, side), (0, 0, 0, 0))
         canvas.paste(toy, ((side - w) // 2, (side - h) // 2))

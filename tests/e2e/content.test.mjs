@@ -43,3 +43,9 @@ test("content: every set has a world, a cover and its «all collected» line", (
   for (const w of ["farm", "pets", "forest", "zoo", "sea", "city", "music", "home"])
     assert.ok(existsSync(pub(`/worlds/${w}.webp`)), `world ${w}`);
 });
+
+test("content: every menu tile has its felt scene", () => {
+  const tiles = src.match(/export const TILES = \[([^\]]+)\]/)[1].match(/\w+/g);
+  assert.equal(tiles.length, 9);
+  for (const t of tiles) assert.ok(existsSync(pub(`/felt/tile-${t}.webp`)), `tile-${t}`);
+});

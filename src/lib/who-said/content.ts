@@ -335,7 +335,6 @@ export const MODES: { id: Mode; label: string; cover: string; parade: string[] }
 
 export const MIX = {
   label: "Вперемешку",
-  covers: ["cow", "giraffe", "dolphin", "excavator"],
   parade: ["hamster", "giraffe", "octopus", "tractor"],
 };
 
@@ -351,6 +350,20 @@ export function stickerSrc(id: string) {
 export function cardSrc(id: string) {
   return asset(`/felt/${id}.webp`);
 }
+
+/** Felt scenes for the menu tiles (assets/tiles/tiles.png, cut by tools/cut-felt.py). */
+export const TILES = [
+  "quiz",
+  "listen",
+  "reverse",
+  "pairs",
+  "homes",
+  "hide",
+  "babies",
+  "album",
+  "mix",
+];
+export const tileSrc = (id: string) => cardSrc(`tile-${id}`);
 
 /** Pastel felt colours for the card mats; cards in one round never share a colour. */
 export const MATS = ["#bfe3a5", "#ffd9a8", "#bfe0f5", "#f7c9dc", "#fff0a6", "#d8cdf5"];

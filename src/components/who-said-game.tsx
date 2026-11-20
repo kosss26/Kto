@@ -14,10 +14,11 @@ import {
 import {
   BY_ID,
   FACTS,
-  babyCard,
   ITEMS,
   MIX,
   MODES,
+  TILES,
+  tileSrc,
   cardSrc,
   callSrc,
   clipsFor,
@@ -25,7 +26,6 @@ import {
   guestSrc,
   idsFor,
   nameSrc,
-  stickerSrc,
   type Mode,
   type SetId,
 } from "@/lib/who-said/content";
@@ -73,9 +73,6 @@ const GAMES: {
   id: GameId;
   title: string;
   note: string;
-  /** toy ids for the tile picture, or ready image URLs in `art` */
-  pics: string[];
-  art?: string[];
   mat: string;
   needsSet: boolean;
 }[] = [
@@ -83,7 +80,6 @@ const GAMES: {
     id: "quiz",
     title: "Кто сказал?",
     note: "Послушай и найди",
-    pics: ["cow", "dog", "duck"],
     mat: "#bfe3a5",
     needsSet: true,
   },
@@ -91,7 +87,6 @@ const GAMES: {
     id: "listen",
     title: "Послушать",
     note: "Нажми на зверя",
-    pics: ["hamster", "rabbit"],
     mat: "#f7c9dc",
     needsSet: true,
   },
@@ -99,7 +94,6 @@ const GAMES: {
     id: "reverse",
     title: "Чей голос?",
     note: "Найди колокольчик",
-    pics: ["zebra"],
     mat: "#fff0a6",
     needsSet: true,
   },
@@ -107,7 +101,6 @@ const GAMES: {
     id: "pairs",
     title: "Найди пару",
     note: "Открывай карточки",
-    pics: ["fox", "fox"],
     mat: "#d8cdf5",
     needsSet: true,
   },
@@ -115,7 +108,6 @@ const GAMES: {
     id: "homes",
     title: "Кто где живёт",
     note: "Отведи домой",
-    pics: ["dolphin", "squirrel"],
     mat: "#bfe0f5",
     needsSet: false,
   },
@@ -123,7 +115,6 @@ const GAMES: {
     id: "hide",
     title: "Прятки",
     note: "Найди по голосу",
-    pics: ["fox"],
     mat: "#bfe3a5",
     needsSet: true,
   },
@@ -131,8 +122,6 @@ const GAMES: {
     id: "babies",
     title: "Мама и малыш",
     note: "Найди малыша",
-    pics: [],
-    art: [cardSrc("cow"), babyCard("cow")],
     mat: "#ffd9a8",
     needsSet: false,
   },
@@ -456,7 +445,7 @@ export function WhoSaidGame() {
     prefetchClips(clipsFor("farm"));
     warmImages([
       ...MODES.map((item) => item.cover),
-      ...GAMES.flatMap((g) => g.pics),
+      ...TILES.map((t) => `tile-${t}`),
       ...idsFor("farm"),
     ]);
     // app hidden or screen locked: everything freezes and continues on return
@@ -642,9 +631,7 @@ export function WhoSaidGame() {
             onClick={() => pickSet("mix")}
           >
             <span className="mix-pics">
-              {MIX.covers.map((id) => (
-                <img key={id} src={cardSrc(id)} alt="" />
-              ))}
+              <img src={tileSrc("mix")} alt="" draggable={false} />
             </span>
             <span className="set-name">
               <ShuffleIcon />
@@ -701,10 +688,7 @@ export function WhoSaidGame() {
             onClick={() => openGame(game.id)}
           >
             <span className="game-art" aria-hidden="true">
-              {(game.art ?? game.pics.map(cardSrc)).map((src, i) => (
-                <img key={`${src}-${i}`} src={src} alt="" />
-              ))}
-              <span className="game-badge" />
+              <img src={tileSrc(game.id)} alt="" draggable={false} />
             </span>
             <span className="game-text">
               <span className="game-title">{game.title}</span>
@@ -722,16 +706,7 @@ export function WhoSaidGame() {
         }}
       >
         <span className="album-stack" aria-hidden="true">
-          {(progress.stickers.length ? progress.stickers.slice(-3) : ["cat", "fox", "dolphin"]).map(
-            (id, i) => (
-              <img
-                key={`${id}-${i}`}
-                src={progress.stickers.length ? stickerSrc(id) : cardSrc(id)}
-                alt=""
-                className={progress.stickers.length ? "" : "is-ghost"}
-              />
-            ),
-          )}
+          <img src={tileSrc("album")} alt="" draggable={false} />
         </span>
         <span className="album-label">Мои наклейки</span>
         <span className="album-count">

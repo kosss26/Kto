@@ -335,18 +335,9 @@ img {
 }
 
 .mix-pics img {
-  width: clamp(2.4rem, 11vw, 3.2rem);
-  height: auto;
-  margin: 0 -0.25rem;
+  height: clamp(2.8rem, 12vw, 3.6rem);
+  width: auto;
   filter: drop-shadow(0 3px 2px rgb(60 40 30 / 25%));
-}
-
-.mix-pics img:nth-child(odd) {
-  transform: rotate(-8deg);
-}
-
-.mix-pics img:nth-child(even) {
-  transform: rotate(7deg) translateY(-2px);
 }
 
 .set.mix .set-name {
@@ -1275,43 +1266,14 @@ img {
   flex: 0 0 52%;
 }
 
+/* one felt scene per game (assets/tiles) */
 .game-art img {
-  height: 86%;
+  height: 96%;
   width: auto;
-  margin: 0 -0.4rem 0.2rem;
+  max-width: 94%;
+  object-fit: contain;
+  margin-bottom: 0.15rem;
   filter: drop-shadow(0 5px 4px rgb(60 40 30 / 22%));
-}
-
-.game-badge {
-  position: absolute;
-  top: 0.45rem;
-  right: 0.45rem;
-  width: 1.9rem;
-  height: 1.9rem;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 2px 0 rgb(40 60 90 / 18%);
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 62%;
-  z-index: 1;
-}
-
-/* small pictograms for each game, drawn as inline SVG */
-.is-quiz .game-badge {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a2d5e' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath fill='%234a2d5e' d='M4 9.5h3.2L12 5.5v13l-4.8-4H4z'/%3E%3Cpath d='M15.2 9a4.2 4.2 0 0 1 0 6M17.8 6.5a7.8 7.8 0 0 1 0 11'/%3E%3C/svg%3E");
-}
-.is-listen .game-badge {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a2d5e' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 14V6a5 5 0 0 1 10 0c0 3-3 4-3 7 0 2-1.5 3.5-3.5 3.5'/%3E%3Cpath d='M10 9a2 2 0 0 1 4 0'/%3E%3C/svg%3E");
-}
-.is-reverse .game-badge {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a2d5e' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z'/%3E%3Cpath d='M10 20a2 2 0 0 0 4 0'/%3E%3C/svg%3E");
-}
-.is-pairs .game-badge {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a2d5e' stroke-width='2.2' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='9' height='13' rx='2'/%3E%3Crect x='12' y='7' width='9' height='13' rx='2' fill='%23ffc93c'/%3E%3C/svg%3E");
-}
-.is-homes .game-badge {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a2d5e' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 11.5 12 4.5l8 7'/%3E%3Cpath fill='%23ff8f8f' d='M6.5 10v9.5h11V10'/%3E%3C/svg%3E");
 }
 
 .game-text {
@@ -2055,15 +2017,9 @@ img {
 }
 
 .album-stack img {
-  width: 2.5rem;
-  height: auto;
-  margin: 0 -0.3rem;
+  height: 2.9rem;
+  width: auto;
   filter: drop-shadow(0 3px 2px rgb(60 40 30 / 22%));
-}
-
-.album-stack img.is-ghost {
-  filter: brightness(0);
-  opacity: 0.15;
 }
 
 .album-label {
@@ -2194,7 +2150,7 @@ img {
 }
 
 .menu .game-art {
-  height: clamp(3.6rem, 9.5dvh, 5.4rem);
+  height: clamp(4rem, 11.2dvh, 6.4rem);
 }
 
 .menu .games {
@@ -2843,7 +2799,7 @@ body {
 }
 
 .album-stack img {
-  width: 2.2rem;
+  height: 2.6rem;
 }
 
 /* ---------- миры наборов ---------- */
@@ -3256,16 +3212,8 @@ body {
   order: 2;
 }
 
-.game-tile.is-babies .game-art img:nth-child(2n) {
-  height: 58%;
-}
-
 .game-tile.is-babies .game-text {
   padding-left: 0.4rem;
-}
-
-.is-babies .game-badge {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff6b8b'%3E%3Cpath d='M12 20s-7-4.4-7-9.5A4 4 0 0 1 12 8a4 4 0 0 1 7 2.5C19 15.6 12 20 12 20Z'/%3E%3C/svg%3E");
 }
 
 .babies .card.hero {
@@ -3301,10 +3249,6 @@ body {
 /* =========================================================
    Прятки
    ========================================================= */
-
-.is-hide .game-badge {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a2d5e' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z'/%3E%3Ccircle cx='12' cy='12' r='2.5' fill='%234a2d5e'/%3E%3C/svg%3E");
-}
 
 .hide-ask {
   display: grid;
@@ -3476,10 +3420,6 @@ body {
   padding-left: 0.2rem;
 }
 
-.game-tile.is-babies .game-art img {
-  margin: 0 -0.55rem 0.2rem;
-}
-
 .game-tile.is-babies .game-art {
   width: 100%;
 }
@@ -3494,10 +3434,10 @@ body {
     font-size: clamp(2rem, 6.4dvh, 3rem);
   }
   .menu .game-art {
-    height: clamp(2.8rem, 7.5dvh, 4rem);
+    height: clamp(2.9rem, 9.6dvh, 4.6rem);
   }
   .menu .game-tile.is-quiz .game-art {
-    height: clamp(3.2rem, 8.5dvh, 4.4rem);
+    height: clamp(3.3rem, 10.6dvh, 5.1rem);
   }
   .menu .games {
     gap: 0.45rem;
@@ -3509,7 +3449,17 @@ body {
     padding-block: 0.35rem;
   }
   .album-stack img {
-    width: 1.9rem;
+    height: 2.2rem;
+  }
+}
+
+/* very short screens (iPhone SE in Safari): the shelf still fits */
+@media (max-height: 600px) {
+  .menu .game-art {
+    height: clamp(2.6rem, 8dvh, 3.4rem);
+  }
+  .menu .game-tile.is-quiz .game-art {
+    height: clamp(2.9rem, 9dvh, 3.8rem);
   }
 }
 

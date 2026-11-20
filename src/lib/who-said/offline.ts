@@ -19,6 +19,8 @@ import {
   factSrc,
   guestSrc,
   MODES,
+  TILES,
+  tileSrc,
   setDoneSrc,
   worldSrc,
   homeAskSrc,
@@ -92,6 +94,7 @@ export function allMediaUrls() {
   for (const k of ["bush", "hay", "fence", "stump", "spruce", "rock", "grass", "coral", "boxes"])
     urls.add(asset(`/felt/hide-${k}.webp`));
   for (const h of HOMES) urls.add(asset(`/felt/home-${h.id}.webp`));
+  for (const t of TILES) urls.add(tileSrc(t));
   for (const u of [...PRAISE, VOICE.bravo, VOICE.again, MUSIC_URL, asset("/voice/rest.mp3")])
     urls.add(u);
   const child = getProgress().child;
