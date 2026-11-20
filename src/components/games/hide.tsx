@@ -125,11 +125,11 @@ export function HideGame({ set, onHome }: { set: SetId; onHome: () => void }) {
     asked.current = [];
     setFound([]);
     setDone(false);
-    void prepareClips([HIDE.intro, HIDE.empty, HIDE.found, VOICE.bravo]).then(() => {
-      playClip(HIDE.intro);
-      // the first call waits for «Кто-то спрятался! Послушай и найди!» to finish
-      startRound(0, (clipMs(HIDE.intro) || 2200) + 400);
-    });
+    // the hiding places show at once; on a slow network the voice catches up when it arrives
+    startRound(0, 2800);
+    void prepareClips([HIDE.intro, HIDE.empty, HIDE.found, VOICE.bravo]).then(() =>
+      playClip(HIDE.intro),
+    );
   }, [clearTimers, startRound]);
 
   useEffect(() => {
