@@ -42,7 +42,11 @@ function pool(set: SetId) {
 }
 
 /** Left −0.8 … right 0.8: the call comes from the bush the toy sits behind. */
-const panFor = (spot: number, count: number) => (count < 2 ? 0 : -0.8 + (1.6 * spot) / (count - 1));
+const panFor = (spot: number, count: number) => {
+  // two columns on screen; with three, the last one sits alone in the middle
+  if (count === 3 && spot === 2) return 0;
+  return spot % 2 === 0 ? -0.75 : 0.75;
+};
 
 /** Felt hiding places that fit each world (cut from assets/felt-sheets/hiding.png). */
 const SPOTS: Record<SetId, string[]> = {

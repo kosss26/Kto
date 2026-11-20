@@ -3521,3 +3521,51 @@ body {
 .hide-none {
   top: 40%;
 }
+
+/* «Прятки»: big hiding places spread over the whole screen */
+.bushes,
+.bushes[data-count="3"],
+.bushes[data-count="4"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: space-evenly;
+  justify-items: center;
+  gap: clamp(0.4rem, 2dvh, 1.2rem) clamp(0.4rem, 3vw, 1rem);
+  padding: 0.4rem 0 clamp(1rem, 4dvh, 2.2rem);
+}
+
+.bushes[data-count="3"] > :last-child {
+  grid-column: 1 / -1;
+}
+
+.hide-spot {
+  width: min(100%, calc((100dvh - 15rem) / 2 * 1.15));
+  aspect-ratio: 1;
+}
+
+.bushes[data-count="2"] .hide-spot {
+  width: min(100%, calc((100dvh - 15rem) * 0.8));
+}
+
+.hide-spot .bush-art {
+  width: 112%;
+  margin: 0 -6% -6%;
+}
+
+.hider {
+  bottom: 24%;
+  width: 70%;
+}
+
+.hide-none {
+  top: 45%;
+  font-size: 0.95rem;
+}
+
+.hide-plate {
+  bottom: 2%;
+  font-size: clamp(1rem, 4.4vw, 1.25rem);
+}
+
+.bushes[data-count="3"] > :last-child {
+  width: min(50%, calc((100dvh - 15rem) / 2 * 1.15));
+}
