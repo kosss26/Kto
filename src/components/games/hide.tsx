@@ -238,7 +238,7 @@ export function HideGame({ set, onHome }: { set: SetId; onHome: () => void }) {
               aria-label={here && solved ? BY_ID[toy].name : `Укрытие ${i + 1}`}
               aria-disabled={solved || empty}
             >
-              {here && (
+              {here && toy && (
                 <span className="hider">
                   <img src={cardSrc(toy)} alt="" draggable={false} />
                   {solved && <Notes />}

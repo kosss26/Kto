@@ -16,6 +16,13 @@ export async function openPhone(t, { progress, autoplay = false } = {}) {
   const page = await context.newPage();
   const errors = [];
   page.on("pageerror", (e) => errors.push(String(e)));
+  // a missing picture or sound is an error even where the dev server answers it with a page
+  page.on("response", (r) => {
+    const path = new URL(r.url()).pathname;
+    const media = /^\/(felt|stickers|sfx|voice|music|worlds)\//.test(path);
+    if (media && (r.status() >= 400 || (r.headers()["content-type"] ?? "").includes("text/html")))
+      errors.push(`missing ${path} (${r.status()})`);
+  });
   page.on("console", (m) => {
     if (m.type() === "error") errors.push(m.text());
   });
