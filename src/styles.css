@@ -249,15 +249,19 @@ img {
   padding-bottom: clamp(6.5rem, 18dvh, 10rem);
 }
 
+/* ten sets: four in a row on a phone, five on wider screens; «Вперемешку» spans the last row */
 .sets {
-  display: grid;
-  grid-template-columns: repeat(3, auto);
-  gap: clamp(0.6rem, 1.8dvh, 0.9rem) clamp(0.5rem, 2.6vw, 0.9rem);
+  --set-w: min(6.9rem, 20.5vw, 11.2dvh);
+  --set-gap: clamp(0.45rem, 2vw, 0.8rem);
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(0.55rem, 1.6dvh, 0.85rem) var(--set-gap);
   justify-content: center;
+  max-width: calc(5 * var(--set-w) + 4 * var(--set-gap));
 }
 
 .set {
-  width: min(8rem, 28.5vw, 15dvh);
+  width: var(--set-w);
   border: 0;
   padding: 0.45rem 0.45rem 0.6rem;
   border-radius: 1.6rem;
@@ -312,7 +316,8 @@ img {
 }
 
 .set.mix {
-  grid-column: 1 / -1;
+  flex-basis: 100%;
+  max-width: min(100%, 24rem);
   width: 100%;
   flex-direction: row;
   align-items: center;
@@ -362,8 +367,9 @@ img {
 }
 
 .set-name {
-  font: 900 clamp(0.85rem, 3.6vw, 1.05rem)/1 var(--font-sans);
+  font: 900 clamp(0.72rem, 3.1vw, 0.95rem)/1 var(--font-sans);
   color: var(--color-ink);
+  white-space: nowrap;
 }
 
 .play-btn {
@@ -2084,17 +2090,26 @@ img {
   margin-left: auto;
 }
 
+/* ten tabs: they scroll sideways when the screen is narrow */
 .album-tabs {
   display: flex;
-  gap: 0.4rem;
-  justify-content: space-between;
-  padding: 0.7rem 0 0.2rem;
+  gap: 0.45rem;
+  padding: 0.75rem 0.4rem 0.35rem;
+  margin: 0 -0.4rem;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.album-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .album-tab {
   position: relative;
-  flex: 1;
-  max-width: 4.2rem;
+  flex: 0 0 3.6rem;
+  scroll-snap-align: center;
   border: 0;
   padding: 0.25rem;
   border-radius: 1rem;

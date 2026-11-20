@@ -219,7 +219,10 @@ export function guestOfDay() {
     return p.guest;
   const have = new Set(p.stickers);
   const off = new Set(p.settings.off);
-  const allowed = ITEMS.filter((item) => !off.has(item.mode));
+  // a kettle or the rain can't really come to visit
+  const on = ITEMS.filter((item) => !off.has(item.mode));
+  const visitors = on.filter((item) => item.mode !== "home" && item.mode !== "weather");
+  const allowed = visitors.length ? visitors : on;
   const fresh = allowed.filter((item) => !have.has(item.id)).map((item) => item.id);
   const pool = fresh.length ? fresh : allowed.map((item) => item.id);
   let hash = 0;

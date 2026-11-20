@@ -168,3 +168,39 @@ test("«Прятки»: find the hidden toy by ear, to the finale", async (t) =>
   assert.deepEqual(errors, []);
   await browser.close();
 });
+
+test("new sets: «Музыка» quiz plays real instrument tunes, «Дом» picks the right world", async (t) => {
+  const { browser, page, errors } = await openPhone(t, { autoplay: true });
+  await page.click(".game-tile.is-quiz");
+  for (const name of ["Музыка", "Насекомые", "Дом", "Погода"]) {
+    await page.click(`.set:has(.set-name:text-is("${name}"))`);
+    await page.waitForTimeout(250);
+    assert.equal(await page.locator(".set.is-on .set-name").textContent(), name, `picked ${name}`);
+  }
+  const world = await page.locator(".sets-screen .world").getAttribute("style");
+  assert.match(world, /\/worlds\/farm\.webp/, "weather sits over the farm fields");
+  await page.click(`.set:has(.set-name:text-is("Музыка"))`);
+  await page.click('button[aria-label="Играть"]');
+  await page.waitForTimeout(2500);
+  const cards = await page
+    .locator(".cards .card img")
+    .evaluateAll((imgs) => imgs.map((i) => i.getAttribute("src")));
+  const music = [
+    "drum",
+    "trumpet",
+    "violin",
+    "piano",
+    "guitar",
+    "accordion",
+    "xylophone",
+    "flute",
+    "tambourine",
+  ];
+  assert.ok(
+    cards.length >= 2 && cards.every((s) => music.some((m) => s.includes(`/felt/${m}.webp`))),
+    cards.join(),
+  );
+  assert.ok((await page.evaluate(() => window.__sounds.length)) >= 1, "the riddle played");
+  assert.deepEqual(errors, []);
+  await browser.close();
+});

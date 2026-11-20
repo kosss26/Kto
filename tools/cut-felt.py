@@ -28,6 +28,11 @@ SHEETS = {
     "babies-4.png": (3, ["baby-octopus", "baby-crab", "baby-turtle", "baby-seahorse", "baby-jellyfish", "baby-starfish", "baby-stingray", "baby-shark", "baby-clownfish"], 200),
     "babies-5.png": (3, ["baby-frog", "baby-bee", "baby-cricket", "baby-gecko", "baby-crocodile", "baby-snake", "baby-swan", "baby-flamingo", "baby-ostrich"], 150),
     "hiding.png": (3, ["hide-bush", "hide-hay", "hide-fence", "hide-stump", "hide-spruce", "hide-rock", "hide-grass", "hide-coral", "hide-boxes"], 150),
+    # new sets, cut with: python3 tools/cut-felt.py assets/new-sets public/felt
+    "music.png": (3, ["drum", "trumpet", "violin", "piano", "guitar", "accordion", "xylophone", "flute", "tambourine"], 150),
+    "insects.png": (3, ["grasshopper", "mosquito", "fly", "bumblebee", "ladybird", "butterfly", "dragonfly", "cicada", "beetle"], 170),
+    "home.png": (3, ["doorbell", "kettle", "alarmclock", "telephone", "vacuum", "washer", "cuckooclock", "rubberduck", "toilet"], 150),
+    "weather.png": (3, ["rain", "thunder", "wind", "snowman", "campfire", "waterfall", "wave", "sun", "rainbow"], 150),
     "sheet-12.png": (3, ["tractor", "excavator", "bulldozer", "dumptruck", "crane", "mixer", "roller", "forklift", "combine"], 40),
 }
 OUT = 360

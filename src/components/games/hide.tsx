@@ -56,6 +56,10 @@ const SPOTS: Record<SetId, string[]> = {
   zoo: ["rock", "grass"],
   sea: ["coral", "rock"],
   city: ["boxes", "rock", "fence"],
+  music: ["boxes", "bush"],
+  insects: ["grass", "bush", "stump"],
+  home: ["boxes"],
+  weather: ["rock", "spruce", "bush"],
   mix: ["bush", "hay", "fence", "stump", "spruce", "rock", "grass", "coral", "boxes"],
 };
 

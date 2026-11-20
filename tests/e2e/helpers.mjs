@@ -57,7 +57,8 @@ export const today = () => {
 export async function openGame(page, game, set) {
   await page.click(`.game-tile.is-${game}`);
   if (set) {
-    await page.click(`.set >> text=${set}`);
+    // exact name: «Дом» must not pick «Домашние»
+    await page.click(`.set:has(.set-name:text-is("${set}"))`);
     await page.click('button[aria-label="Играть"]');
   }
   await page.waitForTimeout(1500);

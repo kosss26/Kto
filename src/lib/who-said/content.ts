@@ -1,6 +1,7 @@
 import { asset } from "./assets";
-export type Mode = "farm" | "pets" | "forest" | "zoo" | "sea" | "city";
-/** A set on the start screen: one of the six, or everything shuffled together. */
+export type Mode =
+  "farm" | "pets" | "forest" | "zoo" | "sea" | "city" | "music" | "insects" | "home" | "weather";
+/** A set on the start screen: one of the ten, or everything shuffled together. */
 export type SetId = Mode | "mix";
 
 export type Item = {
@@ -111,6 +112,42 @@ export const ITEMS: Item[] = [
   { id: "roller", name: "каток", mode: "city" },
   { id: "forklift", name: "погрузчик", mode: "city" },
   { id: "combine", name: "комбайн", mode: "city" },
+  { id: "drum", name: "барабан", mode: "music", sound: true },
+  { id: "trumpet", name: "труба", mode: "music", sound: true },
+  { id: "violin", name: "скрипка", mode: "music", sound: true },
+  { id: "piano", name: "пианино", mode: "music", sound: true },
+  { id: "guitar", name: "гитара", mode: "music", sound: true },
+  { id: "accordion", name: "гармошка", mode: "music" },
+  { id: "xylophone", name: "ксилофон", mode: "music", sound: true },
+  { id: "flute", name: "флейта", mode: "music", sound: true },
+  { id: "tambourine", name: "бубен", mode: "music", sound: true },
+  { id: "grasshopper", name: "кузнечик", mode: "insects", sound: true },
+  { id: "mosquito", name: "комар", mode: "insects", sound: true },
+  { id: "fly", name: "муха", mode: "insects", sound: true },
+  { id: "bumblebee", name: "шмель", mode: "insects", sound: true },
+  { id: "ladybird", name: "божья коровка", mode: "insects" },
+  { id: "butterfly", name: "бабочка", mode: "insects" },
+  { id: "dragonfly", name: "стрекоза", mode: "insects" },
+  { id: "cicada", name: "цикада", mode: "insects", sound: true },
+  { id: "beetle", name: "жук", mode: "insects" },
+  { id: "doorbell", name: "звонок", mode: "home", sound: true },
+  { id: "kettle", name: "чайник", mode: "home", sound: true },
+  { id: "alarmclock", name: "будильник", mode: "home", sound: true },
+  { id: "telephone", name: "телефон", mode: "home", sound: true },
+  { id: "vacuum", name: "пылесос", mode: "home", sound: true },
+  { id: "washer", name: "стиральная машина", mode: "home" },
+  { id: "cuckooclock", name: "часы с кукушкой", mode: "home", sound: true },
+  { id: "rubberduck", name: "уточка", mode: "home", sound: true },
+  { id: "toilet", name: "унитаз", mode: "home", sound: true },
+  { id: "rain", name: "дождь", mode: "weather", sound: true },
+  { id: "thunder", name: "гроза", mode: "weather", sound: true },
+  { id: "wind", name: "ветер", mode: "weather", sound: true },
+  { id: "snowman", name: "снеговик", mode: "weather" },
+  { id: "campfire", name: "костёр", mode: "weather", sound: true },
+  { id: "waterfall", name: "водопад", mode: "weather", sound: true },
+  { id: "wave", name: "волна", mode: "weather", sound: true },
+  { id: "sun", name: "солнышко", mode: "weather" },
+  { id: "rainbow", name: "радуга", mode: "weather" },
 ];
 
 /** One short fact the voice tells after a right answer. */
@@ -213,6 +250,42 @@ export const FACTS: Record<string, string> = {
   roller: "Каток делает дорогу ровной.",
   forklift: "Погрузчик поднимает тяжёлые коробки.",
   combine: "Комбайн собирает урожай.",
+  drum: "По барабану стучат палочками: бум-бум!",
+  trumpet: "Труба играет громко и звонко.",
+  violin: "На скрипке играют смычком.",
+  piano: "У пианино чёрные и белые клавиши.",
+  guitar: "У гитары шесть струн.",
+  accordion: "Гармошку растягивают и сжимают.",
+  xylophone: "Ксилофон звенит разноцветными пластинками.",
+  flute: "Во флейту дуют, и она поёт.",
+  tambourine: "Бубен звенит, когда его трясут.",
+  grasshopper: "Кузнечик высоко прыгает.",
+  mosquito: "Комар тоненько пищит.",
+  fly: "Муха жужжит и летает по дому.",
+  bumblebee: "Шмель большой, мохнатый и громко жужжит.",
+  ladybird: "У божьей коровки чёрные точки на спинке.",
+  butterfly: "У бабочки красивые крылышки.",
+  dragonfly: "У стрекозы большие глаза и четыре крыла.",
+  cicada: "Цикада громко поёт в жаркий день.",
+  beetle: "У жука твёрдая блестящая спинка.",
+  doorbell: "Звонок звенит, когда приходят гости.",
+  kettle: "Чайник свистит, когда вода закипела.",
+  alarmclock: "Будильник будит нас утром.",
+  telephone: "По телефону можно позвонить бабушке.",
+  vacuum: "Пылесос собирает пыль.",
+  washer: "Стиральная машина стирает одежду.",
+  cuckooclock: "Из часов выглядывает кукушка.",
+  rubberduck: "С уточкой весело купаться в ванне.",
+  toilet: "Унитаз шумит, когда смываешь воду.",
+  rain: "После дождя бывают лужи.",
+  thunder: "В грозу гремит гром и сверкает молния.",
+  wind: "Ветер качает деревья.",
+  snowman: "Снеговика лепят из снега.",
+  campfire: "Костёр трещит и греет.",
+  waterfall: "Водопад шумит и брызгается.",
+  wave: "Волны набегают на берег.",
+  sun: "Солнышко светит и греет.",
+  rainbow: "У радуги семь цветов.",
 };
 
 export const BY_ID: Record<string, Item> = Object.fromEntries(ITEMS.map((item) => [item.id, item]));
@@ -238,6 +311,25 @@ export const MODES: { id: Mode; label: string; cover: string; parade: string[] }
     label: "Машины",
     cover: "excavator",
     parade: ["tractor", "bus", "excavator", "train"],
+  },
+  { id: "music", label: "Музыка", cover: "drum", parade: ["guitar", "drum", "trumpet", "piano"] },
+  {
+    id: "insects",
+    label: "Насекомые",
+    cover: "ladybird",
+    parade: ["butterfly", "ladybird", "bumblebee", "grasshopper"],
+  },
+  {
+    id: "home",
+    label: "Дом",
+    cover: "kettle",
+    parade: ["rubberduck", "kettle", "alarmclock", "telephone"],
+  },
+  {
+    id: "weather",
+    label: "Погода",
+    cover: "rainbow",
+    parade: ["sun", "rainbow", "rain", "snowman"],
   },
 ];
 
@@ -387,6 +479,17 @@ const SIMILAR: string[][] = [
   ["frog", "cricket", "bee"],
   ["bus", "train", "tractor"],
   ["excavator", "bulldozer", "crane", "roller", "forklift", "dumptruck", "mixer", "combine"],
+  ["violin", "guitar", "piano"],
+  ["trumpet", "flute", "accordion"],
+  ["drum", "tambourine", "xylophone"],
+  ["mosquito", "fly", "bumblebee", "bee"],
+  ["grasshopper", "cicada", "cricket"],
+  ["ladybird", "beetle"],
+  ["butterfly", "dragonfly"],
+  ["doorbell", "telephone", "alarmclock", "cuckooclock"],
+  ["kettle", "vacuum", "washer", "toilet"],
+  ["rain", "waterfall", "wave", "thunder", "wind"],
+  ["sun", "rainbow", "snowman"],
 ];
 
 /** Toys easy to mix up with this one, limited to the given pool. */
@@ -405,9 +508,16 @@ export const WORLDS: Record<Mode, { sky: string }> = {
   zoo: { sky: "#fdd1b1" },
   sea: { sky: "#b2dbf4" },
   city: { sky: "#b3daf2" },
+  music: { sky: "#fde1a7" },
+  insects: { sky: "#c0deed" },
+  home: { sky: "#fbdfbd" },
+  weather: { sky: "#b4e0fa" },
 };
 
-export const worldSrc = (mode: Mode) => asset(`/worlds/${mode}.webp`);
+/** Insects live in the forest picture, weather over the farm fields. */
+const WORLD_FILE: Partial<Record<Mode, Mode>> = { insects: "forest", weather: "farm" };
+
+export const worldSrc = (mode: Mode) => asset(`/worlds/${WORLD_FILE[mode] ?? mode}.webp`);
 
 export const guestSrc = (id: string) => asset(`/voice/guest-${id}.mp3`);
 export const setDoneSrc = (mode: Mode) => asset(`/voice/setdone-${mode}.mp3`);

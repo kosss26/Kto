@@ -20,6 +20,13 @@ src = open("src/lib/who-said/content.ts", encoding="utf-8").read()
 items = re.findall(r'\{ id: "(\w+)", name: "([^"]+)"', src)
 meta = {m[0]: (m[1], bool(m[2])) for m in re.findall(r'\{ id: "(\w+)", name: "[^"]+", mode: "(\w+)"(, sound: true)?', src)}
 WHERE = {"pets": "дома", "farm": "на ферме", "forest": "в лесу", "sea": "в море", "zoo": "в жарких странах"}
+# «Как … ?» sounds odd with one verb for everything outside the animal sets
+HOW_VERB = {"drum": "стучит", "trumpet": "играет", "violin": "играет", "piano": "играет",
+            "guitar": "играет", "flute": "играет", "xylophone": "звенит", "tambourine": "звенит",
+            "grasshopper": "стрекочет", "cicada": "стрекочет", "mosquito": "пищит",
+            "kettle": "свистит", "vacuum": "гудит", "toilet": "шумит", "rubberduck": "пищит",
+            "telephone": "звонит", "thunder": "гремит", "campfire": "трещит"}
+HOW_LINE = {"cuckooclock": "Как кукуют часы с кукушкой?"}
 out = "public/voice"
 os.makedirs(out, exist_ok=True)
 
@@ -43,8 +50,9 @@ for item_id, name in items:
         lines[f"fact-{item_id}"] = facts[item_id]
     mode, has_sound = meta[item_id]
     if has_sound:
-        verb = "звучит" if mode == "city" else "говорит"
-        lines[f"how-{item_id}"] = f"Как {verb} {name}?"
+        verb = HOW_VERB.get(item_id) or {"city": "звучит", "music": "звучит", "home": "звенит",
+                                          "insects": "жужжит", "weather": "шумит"}.get(mode, "говорит")
+        lines[f"how-{item_id}"] = HOW_LINE.get(item_id) or f"Как {verb} {name}?"
     if mode in WHERE and item_id != "panda":
         lines[f"homeq-{item_id}"] = f"Где живёт {name}?"
         lines[f"lives-{item_id}"] = f"{name[0].upper() + name[1:]} живёт {WHERE[mode]}."
@@ -62,6 +70,10 @@ SET_DONE = {
     "zoo": "Ура! Весь зоопарк в альбоме!",
     "sea": "Ура! Все морские жители в альбоме!",
     "city": "Ура! Все машины в альбоме!",
+    "music": "Ура! Все инструменты в альбоме!",
+    "insects": "Ура! Все насекомые в альбоме!",
+    "home": "Ура! Все домашние вещи в альбоме!",
+    "weather": "Ура! Вся погода в альбоме!",
 }
 for mode, text in SET_DONE.items():
     lines[f"setdone-{mode}"] = text

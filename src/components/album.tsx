@@ -15,7 +15,18 @@ import { useTimers } from "@/lib/who-said/game-utils";
 import { useProgress } from "@/lib/who-said/progress";
 import { BackIcon, Hills, Notes } from "./kit";
 
-const TAB_MATS = ["#bfe3a5", "#f7c9dc", "#ffd9a8", "#fff0a6", "#bfe0f5", "#d8cdf5"];
+const TAB_MATS = [
+  "#bfe3a5",
+  "#f7c9dc",
+  "#ffd9a8",
+  "#fff0a6",
+  "#bfe0f5",
+  "#d8cdf5",
+  "#ffd0b5",
+  "#c9eedd",
+  "#ffe2a0",
+  "#cfe0ff",
+];
 
 /** «Мои наклейки»: every toy, collected ones in colour, the rest as silhouettes to look forward to. */
 export function Album({ onBack }: { onBack: () => void }) {

@@ -56,6 +56,35 @@
 | badger | BBC Sound Effects NHU05085083 | BBC | RemArc: только личное, учебное, исследовательское использование |
 | dumptruck | BBC Sound Effects 07001004 (высыпание камня) | BBC | RemArc: только личное, учебное, исследовательское использование |
 | crane | BBC Sound Effects 07054068 (лебёдка) | BBC | RemArc: только личное, учебное, исследовательское использование |
+| grasshopper | BBC Sound Effects NHU05080070 (зелёный кузнечик) | BBC | RemArc: только личное, учебное, исследовательское использование |
+| mosquito | BBC Sound Effects NHU05038084 | BBC | RemArc: только личное, учебное, исследовательское использование |
+| fly | BBC Sound Effects 07005163 (муха) | BBC | RemArc: только личное, учебное, исследовательское использование |
+| bumblebee | BBC Sound Effects NHU05096160 | BBC | RemArc: только личное, учебное, исследовательское использование |
+| cicada | BBC Sound Effects NHU05041091 | BBC | RemArc: только личное, учебное, исследовательское использование |
+| drum | BBC Sound Effects 07011240 (марш на барабане) | BBC | RemArc: только личное, учебное, исследовательское использование |
+| doorbell | BBC Sound Effects 07042240 | BBC | RemArc: только личное, учебное, исследовательское использование |
+| kettle | BBC Sound Effects 07067043 | BBC | RemArc: только личное, учебное, исследовательское использование |
+| alarmclock | BBC Sound Effects 07022171 | BBC | RemArc: только личное, учебное, исследовательское использование |
+| telephone | BBC Sound Effects 07040143 | BBC | RemArc: только личное, учебное, исследовательское использование |
+| vacuum | BBC Sound Effects 07042264 | BBC | RemArc: только личное, учебное, исследовательское использование |
+| cuckooclock | BBC Sound Effects 07022210 | BBC | RemArc: только личное, учебное, исследовательское использование |
+| rubberduck | BBC Sound Effects 07036130 | BBC | RemArc: только личное, учебное, исследовательское использование |
+| toilet | BBC Sound Effects 07019082 | BBC | RemArc: только личное, учебное, исследовательское использование |
+| rain | BBC Sound Effects 00008090 | BBC | RemArc: только личное, учебное, исследовательское использование |
+| thunder | BBC Sound Effects 07005226 | BBC | RemArc: только личное, учебное, исследовательское использование |
+| wind | BBC Sound Effects NHU05075087 | BBC | RemArc: только личное, учебное, исследовательское использование |
+| campfire | BBC Sound Effects NHU05002101 | BBC | RemArc: только личное, учебное, исследовательское использование |
+| waterfall | BBC Sound Effects NHU05050014 | BBC | RemArc: только личное, учебное, исследовательское использование |
+| wave | BBC Sound Effects NHU05015066 | BBC | RemArc: только личное, учебное, исследовательское использование |
+| piano | University of Iowa Electronic Music Studios, MIS | University of Iowa | свободно, без ограничений |
+| trumpet | University of Iowa Electronic Music Studios, MIS | University of Iowa | свободно, без ограничений |
+| violin | University of Iowa Electronic Music Studios, MIS | University of Iowa | свободно, без ограничений |
+| flute | University of Iowa Electronic Music Studios, MIS | University of Iowa | свободно, без ограничений |
+| xylophone | University of Iowa Electronic Music Studios, MIS | University of Iowa | свободно, без ограничений |
+| guitar | University of Iowa Electronic Music Studios, MIS | University of Iowa | свободно, без ограничений |
+| tambourine | University of Iowa Electronic Music Studios, MIS | University of Iowa | свободно, без ограничений |
+
+Мелодии инструментов собраны из отдельных нот скриптом `tools/make-melody.py`.
 
 ## Голос
 

@@ -11,7 +11,7 @@ test("switched-off sets disappear from the set picker", async (t) => {
   await page.click(".parents-close");
   await page.click(".game-tile.is-quiz");
   await page.waitForTimeout(300);
-  assert.equal(await page.locator(".sets-screen .set:not(.mix)").count(), 4);
+  assert.equal(await page.locator(".sets-screen .set:not(.mix)").count(), 8);
   assert.deepEqual(errors, []);
   await browser.close();
 });
