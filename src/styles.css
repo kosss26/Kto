@@ -3332,12 +3332,6 @@ body {
   transform: translateY(28%);
 }
 
-.hide-spot.is-found .hider {
-  opacity: 1;
-  z-index: 3;
-  transform: translateY(-38%) scale(1.08);
-}
-
 .hide-spot.is-found .bush-art {
   animation: rustle 0.4s ease-in-out 2;
 }
@@ -3363,23 +3357,6 @@ body {
   color: var(--color-ink-soft);
 }
 
-.hide-plate {
-  opacity: 1;
-  bottom: auto;
-  top: -0.6rem;
-  transform: translate(-50%, 0);
-  z-index: 4;
-  animation: plate-in 0.45s cubic-bezier(0.2, 0.9, 0.2, 1.3) 0.3s backwards;
-}
-
-.hide-spot .sparks {
-  z-index: 4;
-}
-
-.hide-spot.is-found .sparks i {
-  animation: burst 0.95s ease-out forwards;
-}
-
 @keyframes rustle {
   0%,
   100% {
@@ -3396,11 +3373,6 @@ body {
 /* bushes stand on the ground of the world picture */
 .bushes {
   padding-bottom: clamp(1.5rem, 6dvh, 3.5rem);
-}
-
-.hide-plate {
-  top: auto;
-  bottom: -0.4rem;
 }
 
 /* shelf: «Прятки» and «Мама и малыш» side by side */
@@ -3526,11 +3498,130 @@ body {
   font-size: 0.95rem;
 }
 
-.hide-plate {
-  bottom: 2%;
-  font-size: clamp(1rem, 4.4vw, 1.25rem);
-}
-
 .bushes[data-count="3"] > :last-child {
   width: min(50%, calc((100dvh - 15rem) / 2 * 1.15));
+}
+
+/* «Прятки», found: the bushes step back, the toy jumps out of its bush into the middle */
+.bushes {
+  transition:
+    opacity 0.45s ease,
+    filter 0.45s ease,
+    transform 0.45s ease;
+}
+
+.bushes.is-solved {
+  opacity: 0.55;
+  filter: blur(2px) saturate(0.7);
+  transform: scale(0.93);
+  pointer-events: none;
+}
+
+.hide-reveal {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  padding-top: 4%;
+  pointer-events: none;
+}
+
+/* soft light behind the toy so it reads clearly over the blurred bushes */
+.hide-reveal::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  width: min(92vw, 60dvh);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgb(255 255 255 / 85%) 0%,
+    rgb(255 250 230 / 55%) 45%,
+    transparent 70%
+  );
+  animation: reveal-glow 0.5s ease-out 0.15s backwards;
+}
+
+.hide-reveal-toy {
+  position: relative;
+  width: min(68vw, 44dvh);
+  animation: reveal-jump 0.75s cubic-bezier(0.25, 0.9, 0.3, 1.15) both;
+}
+
+.hide-reveal-toy img {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 10px 8px rgb(40 40 30 / 28%));
+}
+
+.hide-reveal-toy .sparks i {
+  animation: burst 0.95s ease-out 0.45s forwards;
+}
+
+.hide-reveal-plate {
+  position: relative;
+  left: auto;
+  bottom: auto;
+  margin-top: 0.6rem;
+  font-size: clamp(1.15rem, 5.5vw, 1.5rem);
+  transform: none;
+  opacity: 1;
+  animation: reveal-plate 0.45s cubic-bezier(0.2, 0.9, 0.2, 1.3) 0.55s backwards;
+}
+
+@keyframes reveal-jump {
+  0% {
+    opacity: 0;
+    transform: translate(var(--from-x), var(--from-y)) scale(0.32);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(var(--from-x), calc(var(--from-y) - 6%)) scale(0.36);
+  }
+  /* up out of the bush, then a hop to the front */
+  45% {
+    transform: translate(calc(var(--from-x) * 0.45), calc(var(--from-y) * 0.45 - 18%)) scale(0.75);
+  }
+  80% {
+    transform: translate(0, 2%) scale(1.05, 0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+@keyframes reveal-glow {
+  from {
+    opacity: 0;
+    scale: 0.5;
+  }
+}
+
+@keyframes reveal-plate {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.8);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hide-reveal-toy,
+  .hide-reveal::before,
+  .hide-reveal-plate {
+    animation: none;
+  }
+}
+
+.hide-reveal-toy .notes i {
+  font-size: clamp(1.6rem, 7vw, 2.2rem);
+  text-shadow:
+    0 0 0.1em #fff,
+    0 2px 0 rgb(74 45 94 / 25%);
 }

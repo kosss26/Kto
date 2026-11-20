@@ -88,6 +88,8 @@ export function HideGame({ set, onHome }: { set: SetId; onHome: () => void }) {
   const [calling, setCalling] = useState(false);
   const [found, setFound] = useState<string[]>([]);
   const [solved, setSolved] = useState(false);
+  /** Where the found toy jumps out from, relative to the screen centre. */
+  const [from, setFrom] = useState({ x: 0, y: 0 });
   const asked = useRef<string[]>([]);
   const lock = useRef(false);
   const solvedRef = useRef(false);
@@ -156,12 +158,17 @@ export function HideGame({ set, onHome }: { set: SetId; onHome: () => void }) {
     if (!done && !solvedRef.current) later(call, 500);
   });
 
-  function look(index: number) {
+  function look(index: number, el: HTMLElement) {
     if (done || solved || lock.current || checked.includes(index)) return;
     lock.current = true;
     if (index === spot) {
       if (!checked.length) noteHit(toy);
       solvedRef.current = true;
+      const r = el.getBoundingClientRect();
+      setFrom({
+        x: r.left + r.width / 2 - window.innerWidth / 2,
+        y: r.top + r.height / 2 - window.innerHeight * 0.52,
+      });
       setSolved(true);
       playYes();
       setFound((list) => [...list, toy]);
@@ -222,7 +229,7 @@ export function HideGame({ set, onHome }: { set: SetId; onHome: () => void }) {
         <p className="hint-line">Кто спрятался? Найди по голосу!</p>
       </div>
 
-      <div className="bushes" data-count={count} key={round}>
+      <div className={`bushes${solved ? " is-solved" : ""}`} data-count={count} key={round}>
         {Array.from({ length: count }, (_, i) => {
           const here = i === spot;
           const empty = checked.includes(i);
@@ -234,28 +241,36 @@ export function HideGame({ set, onHome }: { set: SetId; onHome: () => void }) {
                 here && solved ? " is-found" : ""
               }${here && peek ? " is-peek" : ""}${here && calling && !solved ? " is-rustle" : ""}`}
               style={{ animationDelay: `${i * 0.08}s` }}
-              onClick={() => look(i)}
+              onClick={(e) => look(i, e.currentTarget)}
               aria-label={here && solved ? BY_ID[toy].name : `Укрытие ${i + 1}`}
               aria-disabled={solved || empty}
             >
-              {here && toy && (
+              {here && toy && !solved && (
                 <span className="hider">
                   <img src={cardSrc(toy)} alt="" draggable={false} />
-                  {solved && <Notes />}
                 </span>
               )}
               <Spot kind={kinds[i] ?? "bush"} />
               {empty && <span className="hide-none">пусто</span>}
-              {here && solved && (
-                <>
-                  <span className="plate hide-plate">{BY_ID[toy].name}</span>
-                  <Sparks />
-                </>
-              )}
             </button>
           );
         })}
       </div>
+      {solved && toy && (
+        // found: the toy jumps out of its bush to the middle, the bushes step back
+        <div
+          className="hide-reveal"
+          style={{ ["--from-x" as string]: `${from.x}px`, ["--from-y" as string]: `${from.y}px` }}
+          aria-live="polite"
+        >
+          <span className="hide-reveal-toy">
+            <img src={cardSrc(toy)} alt="" draggable={false} />
+            <Notes />
+            <Sparks />
+          </span>
+          <span className="plate hide-reveal-plate">{BY_ID[toy].name}</span>
+        </div>
+      )}
       <Backdrop set={set} />
     </main>
   );
