@@ -1,0 +1,49 @@
+# Plays every game in a phone-sized browser on each push and pull request.
+name: Игра в браузере
+
+on:
+  push:
+    branches: [main, "claude/**"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Зависимости
+        run: npm ci --no-audit --no-fund
+
+      - name: Браузер для тестов
+        run: npx playwright install --with-deps chromium
+
+      - name: Проверка типов
+        run: npm run typecheck
+
+      - name: Сборка
+        run: npm run build
+
+      - name: Запуск собранной игры
+        run: node scripts/preview.mjs restart
+
+      - name: Тесты (все игры, настройки, пауза, без интернета)
+        run: npm run test:e2e
+        env:
+          BASE_URL: http://127.0.0.1:8081/
+          OFFLINE: "1"
+
+      - name: Журнал сервера при ошибке
+        if: failure()
+        run: cat .grok/preview.log || true
