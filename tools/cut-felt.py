@@ -27,6 +27,7 @@ SHEETS = {
     "babies-3.png": (2, ["baby-crow", "baby-owl", "baby-sparrow", "baby-cuckoo", "baby-woodpecker", "baby-nightingale", "baby-seagull", "baby-turkey", "baby-robin", "baby-stork"], 150),
     "babies-4.png": (3, ["baby-octopus", "baby-crab", "baby-turtle", "baby-seahorse", "baby-jellyfish", "baby-starfish", "baby-stingray", "baby-shark", "baby-clownfish"], 200),
     "babies-5.png": (3, ["baby-frog", "baby-bee", "baby-cricket", "baby-gecko", "baby-crocodile", "baby-snake", "baby-swan", "baby-flamingo", "baby-ostrich"], 150),
+    "hiding.png": (3, ["hide-bush", "hide-hay", "hide-fence", "hide-stump", "hide-spruce", "hide-rock", "hide-grass", "hide-coral", "hide-boxes"], 150),
     "sheet-12.png": (3, ["tractor", "excavator", "bulldozer", "dumptruck", "crane", "mixer", "roller", "forklift", "combine"], 40),
 }
 OUT = 360

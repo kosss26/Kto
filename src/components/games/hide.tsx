@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { asset } from "@/lib/who-said/assets";
 import { clipMs, playClip, playSoft, playYes, prepareClips, stopClip } from "@/lib/who-said/audio";
 import {
   BY_ID,
@@ -11,7 +12,7 @@ import {
   cardSrc,
   type SetId,
 } from "@/lib/who-said/content";
-import { useOnResume, usePaused, useQuiet, useTimers } from "@/lib/who-said/game-utils";
+import { useOnResume, usePaused, useQuiet, useTimers, shuffle } from "@/lib/who-said/game-utils";
 import {
   activeIdsFor,
   getProgress,
@@ -43,33 +44,26 @@ function pool(set: SetId) {
 /** Left −0.8 … right 0.8: the call comes from the bush the toy sits behind. */
 const panFor = (spot: number, count: number) => (count < 2 ? 0 : -0.8 + (1.6 * spot) / (count - 1));
 
-/** A felt bush with stitching, drawn in code; a few shades so rows don't look copied. */
-function Bush({ shade }: { shade: number }) {
-  const greens = [
-    ["#5bb36a", "#4a9c58"],
-    ["#6cc27a", "#56a865"],
-    ["#4fa65f", "#3f8e4e"],
-    ["#74c784", "#5eae6c"],
-  ][shade % 4];
+/** Felt hiding places that fit each world (cut from assets/felt-sheets/hiding.png). */
+const SPOTS: Record<SetId, string[]> = {
+  farm: ["hay", "fence", "bush"],
+  pets: ["boxes", "bush"],
+  forest: ["stump", "spruce", "bush"],
+  zoo: ["rock", "grass"],
+  sea: ["coral", "rock"],
+  city: ["boxes", "rock", "fence"],
+  mix: ["bush", "hay", "fence", "stump", "spruce", "rock", "grass", "coral", "boxes"],
+};
+
+/** Different hiding places in one round where the world has enough of them. */
+function pickSpots(set: SetId, count: number) {
+  const kinds = shuffle(SPOTS[set]);
+  return Array.from({ length: count }, (_, i) => kinds[i % kinds.length]);
+}
+
+function Spot({ kind }: { kind: string }) {
   return (
-    <svg className="bush-art" viewBox="0 0 120 90" aria-hidden="true">
-      <path
-        d="M10 84 C2 70 8 52 24 50 C22 32 42 22 56 32 C62 14 92 16 94 38 C112 38 120 58 110 72 C114 80 108 86 100 86 L18 86 Z"
-        fill={greens[0]}
-      />
-      <path d="M18 86 C30 74 48 72 60 80 C72 70 92 72 102 86 Z" fill={greens[1]} />
-      <path
-        d="M16 78 C10 66 16 56 28 56 C28 40 44 32 56 40 C62 24 86 24 88 42 C104 44 110 60 102 72"
-        fill="none"
-        stroke="rgb(255 255 255 / 75%)"
-        strokeWidth="2"
-        strokeDasharray="5 4"
-        strokeLinecap="round"
-      />
-      <circle cx="38" cy="60" r="4" fill="#ff8f8f" />
-      <circle cx="80" cy="50" r="3.5" fill="#fff0a6" />
-      <circle cx="94" cy="68" r="3" fill="#ff8f8f" />
-    </svg>
+    <img className="bush-art" src={asset(`/felt/hide-${kind}.webp`)} alt="" draggable={false} />
   );
 }
 
@@ -80,6 +74,7 @@ export function HideGame({ set, onHome }: { set: SetId; onHome: () => void }) {
   const [toy, setToy] = useState("");
   const [count, setCount] = useState(2);
   const [spot, setSpot] = useState(0);
+  const [kinds, setKinds] = useState<string[]>([]);
   const [checked, setChecked] = useState<number[]>([]);
   const [shaking, setShaking] = useState<number | null>(null);
   const [calling, setCalling] = useState(false);
@@ -114,6 +109,7 @@ export function HideGame({ set, onHome }: { set: SetId; onHome: () => void }) {
       setToy(id);
       setCount(bushes);
       setSpot(at);
+      setKinds(pickSpots(set, bushes));
       setChecked([]);
       setSolved(false);
       lock.current = false;
@@ -231,7 +227,7 @@ export function HideGame({ set, onHome }: { set: SetId; onHome: () => void }) {
               }${here && peek ? " is-peek" : ""}${here && calling && !solved ? " is-rustle" : ""}`}
               style={{ animationDelay: `${i * 0.08}s` }}
               onClick={() => look(i)}
-              aria-label={here && solved ? BY_ID[toy].name : `Куст ${i + 1}`}
+              aria-label={here && solved ? BY_ID[toy].name : `Укрытие ${i + 1}`}
               aria-disabled={solved || empty}
             >
               {here && (
@@ -240,7 +236,7 @@ export function HideGame({ set, onHome }: { set: SetId; onHome: () => void }) {
                   {solved && <Notes />}
                 </span>
               )}
-              <Bush shade={i} />
+              <Spot kind={kinds[i] ?? "bush"} />
               {empty && <span className="hide-none">пусто</span>}
               {here && solved && (
                 <>

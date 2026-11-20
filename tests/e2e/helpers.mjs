@@ -32,7 +32,9 @@ export async function openPhone(t, { progress, autoplay = false } = {}) {
       localStorage.setItem("kto-skazal:progress", JSON.stringify(seed));
     }
   }, progress ?? null);
-  await page.goto(BASE, { waitUntil: "networkidle" });
+  // not "networkidle": the built app keeps downloading files for offline play in the background
+  await page.goto(BASE, { waitUntil: "load" });
+  await page.locator(".game-tile, .rest").first().waitFor({ timeout: 60000 });
   await page.waitForTimeout(500);
   return { browser, context, page, errors };
 }

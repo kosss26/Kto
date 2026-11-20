@@ -89,6 +89,8 @@ export function allMediaUrls() {
   }
   urls.add(WHOSE_BABY);
   for (const u of Object.values(HIDE)) urls.add(u);
+  for (const k of ["bush", "hay", "fence", "stump", "spruce", "rock", "grass", "coral", "boxes"])
+    urls.add(asset(`/felt/hide-${k}.webp`));
   for (const h of HOMES) urls.add(asset(`/felt/home-${h.id}.webp`));
   for (const u of [...PRAISE, VOICE.bravo, VOICE.again, MUSIC_URL, asset("/voice/rest.mp3")])
     urls.add(u);

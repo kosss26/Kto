@@ -3497,3 +3497,27 @@ body {
     width: 1.9rem;
   }
 }
+
+/* felt hiding places: the object fills the middle of a square picture */
+.hide-spot .bush-art {
+  margin-bottom: -12%;
+}
+
+.hider {
+  bottom: 22%;
+  width: 66%;
+}
+
+.bushes {
+  padding-bottom: clamp(0.4rem, 2.5dvh, 1.6rem);
+  column-gap: clamp(0.2rem, 1.5vw, 0.6rem);
+}
+
+.hide-spot .bush-art {
+  width: 122%;
+  margin: 0 -11% -16%;
+}
+
+.hide-none {
+  top: 40%;
+}
